@@ -1,0 +1,10 @@
+# local virtualenv
+.venv/
+
+# generated artefacts
+logs_bmab/
+logs_bmab_smoke/
+
+# python bytecode
+__pycache__/
+*.pyc

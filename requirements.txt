@@ -1,0 +1,6 @@
+numpy
+scipy
+openai
+pydantic
+pymoo
+pytz
