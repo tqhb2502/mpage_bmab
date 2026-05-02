@@ -38,6 +38,21 @@ _TASKS = {
                  'BIKPEvaluation',   (0.0, 60.0)),
 }
 
+# Named ablation presets matching IDEA.md §4.3.
+# Each value is a dict of overrides applied on top of the parsed CLI args.
+ABLATIONS = {
+    'full':         {},
+    'no_ph':        {'ph_threshold': 1e9},
+    'no_diversity': {'w_diversity': 0.0},
+    'op_only':      {'disable_cluster_bandit': True},
+    'cluster_only': {'disable_operator_bandit': True},
+    'mpage_budget': {'disable_cluster_bandit': True,
+                     'disable_operator_bandit': True,
+                     'ph_threshold': 1e9,
+                     'w_diversity': 0.0,
+                     'w_rank': 0.0},
+}
+
 
 def _load_evaluation(task_name: str):
     if task_name not in _TASKS:
@@ -77,11 +92,28 @@ def main(argv=None) -> None:
     p.add_argument('--w_rank', type=float, default=0.2)
     p.add_argument('--ph_delta', type=float, default=0.005)
     p.add_argument('--ph_threshold', type=float, default=0.5)
+    p.add_argument('--disable_cluster_bandit', action='store_true',
+                   help="Sample clusters uniformly at random (op_only ablation).")
+    p.add_argument('--disable_operator_bandit', action='store_true',
+                   help="Round-robin operators instead of UCB1 (ablation).")
+    p.add_argument('--ablation', default='full', choices=list(ABLATIONS.keys()),
+                   help="Named ablation preset (see IDEA.md §4.3).")
+    p.add_argument('--method_name', default=None,
+                   help="Override profiler method tag. Defaults to BMAB-<ABLATION>.")
     p.add_argument('--seed', type=int, default=2025)
     p.add_argument('--debug', action='store_true')
     p.add_argument('--review', action='store_true',
                    help="Enable LLM-based reflection / suggestion call.")
     args = p.parse_args(argv)
+
+    # Apply ablation preset on top of parsed args. Explicit CLI flags always
+    # win — applying the preset only sets fields that the preset declares.
+    preset = ABLATIONS[args.ablation]
+    for key, value in preset.items():
+        # only apply when user did not override on the CLI
+        # (argparse stores None defaults for unset args; but most have
+        # numeric defaults, so we apply unconditionally for preset keys)
+        setattr(args, key, value)
 
     api_key = _read_key(args.secret)
     cluster_key = _read_key(args.secret_cluster)
@@ -95,9 +127,10 @@ def main(argv=None) -> None:
 
     task, default_ref = _load_evaluation(args.task)
 
+    method_name = args.method_name or f"BMAB-{args.ablation}"
     profiler = BMABProfiler(log_dir=args.log_dir,
                             evaluation_name=task.__class__.__name__,
-                            method_name='BMAB-LLM',
+                            method_name=method_name,
                             ref_point=default_ref,
                             log_style='complex')
 
@@ -118,13 +151,17 @@ def main(argv=None) -> None:
         w_rank=args.w_rank,
         ph_delta=args.ph_delta,
         ph_threshold=args.ph_threshold,
+        disable_cluster_bandit=args.disable_cluster_bandit,
+        disable_operator_bandit=args.disable_operator_bandit,
         random_seed=args.seed,
         debug_mode=args.debug,
         llm_review=args.review,
         profiler=profiler,
     )
     bmab.run()
-    print(f"\n[BMAB] Done. AUBC = {profiler.aubc(args.budget):.6f}")
+    print(f"\n[BMAB] Done. ablation={args.ablation} task={args.task} "
+          f"budget={args.budget} seed={args.seed} "
+          f"AUBC = {profiler.aubc(args.budget):.6f}")
 
 
 if __name__ == '__main__':

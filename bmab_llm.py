@@ -64,6 +64,8 @@ class BMABLLM:
                  gamma_budget: float = 0.5,
                  ph_delta: float = 0.005,
                  ph_threshold: float = 0.5,
+                 disable_cluster_bandit: bool = False,
+                 disable_operator_bandit: bool = False,
                  # reward weights
                  w_quality: float = 1.0,
                  w_diversity: float = 0.3,
@@ -144,6 +146,9 @@ class BMABLLM:
         self._review_call_cost = review_call_cost
         self._ref_point = np.asarray(ref_point, dtype=float)
         self._debug = debug_mode
+        self._disable_cluster_bandit = disable_cluster_bandit
+        self._disable_operator_bandit = disable_operator_bandit
+        self._rr_idx = 0  # round-robin index used when operator bandit is off
 
         # profiler
         self._profiler = profiler
@@ -256,15 +261,24 @@ class BMABLLM:
                and self._budget.can_afford(self._gen_call_cost)):
 
             # Decide operator first (persistent bandit), then cluster.
-            op = self._operator_bandit.select()
-            try:
-                arm = self._cluster_bandit.select(
-                    budget_fraction=self._budget.fraction_remaining(),
-                    restrict_operator=op,
-                )
-            except Exception:
-                break
-            cluster_idx, op_picked = arm
+            if self._disable_operator_bandit:
+                op = OPERATORS[self._rr_idx % len(OPERATORS)]
+                self._rr_idx += 1
+            else:
+                op = self._operator_bandit.select()
+
+            if self._disable_cluster_bandit:
+                cluster_idx = random.randrange(n_clusters)
+                arm = (cluster_idx, op)
+            else:
+                try:
+                    arm = self._cluster_bandit.select(
+                        budget_fraction=self._budget.fraction_remaining(),
+                        restrict_operator=op,
+                    )
+                except Exception:
+                    break
+                cluster_idx, op_picked = arm
 
             # Build prompt + parents
             prompt_builder, parents_used = self._make_prompt(
@@ -310,8 +324,12 @@ class BMABLLM:
                 invalid=(not ok),
             )
 
-            self._operator_bandit.update(op, reward, cost=cost)
-            drift = self._cluster_bandit.update(arm, reward, cost=cost)
+            if not self._disable_operator_bandit:
+                self._operator_bandit.update(op, reward, cost=cost)
+            if self._disable_cluster_bandit:
+                drift = False
+            else:
+                drift = self._cluster_bandit.update(arm, reward, cost=cost)
 
             if self._debug:
                 print(f"[BMAB] gen={self._gen} op={op} cluster={cluster_idx} "
