@@ -44,7 +44,17 @@ ABLATIONS: List[str] = [
 ALL_ABLATIONS: List[str] = [
     'full', 'no_ph', 'no_diversity', 'op_only',
     'cluster_only', 'mpage_budget',
+    # `mpage_orig` dispatches to mpage_bmab.mpage_orig (the actual MPaGE class
+    # capped at B sample calls) instead of mpage_bmab.main. The runner picks
+    # the right entry-point automatically.
+    'mpage_orig',
 ]
+
+# Ablations that run through ``mpage_bmab.mpage_orig`` instead of the standard
+# ``mpage_bmab.main`` entry point. These exist so we can compare BMAB-LLM
+# against the actual upstream MPaGE class under the same budget, matching the
+# "MPaGE-budget" / "MPaGE-orig" baselines in IDEA.md §4.3.
+MPAGE_ORIG_ABLATIONS: List[str] = ['mpage_orig']
 
 
 # --------------------------------------------------------------------------- #
@@ -109,6 +119,45 @@ SUITES: Dict[str, Suite] = {
         budgets=BUDGETS,
         seeds=SEEDS,
         description='4 ablations × 4 tasks × 4 budgets × 5 seeds (320 runs).',
+    ),
+
+    # --- MPaGE-comparison suites (use the actual upstream MPaGE class) ---
+    'mpage_smoke': Suite(
+        name='mpage_smoke',
+        ablations=['mpage_orig', 'full'],
+        tasks=['bi_tsp'],
+        budgets=[15],
+        seeds=[2025],
+        description='Cheapest end-to-end sanity check for the MPaGE-orig vs '
+                    'BMAB-LLM comparison pipeline.',
+    ),
+    'mpage_compare': Suite(
+        name='mpage_compare',
+        ablations=['mpage_orig', 'full'],
+        tasks=['bi_tsp'],
+        budgets=[25, 50, 100, 200],
+        seeds=[2025, 2026, 2027],
+        description='Headline MPaGE-orig vs BMAB-LLM-full on bi_tsp, '
+                    'all budgets, 3 seeds (24 runs). Drop-in equivalent to '
+                    'the IDEA.md §4.3 "MPaGE-budget" comparison.',
+    ),
+    'mpage_compare_full': Suite(
+        name='mpage_compare_full',
+        ablations=['mpage_orig', 'full'],
+        tasks=TASKS,
+        budgets=BUDGETS,
+        seeds=SEEDS,
+        description='Full MPaGE-orig vs BMAB-LLM-full matrix '
+                    '(2 × 4 × 4 × 5 = 160 runs). Expensive.',
+    ),
+    'all_methods': Suite(
+        name='all_methods',
+        ablations=['mpage_orig', 'full', 'no_ph', 'no_diversity', 'op_only'],
+        tasks=['bi_tsp'],
+        budgets=[25, 50, 100, 200],
+        seeds=[2025, 2026, 2027],
+        description='MPaGE-orig + all 4 BMAB ablations on bi_tsp × all budgets × '
+                    '3 seeds (60 runs). Fully populates an AUBC table.',
     ),
 }
 

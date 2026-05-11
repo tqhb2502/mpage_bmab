@@ -45,7 +45,8 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 from mpage_bmab.experiments.configs import (
-    ALL_ABLATIONS, BUDGETS, POP_SIZES, SEEDS, SUITES, TASKS, run_id,
+    ALL_ABLATIONS, BUDGETS, MPAGE_ORIG_ABLATIONS, POP_SIZES, SEEDS, SUITES,
+    TASKS, run_id,
 )
 
 
@@ -75,20 +76,43 @@ def _build_cmd(*, python: str, ablation: str, task: str, budget: int,
                llm_model: str, llm_cluster_model: str,
                openai_base_url: str, pop_size: int,
                extra: Optional[List[str]] = None) -> List[str]:
-    cmd = [
-        python, '-m', 'mpage_bmab.main',
-        '--ablation', ablation,
-        '--task', task,
-        '--budget', str(budget),
-        '--seed', str(seed),
-        '--pop_size', str(pop_size),
-        '--log_dir', log_dir,
-        '--secret', secret,
-        '--secret_cluster', secret_cluster,
-        '--llm_model', llm_model,
-        '--llm_cluster_model', llm_cluster_model,
-        '--openai_base_url', openai_base_url,
-    ]
+    """Build the sub-process command for one cell.
+
+    `mpage_orig`-family ablations dispatch to ``mpage_bmab.mpage_orig`` (the
+    actual upstream MPaGE class capped at B sample calls). All other
+    ablations dispatch to ``mpage_bmab.main`` and use its ``--ablation`` preset.
+    """
+    if ablation in MPAGE_ORIG_ABLATIONS:
+        method_name = 'MPaGE-orig' if ablation == 'mpage_orig' else f"MPaGE-{ablation}"
+        cmd = [
+            python, '-m', 'mpage_bmab.mpage_orig',
+            '--task', task,
+            '--budget', str(budget),
+            '--seed', str(seed),
+            '--pop_size', str(pop_size),
+            '--log_dir', log_dir,
+            '--secret', secret,
+            '--secret_cluster', secret_cluster,
+            '--llm_model', llm_model,
+            '--llm_cluster_model', llm_cluster_model,
+            '--openai_base_url', openai_base_url,
+            '--method_name', method_name,
+        ]
+    else:
+        cmd = [
+            python, '-m', 'mpage_bmab.main',
+            '--ablation', ablation,
+            '--task', task,
+            '--budget', str(budget),
+            '--seed', str(seed),
+            '--pop_size', str(pop_size),
+            '--log_dir', log_dir,
+            '--secret', secret,
+            '--secret_cluster', secret_cluster,
+            '--llm_model', llm_model,
+            '--llm_cluster_model', llm_cluster_model,
+            '--openai_base_url', openai_base_url,
+        ]
     if extra:
         cmd.extend(extra)
     return cmd
