@@ -8,3 +8,6 @@ logs_bmab_smoke/
 # python bytecode
 __pycache__/
 *.pyc
+
+# experiments results
+experiments/results/
