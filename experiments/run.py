@@ -46,7 +46,7 @@ if _PROJECT_ROOT not in sys.path:
 
 from mpage_bmab.experiments.configs import (
     ALL_ABLATIONS, BUDGETS, MPAGE_ORIG_ABLATIONS, POP_SIZES, SEEDS, SUITES,
-    TASKS, run_id,
+    TASKS, pop_size_for, run_id,
 )
 
 
@@ -214,7 +214,7 @@ def main(argv=None) -> int:
             llm_model=args.llm_model,
             llm_cluster_model=args.llm_cluster_model,
             openai_base_url=args.openai_base_url,
-            pop_size=POP_SIZES.get(task, 6),
+            pop_size=pop_size_for(task, budget),
             extra=extra_args,
         )
         print(f"[{i:>3}/{len(cells)}] RUN   {rid}")

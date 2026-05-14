@@ -163,18 +163,44 @@ SUITES: Dict[str, Suite] = {
 
 
 # --------------------------------------------------------------------------- #
-# Per-task pop_size / max_generations overrides.
+# Per-task / per-budget pop_size.
 # --------------------------------------------------------------------------- #
 
-# A small population keeps init from eating the whole budget at small B.
-# Pop_size 6 matches the README default; we raise it for tri-objective TSP
-# because the elite Pareto-front is intrinsically wider in 3-D objective space.
-POP_SIZES: Dict[str, int] = {
-    'bi_tsp':  6,
-    'tri_tsp': 8,
-    'bi_cvrp': 6,
-    'bi_kp':   6,
+# Budget-driven baseline. Derived from OFFSPRING_FAQ.md §5.B's
+# `pop_size ≈ 4 · K` rule with the LLM clusterer typically producing
+# K = 2–3.  At small B the rule is violated (cluster bandit ends up
+# prior-driven) but trying to enforce it would leave too few generations
+# for PFG and the operator bandit to make progress.
+BUDGET_POP_SIZE = [
+    # (max_budget_excl, pop_size)
+    (50,    4),    # B < 50 → 4
+    (100,   6),    # 50  ≤ B < 100 → 6
+    (200,   8),    # 100 ≤ B < 200 → 8
+    (float('inf'), 10),    # 200 ≤ B → 10
+]
+
+# Per-task adjustment on top of the budget-driven baseline.
+TASK_POP_BONUS: Dict[str, int] = {
+    'bi_tsp':  0,
+    'tri_tsp': 2,    # 3-D Pareto front needs more diversity
+    'bi_cvrp': 0,
+    'bi_kp':   0,
 }
+
+
+def pop_size_for(task: str, budget: int) -> int:
+    """Recommended pop_size for a (task, budget) cell.
+
+    See `documents/HYPERPARAMETERS.md` for the rationale. The baseline
+    follows the `pop_size ≈ 4·K` rule from OFFSPRING_FAQ.md §5.B; tri-TSP
+    gets a +2 bonus because its 3-D Pareto front is wider.
+    """
+    base = next(ps for max_b, ps in BUDGET_POP_SIZE if budget < max_b)
+    return base + TASK_POP_BONUS.get(task, 0)
+
+
+# Kept for backward compatibility. New code should call pop_size_for().
+POP_SIZES: Dict[str, int] = {t: pop_size_for(t, 50) for t in TASKS}
 
 
 def run_id(ablation: str, task: str, budget: int, seed: int) -> str:
