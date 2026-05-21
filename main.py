@@ -31,7 +31,10 @@ _TASKS = {
     'bi_tsp':   ('mpage_bmab._llm4ad.task.optimization.bi_tsp_semo',
                  'BITSPEvaluation',  (20.0, 60.0)),
     'tri_tsp':  ('mpage_bmab._llm4ad.task.optimization.tri_tsp_semo',
-                 'TRITSPEvaluation', (20.0, 20.0, 60.0)),
+                 # 2-D ref because TRITSPEvaluation.evaluate() returns
+                 # (−HV_of_3D_solutions_avg, runtime_avg) — the 3-D structure
+                 # is collapsed into a scalar HV at the inner SEMO level.
+                 'TRITSPEvaluation', (20.0, 60.0)),
     'bi_cvrp':  ('mpage_bmab._llm4ad.task.optimization.bi_cvrp',
                  'BICVRPEvaluation', (40.0, 60.0)),
     'bi_kp':    ('mpage_bmab._llm4ad.task.optimization.bi_kp',
