@@ -143,7 +143,7 @@ SUITES: Dict[str, Suite] = {
     ),
     'mpage_compare_full': Suite(
         name='mpage_compare_full',
-        ablations=['mpage_orig', 'full'],
+        ablations=['full', 'mpage_orig'],
         tasks=TASKS,
         budgets=BUDGETS,
         seeds=SEEDS,

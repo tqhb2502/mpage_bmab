@@ -116,8 +116,8 @@ def compare(rows: List[dict], baseline: str, metric: str
                 'other': other,
                 'metric': metric,
                 'n_seeds': n,
-                f'{baseline}_mean': mean_a,
-                f'{other}_mean': mean_b,
+                'baseline_mean': mean_a,
+                'other_mean': mean_b,
                 'delta': mean_a - mean_b,
                 'wilcoxon_stat': stat,
                 'p_value': pval,
@@ -143,10 +143,8 @@ def _print_md(results: List[dict], baseline: str, metric: str) -> None:
         for r in [x for x in results if x['task'] == task and x['budget'] == budget]:
             stat = "" if r['wilcoxon_stat'] is None else f"{r['wilcoxon_stat']:.2f}"
             pv = "" if r['p_value'] is None else f"{r['p_value']:.4f}"
-            base_mean = r[f'{baseline}_mean']
-            other_mean = r[f"{r['other']}_mean"]
             print(f"| {r['other']} | {r['n_seeds']} | "
-                  f"{base_mean:.4f} | {other_mean:.4f} | "
+                  f"{r['baseline_mean']:.4f} | {r['other_mean']:.4f} | "
                   f"{r['delta']:+.4f} | {stat} | {pv} |")
         print()
 

@@ -8,7 +8,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(dirname "$HERE")/.."
 "${PYTHON:-mpage_bmab/.venv/bin/python}" -m mpage_bmab.experiments.run \
-    --suite mpage_compare "$@"
+    --suite mpage_compare_full "$@"
 echo
 echo "[mpage_compare] Aggregating + comparing..."
 "${PYTHON:-mpage_bmab/.venv/bin/python}" -m mpage_bmab.experiments.aggregate
