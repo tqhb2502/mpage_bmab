@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import warnings
 from threading import Lock
 from typing import List
 
@@ -43,6 +44,9 @@ class BMABProfiler(EoHProfiler):
         self._curve_lock = Lock()
         self._bandit_log: List[dict] = []
         self._budget_history: List[dict] = []
+        # One-shot warning state for score/ref_point shape mismatches.
+        self._warned_shape_mismatch: bool = False
+        self._n_shape_mismatch: int = 0
 
     # -------------------------------------------------------- AUBC tracking
 
@@ -57,10 +61,30 @@ class BMABProfiler(EoHProfiler):
                 continue
             try:
                 arr = np.asarray(f.score, dtype=float)
-                if arr.shape == self._ref_point.shape:
-                    scores.append(arr)
             except Exception:
                 continue
+            if arr.shape != self._ref_point.shape:
+                # Score's dimensionality does not match the configured
+                # reference point. Skipping silently produced the
+                # AUBC-=-0 bug for tri_tsp (see HV_TWO_LEVELS.md §4.2).
+                # Warn once per profiler instance so the bug is loud.
+                self._n_shape_mismatch += 1
+                if not self._warned_shape_mismatch:
+                    warnings.warn(
+                        f"BMABProfiler: dropping score of shape "
+                        f"{tuple(arr.shape)} that does not match "
+                        f"ref_point shape {tuple(self._ref_point.shape)}. "
+                        f"Subsequent mismatches will be silent; check "
+                        f"`_n_shape_mismatch` on this profiler for the "
+                        f"total count. Likely fix: update `ref_point` in "
+                        f"main.py's `_TASKS` to match the heuristic "
+                        f"score's dimensionality.",
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+                    self._warned_shape_mismatch = True
+                continue
+            scores.append(arr)
         if not scores:
             hv = 0.0
         else:

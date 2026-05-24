@@ -31,14 +31,21 @@ OPERATORS = ('mutate', 'crossover')
 class PageHinkleyState:
     """Online change-point detector for *decreases* in reward.
 
-    Standard one-sided Page-Hinkley test:
-        m_t   = Σ_{k=1..t} (x_k − mean_k − δ)
+    Symmetric Page-Hinkley test for downward drift:
+        m_t   = Σ_{k=1..t} (x_k − mean_k + δ)        # NB: + δ for downward
         M_t   = max_{k ≤ t} m_k
         PH_t  = M_t − m_t      (≥ 0)
         drift = (PH_t > λ)
 
-    A sustained drop in `x_t` makes `m_t` decrease away from its peak `M_t`,
-    so `PH_t` grows past the threshold.
+    The sign of δ matters: for downward-drift detection we *add* δ so that
+    under a stationary stream `m_t` drifts upward at rate δ per step, M_t
+    tracks it, and the gap `M_t − m_t` stays near zero — no false alarms
+    from a deterministic timer. A genuine drop in `x_t` makes the increment
+    negative, sum stops growing, M_t freezes at its peak, and `PH_t` opens
+    up above threshold.
+
+    For upward-drift detection use ``-δ`` with ``min_sum`` instead — this
+    is the conventional one-sided form; we mirror it here.
     """
     delta: float = 0.005
     threshold: float = 0.5
@@ -51,7 +58,7 @@ class PageHinkleyState:
         """Update with a new reward observation. Returns True iff drift detected."""
         self.n += 1
         self.mean += (value - self.mean) / self.n
-        self.sum += value - self.mean - self.delta
+        self.sum += value - self.mean + self.delta
         self.max_sum = max(self.max_sum, self.sum)
         ph = self.max_sum - self.sum
         return ph > self.threshold

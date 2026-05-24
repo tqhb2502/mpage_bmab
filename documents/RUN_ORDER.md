@@ -137,6 +137,76 @@ mpage_bmab/experiments/run_full.sh
 
 ---
 
+## Re-running after a code change (keeping the old results)
+
+When you change the code in a way that affects results (e.g. the
+Page-Hinkley `+ δ` sign fix, or any reward / bandit tuning) and you want
+to re-run while keeping the old data for side-by-side comparison, use
+the archive workflow.
+
+### Step 1 — Archive the existing `experiments/results/`
+
+```bash
+mpage_bmab/experiments/archive_results.sh v1_pre_ph_fix
+```
+
+The script moves the current `experiments/results/` into
+`experiments/archive/v1_pre_ph_fix/` (or whatever tag you pass), then
+creates a fresh empty `experiments/results/` ready for the new sweep.
+Old `summary.csv` and `comparisons_*.csv` are preserved inside the
+archive folder.
+
+If you omit the tag a timestamp is used (e.g. `20260516_143055`).
+
+### Step 2 — Re-run experiments as usual
+
+Idempotency now applies to the *fresh* `results/`, so every cell will be
+re-executed:
+
+```bash
+mpage_bmab/experiments/run_smoke.sh
+mpage_bmab/experiments/run_headline.sh
+mpage_bmab/experiments/run_mpage_compare.sh
+mpage_bmab/experiments/run_budget50.sh
+# etc.
+```
+
+### Step 3 — Compare old vs new
+
+```bash
+mpage_bmab/.venv/bin/python -m mpage_bmab.experiments.compare_versions \
+    --old mpage_bmab/experiments/archive/v1_pre_ph_fix \
+    --new mpage_bmab/experiments/results \
+    --out_summary mpage_bmab/experiments/results/version_diff.csv
+```
+
+Produces a Markdown table to stdout with one row per
+`(ablation, task, budget)` showing `AUBC_old → AUBC_new (ΔAUBC ± std)`
+and `HV_old → HV_new (ΔHV)`. Useful for confirming whether a code
+change actually moved the metrics in your data.
+
+### Folder layout after archiving
+
+```
+experiments/
+├── results/                        ← fresh, empty, for new sweep
+└── archive/
+    └── v1_pre_ph_fix/              ← old results preserved here
+        ├── summary.csv
+        ├── comparisons_aubc.csv
+        ├── comparisons_hv_final.csv
+        ├── full/...
+        ├── mpage_orig/...
+        └── ...
+```
+
+You can archive as many times as you want — each call places a new
+folder under `experiments/archive/`. Use descriptive tags
+(`v1_pre_ph_fix`, `v2_post_ph_fix`, `before_pop_size_change`, etc.) so
+each version is easy to identify months later.
+
+---
+
 ## What's the minimum viable thesis dataset?
 
 If you are cost-constrained, **steps 1–4** are the minimum viable
