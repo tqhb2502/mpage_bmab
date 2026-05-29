@@ -10,5 +10,6 @@ __pycache__/
 *.pyc
 
 # experiments results
-experiments/results/
+experiments/results/full/
+experiments/results/mpage_orig/
 experiments/archive/
