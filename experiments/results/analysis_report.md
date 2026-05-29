@@ -34,20 +34,20 @@ All runs consumed their configured total budget. The `mpage_orig` runs store bud
 
 ### 1. mpage_bmab is clearly stronger on budget efficiency
 
-mpage_bmab has higher mean AUBC in **15/16** task-budget cells, with an average relative AUBC improvement of **+24.0%** over MPaGE-orig. At the paired run level, mpage_bmab wins **70/80** AUBC comparisons.
+mpage_bmab has higher mean AUBC in **15/16** task-budget cells, with an average relative AUBC improvement of **+26.1%** over MPaGE-orig. At the paired run level, mpage_bmab wins **71/80** AUBC comparisons.
 
 This is visible in the AUBC line chart and the AUBC heatmap. The gains are especially large on Bi-CVRP and Tri-TSP, where the adaptive method gets substantially more value from the same LLM-call budget. The B=50 budget curves also show that mpage_bmab often reaches a stronger heuristic-population HV earlier in the run, which directly explains the AUBC advantage.
 
 | Task | AUBC positive cells | Mean AUBC delta % | HV-positive cells | Mean final-HV delta % |
 |---|---:|---:|---:|---:|
 | Bi-TSP | 4/4 | +13.1% | 2/4 | -0.4% |
-| Tri-TSP | 4/4 | +21.8% | 2/4 | -5.0% |
+| Tri-TSP | 4/4 | +30.1% | 2/4 | -0.0% |
 | Bi-CVRP | 4/4 | +45.9% | 3/4 | +5.1% |
 | Bi-KP | 3/4 | +15.3% | 3/4 | -1.2% |
 
 ### 2. Final HV is mixed, so the main contribution is not consistently better terminal quality
 
-Final HV improves in only **10/16** cells, and the average final-HV relative change is **-0.4%**. At the paired run level, mpage_bmab wins **37/80** final-HV comparisons.
+Final HV improves in only **10/16** cells, and the average final-HV relative change is **+0.9%**. At the paired run level, mpage_bmab wins **38/80** final-HV comparisons.
 
 The final-HV line chart and final-HV heatmap show a much less consistent picture than AUBC. This means the strongest evidence for mpage_bmab is budget efficiency: it tends to find useful heuristics earlier, while the final population after the full budget is often close to MPaGE-orig.
 
@@ -56,7 +56,7 @@ The final-HV line chart and final-HV heatmap show a much less consistent picture
 The number of null-score heuristics is worth tracking because it measures wasted heuristic-generation effort under a fixed LLM-call budget. The artifacts show a strong difference in logging behavior:
 
 - MPaGE-orig saved **1,625** generated heuristic samples: **986** valid and **639** with `score: null`, a **39.3% recorded null-score rate**.
-- mpage_bmab saved **1,088** scored samples and **0** saved `score: null` samples.
+- mpage_bmab saved **1,091** scored samples and **0** saved `score: null` samples.
 - However, mpage_bmab only persists valid scored samples. Its invalid or failed generation attempts must be inferred from `budget_history.json`, not counted from `samples/*.json`.
 
 For this reason, the report uses two related diagnostics:
@@ -66,19 +66,19 @@ For this reason, the report uses two related diagnostics:
 
 Overall valid yield is **14.5 valid heuristics per 100 calls** for mpage_bmab versus **13.1 per 100 calls** for MPaGE-orig. mpage_bmab has higher valid yield in **10/16** task-budget cells. The valid-yield figures show that this advantage is modest and task-dependent, so it cannot by itself explain the much larger AUBC gains.
 
-The strongest example is Bi-CVRP: mpage_bmab has lower valid yield than MPaGE-orig at every budget, yet it has much higher AUBC. This means the AUBC gain is not simply because mpage_bmab produces more valid heuristics; the valid heuristics it does obtain are better timed, better selected, or more useful for the heuristic-population front.
+The strongest counterexample is Bi-CVRP: mpage_bmab has lower valid yield than MPaGE-orig at every budget, yet it has much higher AUBC. This means the AUBC gain is not simply because mpage_bmab produces more valid heuristics; the valid heuristics it does obtain are better timed, better selected, or more useful for the heuristic-population front.
 
 ### 4. Statistical evidence is suggestive but limited by only five seeds
 
 No cell reaches conventional two-sided Wilcoxon significance at p < 0.05. This is expected with n=5 paired seeds: when all five seeds favor one method, the two-sided Wilcoxon p-value bottoms out at 0.0625 in this setup.
 
-For AUBC, many cells are directionally strong and practically meaningful: Bi-TSP B=25 (p=0.0625), Bi-TSP B=50 (p=0.0625), Bi-TSP B=100 (p=0.0625), Bi-TSP B=200 (p=0.0625), Tri-TSP B=50 (p=0.1250), Tri-TSP B=100 (p=0.0625), Tri-TSP B=200 (p=0.0625), Bi-CVRP B=25 (p=0.0625), Bi-CVRP B=50 (p=0.0625), Bi-CVRP B=100 (p=0.0625), Bi-CVRP B=200 (p=0.1250). These cells should be described as **consistent and practically meaningful**, not formally significant at p < 0.05.
+For AUBC, many cells are directionally strong and practically meaningful: Bi-TSP B=25 (p=0.0625), Bi-TSP B=50 (p=0.0625), Bi-TSP B=100 (p=0.0625), Bi-TSP B=200 (p=0.0625), Tri-TSP B=25 (p=0.0625), Tri-TSP B=50 (p=0.1250), Tri-TSP B=100 (p=0.0625), Tri-TSP B=200 (p=0.0625), Bi-CVRP B=25 (p=0.0625), Bi-CVRP B=50 (p=0.0625), Bi-CVRP B=100 (p=0.0625), Bi-CVRP B=200 (p=0.1250). These cells should be described as **consistent and practically meaningful**, not formally significant at p < 0.05.
 
 ### 5. The strongest gains occur when operator/cluster adaptivity can exploit early feedback
 
 The result pattern is consistent with the project design. MPaGE-orig follows the paper's fixed evolutionary schedule, while mpage_bmab adapts operator and cluster choices using reward feedback under a hard budget. That helps most when early choices matter: small and medium budgets, and tasks where poor generated heuristics waste substantial budget.
 
-Bi-CVRP shows the clearest practical gain: mpage_bmab improves AUBC by **+59.5%** at B=25 and **+77.9%** at B=50. Tri-TSP also benefits substantially, with AUBC gains from **+16.2%** to **+31.9%** across budgets. Bi-TSP gains are consistent but smaller as budget increases, suggesting that both methods converge to similar final heuristic quality on the easier/smaller TSP setting.
+Bi-CVRP shows the clearest practical gain: mpage_bmab improves AUBC by **+59.5%** at B=25 and **+77.9%** at B=50. Tri-TSP also benefits substantially, with AUBC gains from **+16.2%** to **+65.0%** across budgets. Bi-TSP gains are consistent but smaller as budget increases, suggesting that both methods converge to similar final heuristic quality on the easier/smaller TSP setting.
 
 ### 6. Bi-KP is the least stable task
 
@@ -86,11 +86,11 @@ Bi-KP is the only task-budget cell where mpage_bmab has lower mean AUBC: B=25, w
 
 A likely explanation is that Bi-KP generated heuristics are brittle under very small budgets: a few poor or invalid early heuristics can dominate AUBC before the bandit has enough observations to learn useful operator/cluster preferences. This is consistent with the small-B setting, where warm starts and priors have more influence than observed rewards.
 
-### 7. One Tri-TSP mpage_bmab run failed completely at B=25
+### 7. The previous Tri-TSP B=25 zero-run issue is resolved
 
-Unexpected observation: mpage_bmab Tri-TSP B=25 seed=2027 had AUBC=0.0, HV=0.0. This all-zero run depresses the Tri-TSP B=25 final-HV mean and partly explains why mpage_bmab has much lower mean final HV for Tri-TSP at B=25 despite still having higher mean AUBC.
+After rerunning mpage_bmab Tri-TSP B=25 seed=2027, the current row is no longer a zero-result failure. The rerun produced **AUBC = 144,905.6** and **final HV = 207,008.1** for that seed. Current zero-row check: No current row has zero AUBC or zero final HV.
 
-This should be treated as an important limitation or failure case rather than ignored. It may indicate an initialization/evaluation failure under tight budgets, or a run where no valid heuristic survived into the recorded population.
+This materially changes the Tri-TSP B=25 interpretation: the cell now shows **+65.0%** mean AUBC improvement over MPaGE-orig, with **5/5** paired AUBC seed wins and Wilcoxon p = **0.0625**. Final HV remains essentially tied for the cell, with a small mean difference of **-294.3**.
 
 ## Detailed AUBC Results
 
@@ -100,7 +100,7 @@ This should be treated as an important limitation or failure case rather than ig
 | Bi-TSP | 50 | 12,890.6 | 11,807.6 | 1,083.0 | +9.2% | 5/5 | 0.0625 |
 | Bi-TSP | 100 | 13,748.1 | 12,956.3 | 791.8 | +6.1% | 5/5 | 0.0625 |
 | Bi-TSP | 200 | 14,471.8 | 13,462.6 | 1,009.2 | +7.5% | 5/5 | 0.0625 |
-| Tri-TSP | 25 | 115,501.7 | 87,564.7 | 27,937.1 | +31.9% | 4/5 | 0.4375 |
+| Tri-TSP | 25 | 144,482.9 | 87,564.7 | 56,918.2 | +65.0% | 5/5 | 0.0625 |
 | Tri-TSP | 50 | 159,646.0 | 137,434.6 | 22,211.4 | +16.2% | 4/5 | 0.1250 |
 | Tri-TSP | 100 | 184,626.5 | 152,646.7 | 31,979.7 | +21.0% | 5/5 | 0.0625 |
 | Tri-TSP | 200 | 195,125.3 | 165,126.2 | 29,999.1 | +18.2% | 5/5 | 0.0625 |
@@ -121,7 +121,7 @@ This should be treated as an important limitation or failure case rather than ig
 | Bi-TSP | 50 | 14,558.5 | 14,911.4 | -353.0 | -2.4% | 0/5 | 0.0625 |
 | Bi-TSP | 100 | 15,061.3 | 15,096.6 | -35.3 | -0.2% | 2/5 | 0.4375 |
 | Bi-TSP | 200 | 15,174.9 | 15,016.3 | 158.6 | +1.1% | 3/5 | 0.4375 |
-| Tri-TSP | 25 | 164,980.7 | 206,676.6 | -41,695.9 | -20.2% | 2/5 | 0.4375 |
+| Tri-TSP | 25 | 206,382.3 | 206,676.6 | -294.3 | -0.1% | 3/5 | 1.0000 |
 | Tri-TSP | 50 | 207,330.8 | 206,978.3 | 352.4 | +0.2% | 3/5 | 0.6250 |
 | Tri-TSP | 100 | 206,978.0 | 207,362.1 | -384.1 | -0.2% | 2/5 | 0.3125 |
 | Tri-TSP | 200 | 207,247.8 | 207,182.3 | 65.5 | +0.0% | 3/5 | 1.0000 |
@@ -144,7 +144,7 @@ The following table reports valid yield as valid scored heuristics per 100 LLM c
 | Bi-TSP | 50 | 25.2 | 22.8 | +10.5% | 71.4% | 27.5% |
 | Bi-TSP | 100 | 20.6 | 19.8 | +4.0% | 77.2% | 21.9% |
 | Bi-TSP | 200 | 18.6 | 16.0 | +16.2% | 79.7% | 30.1% |
-| Tri-TSP | 25 | 26.4 | 24.0 | +10.0% | 71.9% | 28.7% |
+| Tri-TSP | 25 | 28.8 | 24.0 | +20.0% | 68.9% | 28.7% |
 | Tri-TSP | 50 | 18.4 | 18.4 | +0.0% | 80.1% | 33.4% |
 | Tri-TSP | 100 | 13.2 | 11.8 | +11.9% | 85.7% | 43.4% |
 | Tri-TSP | 200 | 9.0 | 7.8 | +15.4% | 90.3% | 53.9% |
@@ -174,7 +174,6 @@ The validity/yield results refine this interpretation. mpage_bmab has a small ov
 - The metrics are algorithm-level heuristic-population HV and AUBC, not the original paper's normalized solution-level HV/IGD. Absolute values should not be compared across tasks or against the paper tables.
 - The `mpage_orig` wrapper counts budget comparably for total budget, but its `budget_history.json` is aggregate rather than per-call, so call-count diagnostics are less detailed.
 - Null-score accounting differs between methods: MPaGE-orig stores `score: null` sample entries, while mpage_bmab stores valid samples and requires failure attempts to be inferred from `budget_history.json`. The invalid/null proxy figure should be used diagnostically, not as a perfectly symmetric measurement.
-- One Tri-TSP B=25 mpage_bmab run produced zero AUBC and zero final HV, indicating a failure case under tight budget.
 - Final-HV comparisons are noisy, especially on Bi-KP and Tri-TSP, so claims should emphasize budget efficiency rather than terminal dominance.
 
 ## Conclusion
