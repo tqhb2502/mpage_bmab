@@ -1,0 +1,55 @@
+\chapter{Giới thiệu}
+
+\section{Bối cảnh nghiên cứu}
+
+Tối ưu tổ hợp đa mục tiêu là một lớp bài toán trung tâm trong khoa học máy tính, xuất hiện trong định tuyến, lập lịch, lựa chọn tài nguyên, logistics và thiết kế hệ thống. Điểm khó của lớp bài toán này không chỉ nằm ở kích thước không gian nghiệm rời rạc, mà còn ở việc nhiều mục tiêu có thể mâu thuẫn nhau. Thay vì tìm một nghiệm duy nhất, thuật toán cần xấp xỉ một tập nghiệm Pareto, trong đó không nghiệm nào bị nghiệm khác trội hoàn toàn trên tất cả mục tiêu.
+
+Trong các bài toán tối ưu tổ hợp đa mục tiêu, chất lượng của một heuristic phụ thuộc mạnh vào cấu trúc bài toán. Một heuristic tốt cho bài toán người du lịch hai mục tiêu chưa chắc hiệu quả cho bài toán định tuyến xe có ràng buộc tải trọng hoặc bài toán ba lô hai mục tiêu. Vì vậy, hướng tự động thiết kế heuristic bằng mô hình ngôn ngữ lớn đang trở thành một hướng nghiên cứu đáng chú ý: thay vì viết tay toàn bộ luật chọn lân cận, hệ thống dùng LLM để sinh, biến đổi và kết hợp các chương trình heuristic, sau đó đánh giá chúng bằng bộ mô phỏng tối ưu.
+
+Dự án gốc MPaGE được mô tả trong \sourcefile{README.md}, mã nguồn \sourcefile{llm4ad/method/LLMPFG/} và tài liệu bài báo trong \sourcefile{references/original\_mpage.docx}. MPaGE đề xuất kết hợp mô hình ngôn ngữ lớn, tiến hóa đơn điệu đa mục tiêu, lưới Pareto và phân cụm ngữ nghĩa để thiết kế heuristic cho tối ưu tổ hợp đa mục tiêu \cite{ha2026mpage}. Dự án \texttt{mpage\_bmab} kế thừa nền tảng này và tập trung vào một câu hỏi hẹp hơn: khi số lời gọi LLM là tài nguyên hữu hạn, hệ thống nên phân bổ ngân sách sinh heuristic như thế nào để thu được chất lượng tốt sớm hơn?
+
+\section{Đặt vấn đề}
+
+Theo \sourcefile{mpage\_bmab/documents/IDEA.md} và \sourcefile{mpage\_bmab/documents/DOCUMENTATION.md}, điểm yếu được nhận diện trong MPaGE không nằm ở ý tưởng dùng LLM để sinh heuristic, mà nằm ở cơ chế phân bổ tài nguyên. MPaGE dùng lịch toán tử tương đối cố định và lựa chọn cụm ngữ nghĩa theo cách đều hoặc ngẫu nhiên. Cách làm này đơn giản và phù hợp với một vòng lặp tiến hóa cơ sở, nhưng chưa trực tiếp trả lời câu hỏi: trong một ngân sách $B$ lời gọi LLM, lời gọi tiếp theo nên dùng để đột biến heuristic nào, lai ghép cụm nào, hay khai thác hướng tìm kiếm nào?
+
+Dự án \texttt{mpage\_bmab} đặt bài toán ở mức outer-loop của thiết kế heuristic. Mỗi lời gọi LLM tạo ra một ứng viên chương trình. Ứng viên được biên dịch, đánh giá an toàn và gán một vector điểm số phản ánh chất lượng nghiệm và thời gian chạy. Hệ thống phải quyết định chuỗi hành động sinh heuristic sao cho đường cong chất lượng theo ngân sách tăng nhanh, đồng thời không phá vỡ các thành phần đã chứng minh hữu ích của MPaGE như PFG, phân cụm ngữ nghĩa và quần thể Pareto.
+
+\section{Động lực nghiên cứu}
+
+Động lực của dự án có thể tóm tắt thành ba quan sát có bằng chứng trực tiếp trong kho mã nguồn.
+
+Thứ nhất, lời gọi LLM là chi phí thật. \sourcefile{mpage\_bmab/budget.py} định nghĩa \texttt{BudgetTracker} và ép mỗi lượt sinh hoặc phân cụm phải được ghi nhận bằng \texttt{charge}. \sourcefile{mpage\_bmab/main.py} và \sourcefile{mpage\_bmab/mpage\_orig.py} đều truyền tham số \texttt{--budget} để đảm bảo so sánh trong cùng số lời gọi.
+
+Thứ hai, không phải mọi lời gọi LLM đều tạo ra heuristic hợp lệ. \sourcefile{llm4ad/base/evaluate.py} đánh giá chương trình sinh ra trong một tiến trình riêng và có thể trả về \texttt{None} khi mã không hợp lệ, timeout hoặc lỗi thực thi. Các tệp \sourcefile{mpage\_bmab/experiments/results/validity\_stats.csv} và \sourcefile{mpage\_bmab/experiments/results/validity\_cell\_stats.csv} cho thấy tỷ lệ hợp lệ là một hiện tượng thực nghiệm cần theo dõi.
+
+Thứ ba, kết quả cuối cùng không phản ánh đầy đủ hiệu quả ngân sách. \sourcefile{mpage\_bmab/documents/METRICS\_AUBC\_HV.md} định nghĩa AUBC như diện tích dưới đường cong hypervolume theo ngân sách. Một phương pháp có thể đạt HV cuối tương đương nhưng đạt chất lượng tốt sớm hơn, khi đó AUBC sẽ cao hơn và có ý nghĩa trong bối cảnh chi phí LLM bị giới hạn.
+
+\section{Mục tiêu nghiên cứu}
+
+Luận văn này có các mục tiêu sau:
+
+\begin{enumerate}
+  \item Phân tích nền tảng MPaGE và xác định các thành phần được giữ lại trong \texttt{mpage\_bmab}. Nguồn chính gồm \sourcefile{README.md}, \sourcefile{llm4ad/method/LLMPFG/} và \sourcefile{mpage\_bmab/documents/RETAINED\_FROM\_MPAGE.md}.
+  \item Mô tả phương pháp \bmab, bao gồm ngân sách cứng cho lời gọi LLM, bandit chọn toán tử, bandit chọn cụm, Page--Hinkley, hàm thưởng có nhiều chế độ và các chỉnh sửa hướng HV cuối cùng. Nguồn chính gồm \sourcefile{mpage\_bmab/bandit.py}, \sourcefile{mpage\_bmab/reward.py}, \sourcefile{mpage\_bmab/cluster\_manager.py} và \sourcefile{mpage\_bmab/bmab\_llm.py}.
+  \item Phân tích triển khai hệ thống, pipeline đánh giá và cách tái lập thí nghiệm. Nguồn chính gồm \sourcefile{mpage\_bmab/main.py}, \sourcefile{mpage\_bmab/mpage\_orig.py}, \sourcefile{mpage\_bmab/experiments/run.py} và \sourcefile{mpage\_bmab/experiments/aggregate.py}.
+  \item Tổng hợp kết quả thực nghiệm hiện có trong \sourcefile{mpage\_bmab/experiments/results/}, bao gồm AUBC, HV cuối cùng, tỷ lệ invalid/null-score và valid heuristic yield.
+  \item Rút ra kết luận có kiểm soát: chỉ khẳng định những gì được hỗ trợ bởi mã nguồn, tài liệu và kết quả thực nghiệm; các thông tin thiếu sẽ được ghi rõ bằng câu ``Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án.''
+\end{enumerate}
+
+\section{Phạm vi nghiên cứu}
+
+Phạm vi thực nghiệm của luận văn là bộ kết quả hiện có trong \sourcefile{mpage\_bmab/experiments/results/}. Bộ này gồm hai phương pháp: \texttt{full} lịch sử, tương ứng cấu hình đầy đủ của \texttt{mpage\_bmab} tại thời điểm sinh kết quả, và \texttt{mpage\_orig}, tương ứng MPaGE gốc được bọc lại để ghi nhận ngân sách theo cùng định dạng. Bốn bài toán được đánh giá là Bi-TSP, Tri-TSP, Bi-CVRP và Bi-KP. Bốn ngân sách lời gọi LLM là $25$, $50$, $100$ và $200$. Mỗi tổ hợp được chạy với năm seed từ 2025 đến 2029, theo cấu hình trong \sourcefile{mpage\_bmab/experiments/configs.py}.
+
+Sau khi phân tích kết quả HV cuối cùng, mã nguồn hiện tại đã bổ sung một nhóm chỉnh sửa hướng HV cuối cùng: \texttt{full} hiện dùng \texttt{reward\_mode=final\_hv}, \texttt{dense\_reward} giữ reward HVI tức thời trong implementation đã sửa, \texttt{hybrid\_reward} trộn hai tín hiệu, \texttt{no\_budget\_anneal} tắt annealing thăm dò theo ngân sách. Các kết quả trong \sourcefile{mpage\_bmab/experiments/results/} chưa đánh giá định lượng các biến thể mới này; vì vậy luận văn phân biệt rõ giữa kết quả lịch sử và phương pháp hiện tại.
+
+Luận văn không đánh giá lại các bảng kết quả lớn trong bài báo MPaGE gốc, vì kho hiện tại chỉ cung cấp kết quả thực nghiệm mới dưới dạng outer-loop heuristic-population HV/AUBC. Luận văn cũng không tuyên bố có huấn luyện LLM, fine-tuning, LoRA, RAG, diffusion model hay GAN, vì không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án.
+
+\section{Phương pháp nghiên cứu}
+
+Phương pháp nghiên cứu của luận văn là phân tích thực chứng dựa trên mã nguồn và kết quả thực nghiệm. Trước hết, các tệp README, tài liệu thiết kế, mã nguồn MPaGE gốc, mã nguồn \texttt{mpage\_bmab}, evaluator của từng bài toán và script thí nghiệm được đọc để xây dựng mô hình hệ thống. Sau đó, các tệp CSV và JSON trong \sourcefile{mpage\_bmab/experiments/results/} được dùng để tổng hợp số liệu. Cuối cùng, các hình trong \sourcefile{mpage\_bmab/experiments/results/images/} được đưa vào luận văn để kiểm tra trực quan các kết luận.
+
+Về phân tích định lượng, luận văn ưu tiên AUBC vì đây là metric phù hợp với giả thiết ngân sách lời gọi LLM hữu hạn. HV cuối cùng được dùng như metric phụ để kiểm tra liệu hiệu quả sớm có đi kèm chất lượng cuối cùng hay không. Các thống kê thắng theo seed và kiểm định Wilcoxon được lấy từ \sourcefile{mpage\_bmab/experiments/results/comparisons\_aubc.csv} và \sourcefile{mpage\_bmab/experiments/results/comparisons\_hv\_final.csv}.
+
+\section{Cấu trúc luận văn}
+
+Chương 2 trình bày tổng quan tối ưu đa mục tiêu, MPaGE, thiết kế heuristic bằng LLM, bandit và các metric đánh giá. Chương 3 mô tả phương pháp đề xuất \bmab, bao gồm mô hình hóa bài toán, kiến trúc và thuật toán. Chương 4 trình bày chi tiết triển khai, pipeline chạy thí nghiệm và các artifact được sinh ra. Chương 5 phân tích kết quả thực nghiệm hiện có. Chương 6 kết luận, nêu hạn chế và hướng phát triển.

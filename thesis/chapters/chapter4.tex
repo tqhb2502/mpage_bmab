@@ -1,0 +1,76 @@
+\chapter{Triển khai hệ thống}
+
+\section{Cấu trúc mã nguồn}
+
+Kho dự án gồm hai phần chính. Phần thứ nhất là mã nguồn MPaGE gốc ở thư mục \sourcefile{llm4ad/}, kèm entrypoint \sourcefile{main.py} và tài liệu \sourcefile{README.md}. Phần thứ hai là dự án mở rộng \sourcefile{mpage\_bmab/}, trong đó có mã nguồn BMAB, tài liệu thiết kế và pipeline thực nghiệm.
+
+Trong \sourcefile{mpage\_bmab/}, các tệp quan trọng gồm:
+
+\begin{itemize}
+  \item \sourcefile{bmab\_llm.py}: vòng lặp chính của BMAB-LLM.
+  \item \sourcefile{bandit.py}: UCB chọn toán tử, Budgeted UCB chọn cụm và Page--Hinkley.
+  \item \sourcefile{budget.py}: theo dõi ngân sách lời gọi LLM.
+  \item \sourcefile{cluster\_manager.py}: gọi LLM để phân cụm ngữ nghĩa và xử lý fallback.
+  \item \sourcefile{reward.py}: tính hypervolume, diversity và reward.
+  \item \sourcefile{profiler.py}: ghi budget curve, AUBC, bandit log và budget history.
+  \item \sourcefile{mpage\_orig.py}: wrapper baseline MPaGE trong cùng giao thức ngân sách.
+  \item \sourcefile{experiments/}: cấu hình, chạy, tổng hợp, so sánh và sinh hình cho thực nghiệm.
+\end{itemize}
+
+\section{Môi trường phần mềm}
+
+\sourcefile{requirements.txt} ở thư mục gốc và \sourcefile{mpage\_bmab/requirements.txt} liệt kê các phụ thuộc Python. Những phụ thuộc quan trọng gồm \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm} và thư viện OpenAI-compatible client. \sourcefile{mpage\_bmab/README.md} cho thấy CLI mặc định dùng mô hình \texttt{gpt-4o-mini}, còn khóa API được đọc từ các tệp cấu hình cục bộ trong \sourcefile{mpage\_bmab/main.py}. Nội dung các tệp khóa không được sử dụng trong luận văn.
+
+Thông tin phần cứng, GPU, hệ điều hành cụ thể của máy chạy thí nghiệm và chi phí tiền tệ trên mỗi lời gọi không xuất hiện trong kết quả hiện tại. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án.
+
+\section{Chuẩn bị bài toán đánh giá}
+
+Bốn bài toán trong thực nghiệm hiện tại đều nằm dưới \sourcefile{llm4ad/task/optimization/}. Mỗi bài toán định nghĩa một evaluator và template hàm \texttt{select\_neighbor}.
+
+Bi-TSP dùng bốn instance, kích thước bài toán 20, timeout 60 giây, archive ban đầu 100 tour ngẫu nhiên và 2000 vòng lặp. Các thông tin này nằm trong \sourcefile{llm4ad/task/optimization/bi\_tsp/evaluation.py}. Tri-TSP dùng 20 instance, kích thước 20, timeout 90 giây, archive 100 tour và 20000 vòng lặp, theo \sourcefile{llm4ad/task/optimization/tri\_tsp/evaluation.py}. Bi-CVRP dùng tám instance, kích thước 100, capacity 50, timeout 90 giây và 6000 vòng lặp, theo \sourcefile{llm4ad/task/optimization/bi\_cvrp/evaluation.py}. Bi-KP dùng tám instance, kích thước 200, capacity 25, timeout 90 giây và 8000 vòng lặp, theo \sourcefile{llm4ad/task/optimization/bi\_kp/evaluation.py}.
+
+Các tệp \sourcefile{get\_instance.py} trong từng thư mục bài toán đặt seed NumPy bằng 2025, do đó instance benchmark cố định theo mã nguồn hiện tại. Seed 2025--2029 trong thí nghiệm chủ yếu tác động tới vòng lặp sinh/chọn heuristic, không tạo bộ instance mới.
+
+\section{Pipeline sinh và đánh giá heuristic}
+
+Mỗi heuristic được biểu diễn như một đoạn code Python chứa hàm \texttt{select\_neighbor}. LLM sinh code theo prompt, bộ parser trích xuất hàm, sau đó \texttt{SecureEvaluator} trong \sourcefile{llm4ad/base/evaluate.py} chạy evaluator trong tiến trình riêng. Nếu code lỗi, timeout hoặc trả về kết quả không hợp lệ, score có thể là \texttt{None}.
+
+Các evaluator trả về score hai chiều ở cấp heuristic. Với Tri-TSP, dù bài toán bên trong có ba mục tiêu, score outer-loop vẫn là hai chiều $(-HV, runtime)$; điều này được thể hiện trong \sourcefile{llm4ad/task/optimization/tri\_tsp/evaluation.py} và được phản ánh trong \sourcefile{mpage\_bmab/main.py}, nơi \texttt{ref\_point} cho Tri-TSP là \texttt{(20.0, 60.0)}.
+
+\section{Cấu hình thực nghiệm}
+
+\sourcefile{mpage\_bmab/experiments/configs.py} định nghĩa bốn bài toán, bốn ngân sách và năm seed. Hàm \texttt{pop\_size\_for} đặt kích thước quần thể theo ngân sách: với các bài toán hai mục tiêu thông thường là 4, 6, 8, 10 cho ngân sách 25, 50, 100, 200; với Tri-TSP cộng thêm 2, tức 6, 8, 10, 12. Cấu hình này cũng được ghi trong \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+
+Các tham số bandit mặc định gồm $c_{op}=1.0$, $c_{cluster}=1.0$, $\gamma_{budget}=0.5$, prior count $1$ và prior reward $0.5$. Reward dùng $w_q=1.0$, $w_d=0.3$, $w_r=0.2$, penalty $1.0$ và rank window $50$. Page--Hinkley dùng $\delta=0.005$ và threshold $0.5$. Các giá trị này lấy từ \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+
+\section{Script chạy, tổng hợp và so sánh}
+
+Pipeline thực nghiệm nằm trong \sourcefile{mpage\_bmab/experiments/}. \sourcefile{run.py} nhận cấu hình, gọi entrypoint phù hợp và lưu kết quả theo cấu trúc thư mục. \sourcefile{aggregate.py} duyệt các thư mục kết quả, đọc \texttt{budget\_curve.json} và \texttt{aubc.json}, sau đó tạo \sourcefile{summary.csv}. \sourcefile{compare.py} thực hiện so sánh theo cặp giữa baseline và phương pháp đầy đủ cho từng bài toán, ngân sách và metric.
+
+Các hình trong \sourcefile{mpage\_bmab/experiments/results/images/} được sinh bởi \sourcefile{mpage\_bmab/experiments/results/image\_generation\_code/generate\_result\_images.py}. Script này tạo các biểu đồ AUBC, HV cuối cùng, budget curves, invalid/null-score rate và valid heuristic yield. Luận văn sao chép các hình này vào \sourcefile{thesis/figures/}.
+
+\section{Artifact đầu ra}
+
+Mỗi lượt chạy có thể tạo các tệp sau:
+
+\begin{itemize}
+  \item \sourcefile{samples/}: các heuristic được lưu, kèm code và score nếu có.
+  \item \sourcefile{population/}: quần thể heuristic.
+  \item \texttt{budget\_curve.json}: chuỗi điểm $(budget\_consumed, hv, pareto\_size)$.
+  \item \texttt{budget\_history.json}: lịch sử tiêu thụ ngân sách.
+  \item \texttt{bandit\_log.json}: quyết định bandit và reward.
+  \item \texttt{aubc.json}: AUBC cuối cùng.
+  \item \texttt{run\_log.txt}: log quá trình chạy.
+\end{itemize}
+
+Cấu trúc artifact được mô tả trong \sourcefile{mpage\_bmab/README.md}, \sourcefile{mpage\_bmab/experiments/README.md} và \sourcefile{mpage\_bmab/profiler.py}.
+
+\section{Tái lập kết quả}
+
+Theo \sourcefile{mpage\_bmab/experiments/README.md}, có thể chạy các suite như \texttt{smoke}, \texttt{headline}, \texttt{budget50}, \texttt{full}, hoặc các suite sau chỉnh sửa HV cuối cùng như \texttt{hvfix\_smoke}, \texttt{hv\_final\_priority} và \texttt{hv\_final\_full}. Bộ kết quả đang phân tích trong Chương 5 tương ứng đầy đủ với hai phương pháp, bốn bài toán, bốn ngân sách và năm seed, nhưng là bộ \texttt{full} lịch sử được sinh trước các chỉnh sửa HV cuối cùng. Các lệnh cụ thể có thể thay đổi tùy môi trường API, nhưng entrypoint chính là \sourcefile{mpage\_bmab/experiments/run.py}.
+
+Vì hệ thống phụ thuộc LLM qua API, tái lập bit-by-bit là khó nếu dịch vụ LLM thay đổi hoặc sampling không hoàn toàn quyết định. Kho mã nguồn giảm rủi ro bằng cách lưu toàn bộ samples, curves và logs. Tuy nhiên, không tìm thấy thông tin về snapshot chính xác của model API, cấu hình temperature đầy đủ ở mọi nơi, hoặc chi phí token thực tế trong kết quả hiện tại.
+
+\section{Các điểm cần thận trọng trong triển khai}
+
+Có ba điểm cần đọc cẩn thận khi diễn giải kết quả. Thứ nhất, \texttt{budget\_history} của \texttt{mpage\_orig} được ghi ở dạng tổng hợp trong wrapper, còn BMAB ghi chi tiết hơn; vì vậy số dòng lịch sử không nên được so sánh như số event tương đương. Thứ hai, BMAB chỉ lưu samples hợp lệ, còn MPaGE-orig có thể lưu score \texttt{None}; do đó invalid/null-score rate là một chẩn đoán chi phí, không phải metric lưu trữ giống hệt. Thứ ba, các tệp \texttt{paras.yaml} của benchmark có giá trị timeout khác với evaluator Python trong một số trường hợp; luận văn ưu tiên mã evaluator vì đó là đường thực thi thực tế.

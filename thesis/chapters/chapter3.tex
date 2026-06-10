@@ -1,0 +1,570 @@
+\chapter{Proposed Method}
+
+\providecommand{\methodcode}[1]{\sourcefile{#1}}
+
+\section{Research Motivation and Design Rationale}
+
+The proposed method, denoted \bmab{}, is designed as a budget-aware extension of the original \mpage{} framework. The central observation behind the project is that LLM-driven heuristic design is not only an optimization problem over generated programs, but also a resource-allocation problem. Each heuristic-generation, clustering, or optional reflection step consumes an LLM call, and therefore consumes time, money, and limited experimental budget. A method that produces high-quality heuristics only after many unproductive calls is less useful than a method that converts early calls into a strong heuristic Pareto front.
+
+The original \mpage{} paper formulates automatic heuristic design for multi-objective combinatorial optimization problems (MOCOPs) as a Language Multi-Criteria Heuristic Design problem. It combines three important ingredients: a SEMO-style heuristic population, Pareto-Front-Grid (PFG) elite selection, and LLM-based semantic clustering of heuristic code \cite{ha2026mpage,laumanns2004semo}. This design is well motivated because it searches for a population of heuristics that trade off solution quality and runtime, rather than a single best heuristic. It also recognizes that code-level diversity is not equivalent to semantic diversity: two heuristics may be syntactically different but implement nearly identical search logic.
+
+However, the original \mpage{} workflow allocates generation effort in a mostly fixed manner. The variation operators are applied according to a fixed schedule, semantic clusters are sampled without learning which clusters are productive, and the stopping condition is expressed mainly through iteration or sample quotas rather than an explicit LLM-call budget. The original MPaGE reference document describes the workflow as a repeated process of PFG selection, semantic clustering, mutation/crossover, and population management, while the project-specific idea document identifies fixed allocation as the main opportunity for improvement. Under a strict budget $B$, the system should learn where to spend the remaining LLM calls.
+
+\bmab{} therefore keeps the productive heuristic-generation mechanisms of \mpage{} and replaces only the scheduling layer. In particular, the project preserves the original task templates, prompt taxonomy, secure evaluator, PFG-based population management, and LLM semantic clustering implementation. The new contribution is a two-level budgeted multi-armed bandit controller that decides which variation operator and which semantic cluster should receive each LLM call. This design follows a conservative research principle: the comparison against \mpage{} is made meaningful by reusing the same generation and evaluation substrate, while changing the decision policy that allocates budget.
+
+\section{Problem Formulation}
+
+\subsection{Inner Multi-Objective Combinatorial Optimization Problem}
+
+Let $\mathcal{X}$ be a finite or discrete feasible set for a MOCOP, and let
+
+\begin{equation}
+  f(x) = \left(f_1(x), f_2(x), \ldots, f_M(x)\right), \qquad x \in \mathcal{X},
+\end{equation}
+
+where all objectives are minimized. For two feasible solutions $x_a,x_b \in \mathcal{X}$, $x_a$ Pareto-dominates $x_b$, written $x_a \prec x_b$, if
+
+\begin{equation}
+  f_i(x_a) \le f_i(x_b) \quad \forall i \in \{1,\ldots,M\},
+  \qquad
+  \exists j: f_j(x_a) < f_j(x_b).
+\end{equation}
+
+The Pareto front is the image of the non-dominated solution set in objective space. Its quality is commonly summarized by the hypervolume indicator $HV_r(\cdot)$ with respect to a reference point $r$ \cite{zitzler1999multiobjective,fonseca2006hv}. The benchmark evaluators in this project use hypervolume as the inner solution-quality signal and execution time as the efficiency signal.
+
+\subsection{Outer Heuristic-Design Problem}
+
+Following the LMHD formulation in the original \mpage{} paper, a heuristic $h \in \mathcal{H}$ is treated as a program that maps the current SEMO archive to a new candidate solution:
+
+\begin{equation}
+  h : 2^{\mathcal{X}} \rightarrow \mathcal{X}, \qquad x' = h(A),
+\end{equation}
+
+where $A$ is the current archive of non-dominated solutions maintained by the inner solver. The evaluator assigns each generated heuristic a vector-valued score
+
+\begin{equation}
+  E(h) = \left(e_1(h), e_2(h)\right)
+       = \left(-HV_{\text{inner}}(h), T(h)\right).
+  \label{eq:heuristic-score}
+\end{equation}
+
+Here $HV_{\text{inner}}(h)$ is the hypervolume achieved by the solutions produced when $h$ is used inside the benchmark solver, and $T(h)$ is the measured runtime. The first coordinate is negated because the outer population-management code is written as a minimization procedure. This score convention is implemented by the benchmark evaluators in the vendored MPaGE task modules.
+
+At the outer level, the algorithm maintains a population $\mathcal{P}_t \subset \mathcal{H}$ of valid heuristics and aims to approximate the non-dominated set in the heuristic score space. Let $F_t = \{E(h): h \in \mathcal{P}_t\}$ be the outer heuristic front at step $t$. Given an LLM-call budget $B$, \bmab{} is optimized for two related criteria:
+
+\begin{align}
+  \max \; HV_{\text{outer}}(B)
+  &= \max \; HV_r(F_B), \\
+  \max \; \mathrm{AUBC}
+  &= \max \; \frac{1}{B}\int_0^B HV_{\text{outer}}(b)\,db,
+  \label{eq:aubc-objective}
+\end{align}
+
+subject to
+
+\begin{equation}
+  \sum_{t=1}^{T} c_t \le B.
+\end{equation}
+
+The final HV objective measures terminal quality; AUBC measures how rapidly the method converts budget into Pareto-front quality. In the current experiments, the default cost model is call-based, i.e. one LLM request consumes one budget unit. The budget tracker also supports a token-labeled accounting mode, but the implemented main loop and reported experiments use fixed call costs.
+
+\section{System Overview}
+
+\bmab{} is organized as an adaptive orchestration layer around the MPaGE primitives. Figure~\ref{fig:bmab-architecture-en} summarizes the data and control flow.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{0.98\linewidth}{!}{%
+  \begin{tikzpicture}[
+    node distance=1.05cm and 0.82cm,
+    box/.style={draw, rounded corners=2pt, align=center, text width=2.9cm, minimum height=0.92cm, font=\small},
+    ctrl/.style={draw, rounded corners=2pt, align=center, text width=5.7cm, minimum height=1.05cm, font=\small},
+    smallbox/.style={draw, rounded corners=2pt, align=center, text width=2.9cm, minimum height=0.88cm, font=\small},
+    data/.style={draw, cylinder, shape border rotate=90, aspect=0.25, align=center, text width=2.7cm, minimum height=0.92cm, font=\small},
+    arr/.style={-{Latex[length=2.2mm]}, thick}
+  ]
+    \node[box] (task) {Task template\\and MPaGE prompts};
+    \node[box, right=of task] (llm) {Generator LLM\\heuristic code};
+    \node[box, right=of llm] (eval) {Secure evaluator\\score and runtime};
+    \node[data, right=of eval] (pop) {Population\\PFG archive};
+
+    \node[smallbox, below=of task] (budget) {BudgetTracker\\hard call budget};
+    \node[ctrl, below=of llm, xshift=1.9cm] (controller) {Adaptive BMAB controller\\operator UCB + cluster UCB\\cluster priors + reward + Page--Hinkley};
+    \node[smallbox, below=of pop] (profiler) {BMABProfiler\\HV curve and logs};
+
+    \draw[arr] (task) -- (llm);
+    \draw[arr] (llm) -- (eval);
+    \draw[arr] (eval) -- (pop);
+    \draw[arr] (pop) -- (profiler);
+
+    \draw[arr] (budget.north) -- (task.south);
+    \draw[arr] (budget.east) -- (controller.west);
+    \draw[arr] (eval.south) -- ++(0,-0.35) -| (controller.north);
+    \draw[arr] (controller.north west) -- ++(0,0.35) -| (llm.south);
+  \end{tikzpicture}%
+  }
+  \caption{Logical architecture of \bmab{}. The method preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control.}
+  \label{fig:bmab-architecture-en}
+\end{figure}
+
+The implementation is centered in \methodcode{bmab\_llm.py}. The main supporting modules are summarized in Table~\ref{tab:method-modules}.
+
+\begin{table}[H]
+  \centering
+  \caption{Main methodological modules in the implementation.}
+  \label{tab:method-modules}
+  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
+    \toprule
+    Module & Methodological role \\
+    \midrule
+    \methodcode{bmab\_llm.py} & Main orchestrator. It owns the evolutionary loop, calls PFG selection, requests semantic clusters, selects bandit arms, samples offspring, computes rewards, and flushes the final population. \\
+    \methodcode{budget.py} & Hard budget tracker. It stores total, remaining, and consumed budget and records a history entry for every charged LLM call. \\
+    \methodcode{bandit.py} & Two-level adaptive scheduler: persistent operator UCB, per-generation cluster UCB, and Page--Hinkley drift detection. \\
+    \methodcode{cluster\_manager.py} & Wrapper around MPaGE semantic clustering. It charges cluster calls, validates or repairs partitions, and computes cluster-quality priors. \\
+    \methodcode{reward.py} & Scalar credit assignment for bandit learning, including HVI, final managed-population HV gain, diversity gain, rank smoothing, and invalid-code penalties. \\
+    \methodcode{profiler.py} & Records budget-vs-HV curves, AUBC, budget history, bandit state, and population artifacts for analysis. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Components Inherited from MPaGE}
+
+\bmab{} intentionally retains the core generative and evaluative substrate of \mpage{}. This inheritance is documented in the project design notes and is visible in the vendored MPaGE subtree. The retained components are important because they isolate the proposed contribution to budget-aware scheduling rather than changing the benchmark, prompt templates, or evaluation logic.
+
+\subsection{Population Representation and PFG Selection}
+
+Each individual is represented as a Python function together with a natural-language algorithm description, evaluation score, sample time, and execution time. The population class inherited from MPaGE maintains a managed set of heuristics using non-dominated sorting and diversity-preserving truncation.
+
+PFG selection partitions the two-dimensional heuristic objective space into grid cells. Let $P_t = \{E(h_i): h_i \in \mathcal{P}_t\}$ be the current score set. For each objective $j \in \{1,2\}$, define the ideal and nadir values
+
+\begin{equation}
+  z_j^{\ast} = \min_{h \in \mathcal{P}_t} e_j(h), \qquad
+  z_j^{n} = \max_{h \in \mathcal{P}_t} e_j(h).
+\end{equation}
+
+With $K_j$ segments and a small margin $\sigma$, the grid width is approximately
+
+\begin{equation}
+  \Delta_j = \frac{z_j^{n} - z_j^{\ast} + \sigma}{K_j}.
+\end{equation}
+
+A heuristic is assigned to a grid index
+
+\begin{equation}
+  g_j(h)=\left\lfloor \frac{e_j(h)-z_j^{\ast}}{\Delta_j}\right\rfloor,
+  \qquad
+  G(h)=(g_1(h),g_2(h)).
+\end{equation}
+
+Within each occupied cell, non-dominated representatives are retained. The union of retained representatives forms the elite set used for reproduction. This mechanism is inherited from \mpage{} and is implemented in the vendored MPaGE population manager. In the current BMAB loop, the PFG-selected slice is used as a high-quality signal for parent weighting, while the wider managed population is made available to the clustering layer to avoid over-narrow clusters.
+
+\subsection{LLM-Based Semantic Clustering}
+
+The original \mpage{} paper argues that objective-space or syntax-only diversity is insufficient for heuristic design. Two code snippets can have different syntax but the same algorithmic logic, and two heuristics with similar performance may use distinct search strategies. MPaGE addresses this by prompting an LLM to group elite heuristics according to semantic and behavioral similarity.
+
+Formally, for a candidate set $P=\{h_1,\ldots,h_n\}$, the clustering module returns
+
+\begin{equation}
+  \mathrm{SemClust}(P)=\{C_1,\ldots,C_K\},
+\end{equation}
+
+such that
+
+\begin{equation}
+  \bigcup_{k=1}^{K} C_k=P, \qquad C_i \cap C_j = \emptyset \; (i \ne j).
+\end{equation}
+
+The implementation calls the MPaGE cluster prompt through \methodcode{cluster\_manager.py}. If the LLM response is malformed, incomplete, or unavailable, the method falls back to singleton clusters. This design preserves semantic clustering when possible while ensuring that the evolutionary loop remains robust to LLM-format failures.
+
+\subsection{Mutation and Crossover Prompt Families}
+
+MPaGE defines a prompt taxonomy for initialization, mutation, and crossover. \bmab{} keeps this taxonomy. Initialization uses the I1 prompt to create zero-shot heuristics. Mutation uses M1 or M2 to modify a single parent from the selected cluster. Crossover uses E1 or E2 to combine one parent from the selected cluster with a second parent outside that cluster. Thus, BMAB preserves MPaGE's core semantic rule:
+
+\begin{equation}
+  \text{mutation} = \text{intra-cluster local refinement},
+  \qquad
+  \text{crossover} = \text{inter-cluster recombination}.
+\end{equation}
+
+The difference is not the prompt content but the policy that decides when a mutation or crossover prompt should be used, and which cluster should provide the parent.
+
+\section{Hard Budget Model}
+
+The LLM-call budget is treated as a first-class constraint. Let $B$ be the total budget and $b_t$ be the remaining budget before action $t$. Each LLM action has cost $c_t$, and the transition is
+
+\begin{equation}
+  b_{t+1} = b_t - c_t, \qquad b_t \ge c_t.
+\end{equation}
+
+If the system cannot afford an action, the action is not issued. The current implementation charges budget before the heuristic-generation call or cluster call is sent. This is important experimentally: invalid code, parsing failure, timeout, and non-improving offspring are still charged because the API resource has already been consumed.
+
+In the default call-based mode, the following costs are used:
+
+\begin{table}[H]
+  \centering
+  \caption{Default budget costs in the current implementation.}
+  \label{tab:budget-costs}
+  \begin{tabular}{lc}
+    \toprule
+    Action & Cost \\
+    \midrule
+    Initialization call (I1) & $1$ \\
+    Heuristic-generation call (M1/M2/E1/E2) & $1$ \\
+    Semantic clustering call & $1$ \\
+    Optional review/suggestion call & $1$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The budget state is recorded through \methodcode{BudgetTracker.history}, and the profiler later writes \methodcode{budget\_history.json}. This gives the experimental harness a direct account of how the budget was spent.
+
+\section{Two-Level Budgeted Bandit Scheduler}
+
+\subsection{Why a Two-Level Scheduler is Needed}
+
+A direct bandit over individual heuristics is not viable because the heuristic space is open-ended: every LLM call can create a previously unseen program. A direct persistent bandit over semantic cluster IDs is also problematic because clusters are reconstructed at each generation and their numeric labels are not stable across generations. \bmab{} therefore separates the adaptive decision into two levels:
+
+\begin{enumerate}
+  \item a persistent operator-level bandit over the stable action set $\mathcal{O}=\{\mu,\chi\}$, where $\mu$ denotes mutation and $\chi$ denotes crossover;
+  \item a per-generation cluster-level bandit over arms $(k,o)$, where $k$ indexes one semantic cluster in the current generation and $o \in \mathcal{O}$ is the selected operator.
+\end{enumerate}
+
+This decomposition lets the method learn long-term operator utility while still adapting to the short-lived semantic cluster structure of the current population.
+
+\subsection{Operator-Level UCB}
+
+For each operator $o \in \mathcal{O}$, the operator bandit stores the number of pulls $n_o$, cumulative reward $S_o^R$, and cumulative cost $S_o^c$. Its empirical utility is reward per cost:
+
+\begin{equation}
+  \hat{\rho}_o = \frac{S_o^R}{\max(S_o^c,\varepsilon)}.
+\end{equation}
+
+The selected operator maximizes a UCB score:
+
+\begin{equation}
+  U_{\mathrm{op}}(o)
+  =
+  \hat{\rho}_o
+  +
+  c_{\mathrm{op}}
+  \sqrt{\frac{2\log N_{\mathrm{op}}}{n_o}},
+  \label{eq:operator-ucb}
+\end{equation}
+
+where $N_{\mathrm{op}}=\sum_{o' \in \mathcal{O}} n_{o'}$ and $c_{\mathrm{op}}$ controls exploration. The implementation initializes each operator with an optimistic prior count and prior reward, preventing division by zero and encouraging early exploration. This is implemented in \methodcode{bandit.py} by the \methodcode{OperatorBandit} class.
+
+\subsection{Cluster-Level Budgeted UCB}
+
+At the beginning of each generation, \methodcode{ClusterManager} returns a partition $\{C_1,\ldots,C_K\}$ and a quality prior $q_k$ for each cluster. The cluster bandit then creates arms $(k,o)$ for all clusters and operator labels. Each arm stores cumulative reward and cumulative cost, and its exploitation term is
+
+\begin{equation}
+  \hat{\rho}_{k,o}
+  =
+  \frac{S_{k,o}^R}{\max(S_{k,o}^c,\varepsilon)}.
+\end{equation}
+
+The cluster-level UCB score is
+
+\begin{equation}
+  U_{\mathrm{cl}}(k,o)
+  =
+  \hat{\rho}_{k,o}
+  +
+  c_{\mathrm{cl}}
+  \alpha_t
+  \sqrt{\frac{2\log N_{\mathrm{cl}}}{n_{k,o}}},
+  \label{eq:cluster-ucb}
+\end{equation}
+
+where
+
+\begin{equation}
+  \alpha_t =
+  \left(\frac{b_t}{B}\right)^{\gamma_b}
+\end{equation}
+
+when budget annealing is enabled, and $\alpha_t=1$ otherwise. The factor $\alpha_t$ decreases as the budget is exhausted, making the controller more exploitative near the end of the run. This directly addresses the finite-horizon nature of the task: late calls have little time to recover from risky exploration.
+
+The cluster bandit is warm-started from both cluster quality and operator priors. Let $p_o$ be the softmax-normalized operator utility from the persistent operator bandit. The initial reward assigned to arm $(k,o)$ is proportional to
+
+\begin{equation}
+  r^{(0)}_{k,o} = \frac{1}{2}\left(q_k+p_o\right).
+\end{equation}
+
+This warm start transfers information from the persistent operator layer into the generation-local cluster layer without assuming that cluster IDs persist across generations.
+
+\section{Front-Aware Cluster Priors}
+
+The semantic cluster partition identifies behavioral groups, but it does not by itself rank those groups. The current implementation therefore computes a front-aware prior for each cluster. For cluster $C_k$, define $S_k=\{E(h):h \in C_k\}$ and $S=\{E(h):h \in \mathcal{P}_t\}$. With outer reference point $r$, the hypervolume contribution of the cluster is
+
+\begin{equation}
+  \Delta HV_k
+  =
+  \max\left(0,\;HV_r(S)-HV_r(S\setminus S_k)\right).
+\end{equation}
+
+Because the first score coordinate is negative inner HV, a simple quality proxy for solution strength is
+
+\begin{equation}
+  I_k = \max\left(0,\;-\min_{s \in S_k} s_1\right),
+\end{equation}
+
+with a finite cap in the implementation to avoid an excessively large prior. A runtime proxy is defined as
+
+\begin{equation}
+  T_k = \frac{1}{1+\min_{s \in S_k} s_2}.
+\end{equation}
+
+The unnormalized prior is
+
+\begin{equation}
+  \tilde{q}_k = \Delta HV_k + 0.25 I_k + T_k,
+\end{equation}
+
+and the normalized prior used by the bandit is
+
+\begin{equation}
+  q_k = \frac{\tilde{q}_k}{\max_j \tilde{q}_j}
+\end{equation}
+
+when the denominator is positive. This design is implemented in \methodcode{cluster\_manager.py}. It is more aligned with the final outer-front objective than a one-dimensional score proxy because it rewards clusters that currently contribute to the heuristic Pareto front while still accounting for inner solution quality and runtime.
+
+\section{Reward and Credit Assignment}
+
+\subsection{Reward Components}
+
+The reward function converts the outcome of one LLM generation call into a scalar signal for the two bandits. For a valid generated heuristic with score $s$, the reward is
+
+\begin{equation}
+  R(s)
+  =
+  w_q Q(s)
+  +
+  w_d \max(0,\Delta D)
+  +
+  w_r \mathrm{Rank}(s).
+  \label{eq:reward}
+\end{equation}
+
+If the generated heuristic is invalid, cannot be parsed, fails evaluation, or returns a non-finite score, the reward is
+
+\begin{equation}
+  R(s) = -\lambda_{\mathrm{pen}}.
+\end{equation}
+
+The default values in the current implementation are $w_q=1.0$, $w_d=0.3$, $w_r=0.2$, and $\lambda_{\mathrm{pen}}=1.0$. These settings are exposed through the command-line interface for the weights and fixed in \methodcode{RewardComputer} for the penalty.
+
+\subsection{Quality Signal}
+
+Let $F$ be the set of valid population scores before the new candidate is inserted. The immediate hypervolume improvement is
+
+\begin{equation}
+  \mathrm{HVI}(s;F)
+  =
+  \max\left(0,\;HV_r(F\cup\{s\})-HV_r(F)\right).
+\end{equation}
+
+The current fixed implementation also computes a managed-population HV delta. Let $\mathrm{Manage}_N(\cdot)$ denote the same score-only survivor-selection logic used by the managed population with cap $N$. Then
+
+\begin{equation}
+  \Delta HV_{\mathrm{managed}}
+  =
+  \max\left(
+    0,\;
+    HV_r(\mathrm{Manage}_N(F\cup\{s\}))
+    -
+    HV_r(\mathrm{Manage}_N(F))
+  \right).
+  \label{eq:managed-hv}
+\end{equation}
+
+Both quantities are normalized by rolling maxima over a recent window. Let $\widehat{\mathrm{HVI}}$ and $\widehat{\Delta HV}_{\mathrm{managed}}$ denote the normalized values. The quality mode is then
+
+\begin{equation}
+  Q(s)=
+  \begin{cases}
+    \widehat{\mathrm{HVI}}(s;F), & \mathrm{mode}=\mathrm{dense},\\
+    \frac{1}{2}\widehat{\mathrm{HVI}}(s;F)
+    +\frac{1}{2}\widehat{\Delta HV}_{\mathrm{managed}}(s;F),
+    & \mathrm{mode}=\mathrm{hybrid},\\
+    \widehat{\Delta HV}_{\mathrm{managed}}(s;F),
+    & \mathrm{mode}=\mathrm{final\_hv}.
+  \end{cases}
+\end{equation}
+
+The default \methodcode{full} method uses \methodcode{final\_hv}. The ablations \methodcode{dense\_reward} and \methodcode{hybrid\_reward} change only this quality signal while retaining the other final-HV-oriented implementation fixes. This distinction is documented in the reward notes and implemented in the reward module.
+
+\subsection{Diversity and Rank Smoothing}
+
+Pure HVI is often sparse: many valid offspring do not immediately expand the outer Pareto front. To provide a denser signal, \bmab{} adds rank and diversity terms. The cumulative diversity index used in the reward is the mean pairwise Euclidean distance among valid score vectors:
+
+\begin{equation}
+  D(F)
+  =
+  \frac{1}{|F|(|F|-1)}
+  \sum_{i \ne j} \|s_i-s_j\|_2.
+\end{equation}
+
+The diversity increment is $\Delta D = D(F\cup\{s\})-D(F)$. Only positive increments are rewarded. The rank score is
+
+\begin{equation}
+  \mathrm{Rank}(s)
+  =
+  \frac{1}{|F|}
+  \left|\{u \in F : \exists j,\; s_j < u_j\}\right|,
+\end{equation}
+
+where lower values are better because heuristic scores are minimized. This term rewards a candidate that improves at least one objective relative to existing population members, even when it does not immediately increase HV.
+
+\section{Non-Stationarity and Page--Hinkley Reset}
+
+The reward distribution in evolutionary heuristic design is non-stationary. A cluster that is useful early may become unproductive after its design pattern has already been exploited. To reduce overconfidence in stale arm statistics, each cluster-level arm is monitored by a Page--Hinkley detector \cite{page1954continuous}.
+
+For a reward sequence $(r_t)$ of one arm, the implementation maintains the running mean $\bar{r}_t$ and cumulative statistic
+
+\begin{align}
+  \bar{r}_t &= \bar{r}_{t-1} + \frac{r_t-\bar{r}_{t-1}}{t}, \\
+  m_t &= m_{t-1}+r_t-\bar{r}_t+\delta, \\
+  M_t &= \max(M_{t-1},m_t).
+\end{align}
+
+Downward drift is declared when
+
+\begin{equation}
+  M_t - m_t > \lambda_{\mathrm{PH}}.
+\end{equation}
+
+When drift is detected, the corresponding arm statistics are reset to an optimistic prior for the current generation. This mechanism is implemented in \methodcode{bandit.py}. It is limited to the cluster-level bandit because cluster rewards are local to the current generation and most sensitive to rapid changes in population state.
+
+\section{Parent Selection and Variation Workflow}
+
+The original MPaGE strategy uses intra-cluster mutation and inter-cluster crossover. \bmab{} preserves this logic but changes how parents are sampled. The loop first obtains PFG-selected elites through \methodcode{Population.selection}. It then expands the clustering pool to the full current managed population to give the cluster bandit a richer set of semantic groups. To prevent the wider pool from diluting the PFG signal, parent sampling gives candidates that also appear in the PFG-selected elite set a larger weight:
+
+\begin{equation}
+  w(h)=
+  \begin{cases}
+    3, & h \in E_{\mathrm{PFG}},\\
+    1, & \text{otherwise}.
+  \end{cases}
+\end{equation}
+
+For mutation, a single parent is sampled from the selected cluster using these weights. For crossover, the first parent is sampled from the selected cluster and the second parent is sampled from other clusters when possible. This preserves semantic recombination while biasing the process toward strong PFG representatives. The implementation is in \methodcode{bmab\_llm.py}, specifically the methods \methodcode{\_make\_prompt} and \methodcode{\_weighted\_parent\_choice}.
+
+\section{Complete Algorithm}
+
+Algorithm~\ref{lst:bmab-algorithm} gives the high-level workflow implemented by \methodcode{BMABLLM.run}. The pseudocode abstracts away exception handling but follows the actual call order in the source code.
+
+\begin{lstlisting}[language={},caption={High-level BMAB-LLM workflow.},label={lst:bmab-algorithm}]
+Input:
+    task evaluator E, generator LLM L, cluster LLM Lc,
+    budget B, population size N, reference point r
+Output:
+    managed population of generated heuristics
+
+Initialize BudgetTracker(B), Population(N), OperatorBandit
+Initialize ClusterBandit and RewardComputer
+
+while budget can pay an initialization call
+      and initialization target is not reached:
+    charge one LLM call
+    sample an I1 heuristic using the MPaGE prompt
+    evaluate it safely and register it if valid
+
+record initial budget-HV curve point
+
+while budget remains:
+    E_pfg <- PFG-selected elite slice from current population
+    H_full <- current managed population
+
+    if clustering plus generation cannot both be afforded:
+        partition <- singleton fallback clusters
+    else:
+        charge one clustering call
+        partition <- Lc semantic clustering, or fallback if invalid
+
+    q <- front-aware cluster-quality priors
+    p <- softmax operator priors from OperatorBandit
+    reset ClusterBandit(partition, q, p)
+
+    produced <- 0
+    while produced < N and budget can pay a generation call:
+        op <- OperatorBandit.select(), or round-robin if disabled
+        arm <- ClusterBandit.select(op, remaining_budget / B),
+               or uniform cluster if disabled
+        parents <- weighted parent sampling from selected clusters
+        prompt <- MPaGE mutation or crossover prompt
+
+        score_before <- population scores, including pending valid offspring
+        diversity_before <- cumulative diversity(score_before)
+
+        charge one generation call
+        child <- L(prompt)
+        score <- secure evaluation(child)
+        register child if valid
+
+        score_after <- population scores, including pending valid offspring
+        diversity_after <- cumulative diversity(score_after)
+        reward <- RewardComputer(score, score_before,
+                                 diversity_before, diversity_after)
+
+        update OperatorBandit(op, reward)
+        update ClusterBandit(arm, reward)
+        apply Page-Hinkley reset if drift is detected
+        produced <- produced + 1
+
+    record bandit state and budget-HV curve point
+
+flush pending valid offspring into the managed population
+write budget history, budget curve, bandit log, and AUBC
+\end{lstlisting}
+
+\section{Final-HV-Oriented Safeguards}
+
+After the first round of analysis, several implementation details were corrected to better align the method with final managed-population HV. These safeguards are methodological because they change what the scheduler learns and what final population is reported.
+
+\begin{enumerate}
+  \item \textbf{Reward alignment.} The default reward uses managed-population HV gain after applying the same population cap used at the end of the run. This avoids rewarding candidates that increase immediate HVI but would not survive final management.
+  \item \textbf{Actual child score.} The bandit update uses the score returned by the actual generated and evaluated child, not a stale population proxy.
+  \item \textbf{Pending-population flush.} If the budget ends in the middle of a generation, valid pending offspring are merged into the managed population before reporting final HV.
+  \item \textbf{Final cluster-call guard.} If the remaining budget can pay either a cluster call or a generation call but not both, the algorithm skips the real cluster call and uses fallback clusters so that the final usable call can still generate a heuristic.
+  \item \textbf{Budget-annealed exploration.} Cluster exploration decreases with remaining budget through the factor $(b_t/B)^{\gamma_b}$.
+  \item \textbf{PFG-weighted parent sampling.} PFG-selected elites receive higher sampling probability inside the broader cluster pool.
+\end{enumerate}
+
+The code-level evidence for these safeguards is summarized in the project's six-fix implementation note.
+
+\section{Baseline and Ablation Design}
+
+The baseline \methodcode{mpage\_orig} is not a new algorithm. It is a wrapper around the original MPaGE driver that records budget consumption and budget-HV curves using the same profiler infrastructure as \bmab{}. This is implemented in \methodcode{mpage\_orig.py}. The purpose is to compare allocation policies while keeping the task evaluators and generated artifacts as consistent as possible.
+
+The current CLI defines the following method variants in \methodcode{main.py}:
+
+\begin{table}[H]
+  \centering
+  \caption{Main method variants relevant to the proposed method.}
+  \label{tab:method-ablation}
+  \small
+  \begin{tabular}{>{\raggedright\arraybackslash}p{0.29\linewidth}>{\raggedright\arraybackslash}p{0.61\linewidth}}
+    \toprule
+    Variant & Interpretation \\
+    \midrule
+    \methodcode{full} & Proposed fixed BMAB method with the \methodcode{final\_hv} reward mode, operator bandit, cluster bandit, Page--Hinkley, budget annealing, and final-HV safeguards. \\
+    \methodcode{dense\_reward} & Same fixed implementation, but with the legacy immediate-HVI quality signal. \\
+    \methodcode{hybrid\_reward} & Same fixed implementation, but with a half immediate-HVI and half managed-final-HV quality signal. \\
+    \methodcode{no\_budget\_anneal} & Same as \methodcode{full}, but without remaining-budget scaling in the cluster UCB exploration term. \\
+    \methodcode{no\_ph} & Disables practical Page--Hinkley resets by using an extremely large threshold. \\
+    \methodcode{no\_diversity} & Removes the CDI diversity term by setting its weight to zero. \\
+    \methodcode{op\_only} & Disables the cluster bandit and samples clusters uniformly. \\
+    \methodcode{cluster\_only} & Disables the operator bandit and uses a round-robin operator sequence. \\
+    \methodcode{mpage\_orig} & Budget-instrumented wrapper around the original MPaGE implementation. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+These variants are important because they separate the contribution of each methodological component. In particular, \methodcode{dense\_reward} and \methodcode{hybrid\_reward} should not be confused with historical pre-fix result folders: they retain the current implementation safeguards and vary only the reward quality mode.
+
+\section{Methodological Summary}
+
+The proposed method can be summarized as a resource-aware controller for LLM-driven heuristic evolution. \mpage{} provides the generative search space: SEMO-compatible heuristic programs, PFG elite selection, LLM semantic clustering, and mutation/crossover prompts. \bmab{} adds the decision policy that determines how the finite LLM-call budget is allocated across operators and semantic clusters.
+
+The main design choices are justified as follows. First, a two-level bandit is used because operator identities are stable across generations whereas cluster identities are generation-specific. Second, reward is based on final managed-population HV by default because this is closer to the terminal evaluation objective than immediate HVI alone. Third, rank and diversity terms are added to reduce sparse-reward failure modes and discourage premature concentration in a narrow Pareto region. Fourth, Page--Hinkley reset is included because evolutionary rewards are non-stationary. Finally, explicit budget accounting and AUBC logging make the method evaluable under the resource constraint that motivated the project.

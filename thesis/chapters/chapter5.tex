@@ -1,0 +1,157 @@
+\chapter{Thực nghiệm và đánh giá}
+
+\section{Câu hỏi thực nghiệm}
+
+Thực nghiệm hiện tại nhằm trả lời ba câu hỏi trên bộ kết quả lịch sử. Thứ nhất, \texttt{mpage\_bmab} có dùng ngân sách lời gọi LLM hiệu quả hơn MPaGE-orig hay không, xét theo AUBC? Thứ hai, hiệu quả theo ngân sách có đi kèm cải thiện HV cuối cùng hay không? Thứ ba, tỷ lệ heuristic hợp lệ và invalid/null-score có giúp giải thích khác biệt giữa hai phương pháp hay không?
+
+Các câu hỏi này được đặt dựa trên mục tiêu trong \sourcefile{mpage\_bmab/documents/IDEA.md}, metric trong \sourcefile{mpage\_bmab/documents/METRICS\_AUBC\_HV.md} và kết quả trong \sourcefile{mpage\_bmab/experiments/results/}.
+
+\section{Thiết lập thực nghiệm}
+
+Bộ kết quả hiện tại gồm 160 lượt chạy: hai phương pháp, bốn bài toán, bốn mức ngân sách và năm seed. Hai phương pháp là \texttt{full} lịch sử và \texttt{mpage\_orig}. Trong phần thảo luận, \texttt{full} lịch sử được gọi là \texttt{mpage\_bmab} hoặc BMAB; \texttt{mpage\_orig} là MPaGE gốc chạy qua wrapper ngân sách.
+
+Các bài toán gồm Bi-TSP, Tri-TSP, Bi-CVRP và Bi-KP. Các ngân sách là $B \in \{25,50,100,200\}$. Các seed là 2025, 2026, 2027, 2028 và 2029. Mỗi lượt chạy đều tiêu thụ đúng ngân sách được cấu hình, theo \sourcefile{mpage\_bmab/experiments/results/summary.csv} và kiểm tra trong \sourcefile{mpage\_bmab/experiments/results/analysis\_report.md}.
+
+Cần nhấn mạnh rằng các kết quả này được sinh trước nhóm chỉnh sửa hướng HV cuối cùng của implementation hiện tại. Vì vậy, các số liệu trong chương này không phải là kết quả của \texttt{full} mới với \texttt{reward\_mode=final\_hv}, cũng không phải là kết quả của \texttt{dense\_reward} hay \texttt{hybrid\_reward}. Chúng vẫn có giá trị để chứng minh lợi thế AUBC của thiết kế bandit lịch sử, nhưng cần chạy thêm các suite trong \sourcefile{mpage\_bmab/experiments/HV\_FINAL\_EXPERIMENTS.md} để kết luận về phương pháp đã sửa.
+
+\section{Metric đánh giá}
+
+Metric chính là AUBC. Metric này đo diện tích trung bình dưới đường cong HV theo ngân sách, nên phản ánh mức độ đạt chất lượng tốt sớm trong quá trình tối ưu. Metric phụ là \texttt{hv\_final}, được định nghĩa trong \sourcefile{mpage\_bmab/experiments/aggregate.py} là giá trị \texttt{hv} cuối cùng trong \texttt{budget\_curve.json}. Ngoài ra, luận văn dùng hai chỉ số chẩn đoán: invalid/null-score rate và valid heuristic yield per budget.
+
+Với budget curve, trục hoành trong các hình được chuẩn hóa bằng \code{budget\_consumed/total\_budget}. Trục tung là HV của quần thể heuristic tại thời điểm ngân sách tương ứng, được tính trong \sourcefile{mpage\_bmab/profiler.py}. Do đó, về mặt định nghĩa, điểm ở $x=1$ của một lượt chạy riêng lẻ chính là HV cuối cùng của lượt chạy đó nếu curve có điểm tại ngân sách cuối. Tuy nhiên, trong hình budget curve, script vẽ hình nội suy và trung bình các đường cong theo seed sau khi chuẩn hóa, theo \sourcefile{mpage\_bmab/experiments/results/image\_generation\_code/generate\_result\_images.py}. Vì vậy giá trị trực quan ở $x=1$ nên gần với trung bình \texttt{hv\_final}, nhưng có thể khác nhẹ do nội suy, khử trùng lặp điểm ngân sách và cách render đường trung bình. Nếu khác lớn, cần kiểm tra code aggregation hoặc curve source.
+
+\section{Kết quả AUBC}
+
+Bảng~\ref{tab:aubc-results} và Hình~\ref{fig:aubc-mean} cho thấy BMAB đạt AUBC trung bình cao hơn MPaGE-orig trong 15/16 tổ hợp bài toán--ngân sách. Tổng hợp theo cặp seed, BMAB thắng 71/80 cặp. Mức cải thiện trung bình theo cell là khoảng 26.1\%, theo \sourcefile{mpage\_bmab/experiments/results/analysis\_report.md}.
+
+\input{tables/aubc_results}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{aubc_mean_by_budget.png}
+  \caption{AUBC trung bình theo ngân sách. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/aubc\_mean\_by\_budget.png}.}
+  \label{fig:aubc-mean}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{aubc_delta_percent_heatmap.png}
+  \caption{Heatmap phần trăm thay đổi AUBC của BMAB so với MPaGE-orig. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/aubc\_delta\_percent\_heatmap.png}.}
+  \label{fig:aubc-heatmap}
+\end{figure}
+
+Kết quả nổi bật nhất nằm ở Bi-CVRP và Tri-TSP. Với Bi-CVRP, BMAB cải thiện AUBC lần lượt 59.5\%, 77.9\%, 23.3\% và 22.7\% khi $B=25,50,100,200$. Với Tri-TSP, cải thiện tương ứng là 65.0\%, 16.2\%, 21.0\% và 18.2\%. Hai bài toán này có chi phí đánh giá và không gian heuristic phức tạp hơn Bi-TSP; do đó khả năng điều phối lời gọi LLM sớm có thể tạo lợi thế rõ hơn.
+
+Bi-TSP có mức cải thiện nhỏ hơn nhưng rất ổn định: cả bốn ngân sách đều thắng 5/5 seed. Bi-KP là trường hợp ít ổn định nhất. Tại $B=25$, BMAB thấp hơn MPaGE-orig 1.3\%, còn các ngân sách lớn hơn đều dương. Điều này gợi ý rằng với Bi-KP, giai đoạn đầu có thể nhạy với heuristic khởi tạo hoặc reward chưa đủ phân biệt ở ngân sách rất nhỏ.
+
+\section{Đường cong ngân sách}
+
+Các đường cong ngân sách ở Hình~\ref{fig:budget-curves} giải thích vì sao AUBC tăng mạnh ngay cả khi HV cuối không luôn vượt trội. BMAB thường nâng HV sớm hơn, đặc biệt ở ngân sách nhỏ và trung bình. Khi đường cong tăng nhanh trong nửa đầu ngân sách, diện tích dưới đường cong tăng, kể cả khi điểm cuối gần bằng baseline.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{budget_curves_B25.png}
+    \caption{$B=25$}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{budget_curves_B50.png}
+    \caption{$B=50$}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{budget_curves_B100.png}
+    \caption{$B=100$}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{budget_curves_B200.png}
+    \caption{$B=200$}
+  \end{subfigure}
+  \caption{Đường cong HV theo ngân sách chuẩn hóa. Nguồn: các tệp \sourcefile{budget\_curves\_B*.png} trong \sourcefile{mpage\_bmab/experiments/results/images/}.}
+  \label{fig:budget-curves}
+\end{figure}
+
+Các đường cong cũng cho thấy hiệu ứng giảm dần. Khi ngân sách tăng lên, cả hai phương pháp đều có thêm cơ hội tìm heuristic tốt; khoảng cách AUBC ở Bi-TSP giảm từ 29.6\% tại $B=25$ xuống 6.1--9.2\% tại các ngân sách lớn hơn. Điều này phù hợp với trực giác bandit: lợi thế lớn nhất của điều phối thích nghi xuất hiện khi tài nguyên khan hiếm.
+
+\section{HV cuối cùng}
+
+Bảng~\ref{tab:hv-results} và Hình~\ref{fig:hv-mean} cho thấy kết quả HV cuối cùng ít nhất quán hơn AUBC. BMAB cao hơn trong 10/16 cell và thắng 38/80 cặp seed. Mức cải thiện trung bình theo cell chỉ khoảng 0.9\%, theo \sourcefile{mpage\_bmab/experiments/results/analysis\_report.md}.
+
+\input{tables/hv_results}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{hv_final_mean_by_budget.png}
+  \caption{HV cuối cùng trung bình theo ngân sách. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/hv\_final\_mean\_by\_budget.png}.}
+  \label{fig:hv-mean}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{hv_final_delta_percent_heatmap.png}
+  \caption{Heatmap phần trăm thay đổi HV cuối cùng của BMAB so với MPaGE-orig. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/hv\_final\_delta\_percent\_heatmap.png}.}
+  \label{fig:hv-heatmap}
+\end{figure}
+
+Điểm quan trọng là HV cuối cùng không phủ nhận kết quả AUBC. Nó cho thấy đóng góp chính của BMAB là đạt chất lượng tốt hơn sớm hơn, chứ không nhất thiết tạo ra Pareto front cuối cùng tốt hơn ở mọi bài toán. Trong bối cảnh lời gọi LLM có chi phí, đây vẫn là một lợi ích thực tế: nếu người dùng dừng sớm hoặc ngân sách nhỏ, AUBC cao có giá trị hơn.
+
+\section{Tỷ lệ invalid/null-score và valid heuristic yield}
+
+Các chỉ số validity giúp trả lời liệu cải thiện AUBC có đơn thuần đến từ việc sinh được nhiều heuristic hợp lệ hơn hay không. Theo \sourcefile{mpage\_bmab/experiments/results/analysis\_report.md}, MPaGE-orig lưu 1625 samples, trong đó 986 valid và 639 có score null, tương ứng null-score rate ghi nhận là 39.3\%. BMAB lưu 1091 scored samples và không có score null trong samples, nhưng do BMAB chỉ lưu heuristic hợp lệ, invalid attempts phải suy ra từ \texttt{budget\_history}. Tổng thể, valid yield của BMAB là 14.5 heuristic hợp lệ trên 100 lời gọi, so với 13.1 của MPaGE-orig.
+
+\input{tables/validity_results}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{valid_yield_by_budget.png}
+  \caption{Valid heuristic yield theo ngân sách. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/valid\_yield\_by\_budget.png}.}
+  \label{fig:valid-yield}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{valid_yield_delta_percent_heatmap.png}
+  \caption{Heatmap phần trăm thay đổi valid heuristic yield. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/valid\_yield\_delta\_percent\_heatmap.png}.}
+  \label{fig:valid-yield-heatmap}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{invalid_null_rate_by_budget.png}
+  \caption{Tỷ lệ invalid/null-score theo ngân sách. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/invalid\_null\_rate\_by\_budget.png}.}
+  \label{fig:invalid-rate}
+\end{figure}
+
+Bảng validity cho thấy BMAB không luôn sinh nhiều heuristic hợp lệ hơn. Ở Bi-CVRP, BMAB có valid yield thấp hơn MPaGE-orig ở cả bốn ngân sách, nhưng AUBC lại cao hơn rất nhiều. Đây là bằng chứng quan trọng: lợi thế AUBC của BMAB không thể giải thích chỉ bằng số heuristic hợp lệ. Có nhiều khả năng cơ chế bandit giúp phân bổ lời gọi vào những vùng tạo cải thiện HV lớn hơn, dù tổng số heuristic hợp lệ không cao hơn.
+
+Ngược lại, ở Bi-KP ngân sách lớn, valid yield của BMAB tăng rõ: tại $B=200$, BMAB đạt 13.5 heuristic hợp lệ trên 100 lời gọi, cao hơn 53.4\% so với MPaGE-orig. Điều này có thể góp phần vào cải thiện AUBC 17.3\% và HV cuối 5.8\% tại cùng ngân sách. Tuy nhiên, đây là diễn giải từ kết quả hiện có, không phải quan hệ nhân quả đã được kiểm định bằng ablation.
+
+\section{Phân tích thống kê}
+
+\sourcefile{mpage\_bmab/experiments/compare.py} dùng so sánh theo cặp và kiểm định Wilcoxon signed-rank. Với năm seed, kiểm định hai phía có độ phân giải thô; ngay cả khi một phương pháp thắng cả 5/5 cặp, $p$ nhỏ nhất thường là 0.0625. Vì vậy không có cell nào đạt $p < 0.05$ trong kết quả hiện tại. Luận văn không diễn giải các kết quả này là có ý nghĩa thống kê mạnh.
+
+Tuy nhiên, nhất quán thực nghiệm vẫn đáng chú ý. AUBC thắng 15/16 cell và 71/80 cặp seed là một xu hướng rộng trên nhiều bài toán/ngân sách. Hình~\ref{fig:paired-boxplot} cho thấy phân phối chênh lệch AUBC theo cặp seed chủ yếu nằm phía dương, dù có outlier và một số trường hợp âm ở Bi-KP.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{paired_aubc_delta_boxplot.png}
+  \caption{Phân phối chênh lệch AUBC theo cặp seed. Nguồn: \sourcefile{mpage\_bmab/experiments/results/images/paired\_aubc\_delta\_boxplot.png}.}
+  \label{fig:paired-boxplot}
+\end{figure}
+
+\section{Diễn giải theo từng nhóm bài toán}
+
+Bi-TSP là bài toán có cải thiện AUBC ổn định nhưng biên độ vừa phải. Điều này có thể do không gian heuristic hai mục tiêu đơn giản hơn và MPaGE-orig đã đủ mạnh khi ngân sách lớn. BMAB vẫn có lợi thế ở ngân sách nhỏ vì chọn lời gọi có định hướng hơn.
+
+Tri-TSP có cải thiện AUBC lớn, đặc biệt tại $B=25$. Sau khi người dùng chạy lại thí nghiệm \sourcefile{mpage\_bmab/experiments/results/full/tri\_tsp/B25/seed2027}, kết quả hiện tại cho cell này là AUBC BMAB cao hơn 65.0\% và thắng 5/5 seed. HV cuối của Tri-TSP lại gần như ngang nhau. Điều này củng cố kết luận rằng BMAB có lợi thế tốc độ đạt chất lượng, không nhất thiết hơn ở điểm kết thúc.
+
+Bi-CVRP là trường hợp thú vị nhất. BMAB có AUBC cao hơn mạnh dù valid yield thấp hơn. Bài toán CVRP có ràng buộc tải trọng và cấu trúc route phức tạp, nên không phải mọi heuristic hợp lệ đều có ích. Bandit có thể ưu tiên các cụm/toán tử tạo heuristic có giá trị biên cao hơn, thay vì chỉ tăng số lượng heuristic hợp lệ.
+
+Bi-KP là trường hợp không ổn định. Ở ngân sách 25, AUBC giảm nhẹ và HV cuối giảm mạnh 22.4\%. Điều này có thể xuất phát từ tính nhạy của reward ở giai đoạn đầu hoặc từ việc heuristic tốt cho KP cần một dạng cấu trúc khác so với prompt hiện tại. Không tìm thấy ablation trong kết quả hiện tại để xác nhận nguyên nhân.
+
+\section{Hạn chế của thực nghiệm}
+
+Bộ kết quả hiện tại có năm hạn chế chính. Thứ nhất, mỗi cell chỉ có năm seed, chưa đủ mạnh cho kết luận thống kê ở mức 0.05. Thứ hai, kết quả chỉ so sánh \texttt{full} lịch sử với \texttt{mpage\_orig}; các ablation \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, \texttt{cluster\_only} và \texttt{mpage\_budget} có trong mã nhưng không có trong thư mục kết quả hiện tại. Thứ ba, bộ kết quả này chưa đánh giá các biến thể sau chỉnh sửa HV cuối cùng: \texttt{full} mới, \texttt{dense\_reward}, \texttt{hybrid\_reward} và tùy chọn \texttt{no\_budget\_anneal}. Thứ tư, không có số liệu token, latency API, chi phí tiền tệ, GPU hoặc bộ nhớ. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. Thứ năm, metric hiện tại là heuristic-population HV/AUBC, không trực tiếp so sánh với bảng nghiệm chuẩn hóa trong bài báo MPaGE.
+
+\section{Kết luận thực nghiệm}
+
+Bằng chứng thực nghiệm lịch sử ủng hộ kết luận rằng \texttt{mpage\_bmab} cải thiện hiệu quả sử dụng ngân sách lời gọi LLM. Kết luận mạnh nhất là về AUBC: BMAB thường đạt HV cao sớm hơn trong quá trình chạy. Kết luận yếu hơn là về HV cuối cùng: kết quả mixed và phụ thuộc bài toán. Validity analysis cho thấy số heuristic hợp lệ là một yếu tố liên quan nhưng không đủ để giải thích toàn bộ cải thiện, đặc biệt ở Bi-CVRP. Kết luận về phiên bản đã sửa hướng HV cuối cùng cần dựa trên các thí nghiệm \texttt{hvfix\_smoke}, \texttt{hv\_final\_priority} hoặc \texttt{hv\_final\_full}.

@@ -1,0 +1,109 @@
+% !TEX program = xelatex
+% !TEX root = main.tex
+\documentclass[12pt,a4paper,oneside]{report}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Helvetica}
+\setmonofont{Menlo}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{bookmark}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{seqsplit}
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\usetikzlibrary{arrows.meta,positioning,fit,shapes.geometric}
+\pgfplotsset{compat=1.18}
+\geometry{left=3.2cm,right=2.4cm,top=2.6cm,bottom=2.6cm}
+\graphicspath{{figures/}}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue
+}
+
+\setlength{\parindent}{1.2cm}
+\setlength{\parskip}{0.2em}
+\renewcommand{\baselinestretch}{1.25}
+\setlength{\emergencystretch}{3em}
+\setlist[itemize]{leftmargin=1.5cm}
+\setlist[enumerate]{leftmargin=1.5cm}
+
+\lstdefinestyle{codestyle}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible
+}
+\lstset{style=codestyle}
+
+\Urlmuskip=0mu plus 2mu
+\DeclareRobustCommand{\code}[1]{\begingroup\ttfamily\seqsplit{#1}\endgroup}
+\DeclareRobustCommand{\sourcefile}[1]{\begingroup\ttfamily\small\seqsplit{#1}\endgroup}
+\let\texttt\code
+\let\breakabletexttt\code
+\newcommand{\bmab}{BMAB-LLM}
+\newcommand{\mpage}{MPaGE}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  {\Large TRƯỜNG ĐẠI HỌC\par}
+  \vspace{0.5cm}
+  {\large KHOA CÔNG NGHỆ THÔNG TIN\par}
+  \vspace{2.2cm}
+  {\Large\bfseries LUẬN VĂN TỐT NGHIỆP ĐẠI HỌC\par}
+  \vspace{1.2cm}
+  {\huge\bfseries Tối ưu ngân sách lời gọi mô hình ngôn ngữ lớn cho thiết kế heuristic đa mục tiêu dựa trên MPaGE\par}
+  \vspace{1.0cm}
+  {\Large Dự án: \texttt{mpage\_bmab}\par}
+  \vfill
+  \begin{tabular}{rl}
+    Ngành: & Khoa học máy tính \\
+    Hướng nghiên cứu: & Generative AI và tối ưu tổ hợp đa mục tiêu \\
+    Công cụ biên soạn: & XeLaTeX
+  \end{tabular}
+  \vfill
+  {\large \today\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\chapter*{Tóm tắt}
+Dự án \texttt{mpage\_bmab} nghiên cứu cách sử dụng ngân sách lời gọi mô hình ngôn ngữ lớn một cách hiệu quả hơn trong bài toán tự động thiết kế heuristic cho tối ưu tổ hợp đa mục tiêu. Nền tảng của dự án là MPaGE, một phương pháp kết hợp mô hình ngôn ngữ lớn, tiến hóa đơn điệu đa mục tiêu, lưới Pareto và phân cụm ngữ nghĩa để sinh các hàm heuristic. Phần mở rộng của dự án thay thế lịch lựa chọn cố định bằng một cơ chế bandit hai tầng có ràng buộc ngân sách: tầng thứ nhất chọn toán tử sinh heuristic, tầng thứ hai chọn cụm ngữ nghĩa trong từng thế hệ. Dự án cũng bổ sung theo dõi ngân sách, phát hiện trôi phân phối bằng Page--Hinkley, hàm thưởng có chặn, căn chỉnh tín hiệu thưởng với HV cuối của quần thể được quản lý và chỉ số diện tích dưới đường cong ngân sách AUBC.
+
+Luận văn này tổng hợp cơ sở lý thuyết, kiến trúc hệ thống, chi tiết triển khai và phân tích thực nghiệm từ mã nguồn và tài liệu trong kho dự án. Bộ kết quả hiện tại gồm 160 lượt chạy trên bốn bài toán, bốn mức ngân sách và năm seed, so sánh \texttt{full} lịch sử của \texttt{mpage\_bmab} với biến thể \texttt{mpage\_orig} được bọc lại để dùng cùng ngân sách. Kết quả cho thấy \texttt{mpage\_bmab} cải thiện AUBC trung bình trong 15/16 tổ hợp bài toán--ngân sách và thắng 71/80 cặp chạy theo seed; tuy nhiên HV cuối cùng chỉ cải thiện trong 10/16 tổ hợp, do đó đóng góp chính của bộ kết quả này nên được hiểu là hiệu quả sử dụng ngân sách trong quá trình tìm kiếm, không phải ưu thế tuyệt đối ở trạng thái cuối. Sau phân tích, mã nguồn đã bổ sung các chỉnh sửa hướng HV cuối cùng như \texttt{reward\_mode=final\_hv}, \texttt{dense\_reward}, \texttt{hybrid\_reward}, xả quần thể chờ và annealing thăm dò theo ngân sách; các chỉnh sửa này cần được đánh giá bằng suite \texttt{hv\_final\_*} trước khi tuyên bố kết quả định lượng mới. Với năm seed, kiểm định Wilcoxon hai phía không đạt mức ý nghĩa 0.05, nên các kết luận được trình bày theo hướng bằng chứng thực nghiệm và ý nghĩa thực tiễn thay vì khẳng định ý nghĩa thống kê mạnh.
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+
+\include{chapters/chapter1}
+\include{chapters/chapter2}
+\include{chapters/chapter3}
+\include{chapters/chapter4}
+\include{chapters/chapter5}
+\include{chapters/chapter6}
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography/references}
+
+\end{document}

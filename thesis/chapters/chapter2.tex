@@ -1,0 +1,101 @@
+\chapter{Tổng quan và cơ sở lý thuyết}
+
+\section{Tối ưu tổ hợp đa mục tiêu}
+
+Một bài toán tối ưu tổ hợp đa mục tiêu có thể được viết dưới dạng:
+
+\begin{equation}
+  \min_{x \in \mathcal{X}} F(x) = (f_1(x), f_2(x), \ldots, f_m(x)),
+\end{equation}
+
+trong đó $\mathcal{X}$ là không gian nghiệm rời rạc và $m$ là số mục tiêu. Với hai nghiệm $x$ và $y$, ta nói $x$ trội Pareto $y$ nếu $f_i(x) \leq f_i(y)$ với mọi $i$ và tồn tại ít nhất một mục tiêu $j$ sao cho $f_j(x) < f_j(y)$. Tập các nghiệm không bị trội tạo thành xấp xỉ Pareto front.
+
+Trong dự án này, các heuristic do LLM sinh ra không trực tiếp là nghiệm cuối cùng của bài toán TSP, CVRP hoặc KP. Thay vào đó, chúng là hàm chọn lân cận \texttt{select\_neighbor}, được dùng bên trong một vòng tìm kiếm cục bộ hoặc tiến hóa đơn giản. Điều này được thể hiện trong các template bài toán như \sourcefile{llm4ad/task/optimization/bi\_tsp/template.py}, \sourcefile{llm4ad/task/optimization/tri\_tsp/template.py}, \sourcefile{llm4ad/task/optimization/bi\_cvrp/template.py} và \sourcefile{llm4ad/task/optimization/bi\_kp/template.py}. Vì vậy, bài toán outer-loop của MPaGE và \texttt{mpage\_bmab} là tối ưu hóa chính các heuristic.
+
+\section{Các hướng tiếp cận liên quan}
+
+Trước khi LLM được dùng để sinh heuristic, tối ưu đa mục tiêu thường dựa trên các thuật toán tiến hóa hoặc tìm kiếm cục bộ. NSGA-II dùng non-dominated sorting và crowding distance để cân bằng hội tụ và đa dạng \cite{deb2002nsga2}. MOEA/D phân rã bài toán đa mục tiêu thành nhiều bài toán vô hướng con \cite{zhang2007moead}. SEMO là một khung tiến hóa đơn điệu thường được dùng để phân tích và thiết kế thuật toán cho bài toán đa mục tiêu rời rạc \cite{laumanns2004semo}. MPaGE kế thừa tinh thần SEMO nhưng thay toán tử thủ công bằng toán tử do LLM sinh và chỉnh sửa.
+
+Một nhánh khác là lựa chọn toán tử thích nghi trong thuật toán tiến hóa. Các phương pháp adaptive operator selection dùng tín hiệu phần thưởng để ưu tiên toán tử có đóng góp tốt hơn trong từng giai đoạn tìm kiếm \cite{fialho2008adaptive}. \texttt{mpage\_bmab} có quan hệ gần với hướng này, nhưng điểm khác là mỗi hành động không chỉ là một toán tử tiến hóa rẻ, mà là một lời gọi LLM có chi phí ngân sách rõ ràng.
+
+Trong hướng Generative AI, các công trình như FunSearch cho thấy LLM có thể được dùng để sinh chương trình và khám phá lời giải toán học thông qua vòng lặp sinh--đánh giá \cite{romera2024funsearch}. MPaGE và \texttt{mpage\_bmab} áp dụng tinh thần tương tự vào thiết kế heuristic cho tối ưu tổ hợp đa mục tiêu: chương trình do LLM sinh không được tin ngay, mà phải được thực thi và đánh giá định lượng.
+
+\section{Hypervolume và đánh giá Pareto front}
+
+Hypervolume là chỉ số phổ biến để đo chất lượng một tập nghiệm không bị trội. Với một điểm tham chiếu $r$, hypervolume đo thể tích vùng trong không gian mục tiêu bị chi phối bởi tập nghiệm và bị chặn bởi $r$ \cite{zitzler1999multiobjective,fonseca2006hv}. Trong mã nguồn \texttt{mpage\_bmab}, hàm \texttt{hypervolume} được cài đặt trong \sourcefile{mpage\_bmab/reward.py}; nếu thư viện \texttt{pymoo} khả dụng, hệ thống dùng \texttt{pymoo.indicators.hv.HV} \cite{blank2020pymoo}, nếu không sẽ dùng fallback cho trường hợp hai chiều.
+
+Điểm cần phân biệt là dự án có hai cấp hypervolume. Cấp bên trong là HV của nghiệm được sinh bởi một heuristic trên một bài toán cụ thể, ví dụ Bi-TSP hoặc Bi-CVRP. Cấp bên ngoài là HV của quần thể heuristic, trong đó mỗi heuristic có điểm số dạng $( -HV_{\text{inner}}, \text{runtime})$. \sourcefile{mpage\_bmab/documents/METRICS\_AUBC\_HV.md} nhấn mạnh rằng HV/AUBC trong kết quả hiện tại là metric ở cấp quần thể heuristic, không phải bảng HV nghiệm chuẩn hóa trong bài báo MPaGE gốc.
+
+\section{MPaGE}
+
+MPaGE là phương pháp thiết kế heuristic dùng LLM cho tối ưu tổ hợp đa mục tiêu. Theo \sourcefile{README.md}, \sourcefile{references/original\_mpage.docx} và mã nguồn \sourcefile{llm4ad/method/LLMPFG/}, MPaGE kết hợp ba ý tưởng chính.
+
+Thứ nhất là vòng lặp tiến hóa đơn điệu đa mục tiêu. Các heuristic được giữ trong một quần thể, đánh giá bằng vector mục tiêu và chọn lọc bằng quan hệ không bị trội cùng crowding distance. Cài đặt nằm trong \sourcefile{llm4ad/method/LLMPFG/population.py}.
+
+Thứ hai là Pareto Front Grid. PFG chia không gian mục tiêu thành các ô lưới để ưu tiên chọn heuristic ở những vùng đa dạng của Pareto front. Trong mã nguồn, các tham số như \texttt{pfg\_gk}, \texttt{pfg\_sigma} và \texttt{pfg\_epsilon} xuất hiện trong \sourcefile{llm4ad/method/LLMPFG/population.py} và được giữ lại trong \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}. Hình~\ref{fig:mpage-selection} minh họa cơ chế chọn lựa được cung cấp trong thư mục \sourcefile{figure/}.
+
+Thứ ba là phân cụm ngữ nghĩa bằng LLM. MPaGE yêu cầu LLM nhóm các heuristic dựa trên mô tả ý tưởng hoặc mã nguồn, sau đó dùng đột biến trong cụm và lai ghép giữa cụm để tăng đa dạng. Prompt phân cụm được định nghĩa trong \sourcefile{llm4ad/method/LLMPFG/prompt.py}. Hình~\ref{fig:mpage-overview} cho thấy tổng quan phương pháp MPaGE.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{mpage_overview.png}
+  \caption{Tổng quan MPaGE. Nguồn hình: \sourcefile{figure/Overview.png}.}
+  \label{fig:mpage-overview}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.86\linewidth]{mpage_selection.png}
+  \caption{Cơ chế chọn lựa dựa trên Pareto Front Grid của MPaGE. Nguồn hình: \sourcefile{figure/Selection.png}.}
+  \label{fig:mpage-selection}
+\end{figure}
+
+\section{Thiết kế heuristic bằng mô hình ngôn ngữ lớn}
+
+Trong dự án, LLM được dùng để sinh mã nguồn Python cho hàm heuristic, không dùng để trực tiếp giải bài toán tối ưu. Các prompt trong \sourcefile{llm4ad/method/LLMPFG/prompt.py} định nghĩa năm kiểu thao tác: khởi tạo I1, khai thác E1/E2 và đột biến M1/M2. \sourcefile{mpage\_bmab/bmab\_llm.py} dùng lại các prompt này thông qua sampler của MPaGE và chỉ thay đổi cách chọn thời điểm, toán tử và cụm.
+
+Về mặt Generative AI, đây là bài toán program synthesis có kiểm chứng bằng thực thi. LLM sinh một chương trình ứng viên, sau đó \sourcefile{llm4ad/base/evaluate.py} chạy chương trình trong môi trường đánh giá an toàn. Cách làm này khác với fine-tuning hoặc học có giám sát truyền thống: không có dữ liệu nhãn để huấn luyện lại mô hình, mà chất lượng được cải thiện qua vòng lặp tạo--đánh giá--chọn lọc. Trong kho mã nguồn không tìm thấy bằng chứng về huấn luyện Transformer, fine-tuning, LoRA, PEFT hoặc distillation.
+
+\section{Multi-armed bandit và UCB}
+
+Multi-armed bandit mô hình hóa bài toán chọn một hành động trong nhiều hành động khi phần thưởng chưa biết trước. Với UCB1, mỗi arm $a$ được chọn theo điểm:
+
+\begin{equation}
+  \mathrm{UCB}(a) = \hat{\mu}_a + c \sqrt{\frac{\log t}{n_a}},
+\end{equation}
+
+trong đó $\hat{\mu}_a$ là phần thưởng trung bình, $n_a$ là số lần arm đã được chọn và $t$ là tổng số lượt chọn \cite{auer2002ucb,bubeck2012bandits}. Thành phần thứ nhất khai thác arm tốt đã biết, thành phần thứ hai khuyến khích khám phá arm ít được thử.
+
+\texttt{mpage\_bmab} dùng UCB ở hai tầng. \sourcefile{mpage\_bmab/bandit.py} định nghĩa \texttt{OperatorBandit} để chọn giữa hai nhóm toán tử chính: \texttt{mutate} và \texttt{crossover}. Cùng tệp này định nghĩa \texttt{ClusterBandit} để chọn cặp cụm--toán tử trong từng thế hệ. Thiết kế này phản ánh nhận xét trong \sourcefile{mpage\_bmab/documents/IDEA.md}: một toán tử tốt toàn cục chưa chắc tốt ở mọi cụm ngữ nghĩa, và một cụm tốt có thể trở nên kém hữu ích khi bị khai thác quá nhiều.
+
+\section{Budgeted bandit}
+
+Trong bandit có ràng buộc ngân sách, mỗi hành động tiêu tốn một chi phí và thuật toán phải tối đa hóa phần thưởng trước khi ngân sách cạn \cite{ding2013budgeted}. Với bài toán LLM, chi phí tự nhiên là số lời gọi mô hình. \sourcefile{mpage\_bmab/budget.py} hiện thực hóa ý tưởng này bằng \texttt{BudgetTracker}. Mỗi lời gọi sinh hoặc phân cụm đều phải đi qua \texttt{charge}; khi ngân sách không đủ, hành động bị từ chối.
+
+Trong \sourcefile{mpage\_bmab/bandit.py}, \texttt{OperatorBandit} dùng phần thưởng trên chi phí, còn \texttt{ClusterBandit} bổ sung hệ số ngân sách còn lại. Cơ chế này không phải một lời giải tối ưu lý thuyết cho mọi biến thể budgeted MAB, nhưng phù hợp với yêu cầu kỹ thuật của dự án: đơn giản, ổn định, tích hợp được vào MPaGE và cho phép theo dõi quyết định theo từng lời gọi.
+
+\section{Page--Hinkley và trôi phân phối}
+
+Phần thưởng của một cụm hoặc toán tử không nhất thiết ổn định. Khi quần thể đã khai thác một vùng nào đó, cùng một cụm heuristic có thể giảm ích lợi biên. Page--Hinkley là một kiểm định online để phát hiện thay đổi trung bình chuỗi quan sát \cite{page1954continuous}. Trong \sourcefile{mpage\_bmab/bandit.py}, trạng thái \texttt{PageHinkleyState} cập nhật trung bình online và tổng tích lũy; khi độ lệch giữa cực đại lịch sử và tổng hiện tại vượt ngưỡng, arm được xem là bị trôi và thống kê arm đó được reset.
+
+Tài liệu \sourcefile{mpage\_bmab/documents/PAGE\_HINKLEY.md} và \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md} ghi các tham số mặc định $\delta = 0.005$ và ngưỡng $0.5$. Trong cấu hình \texttt{full}, Page--Hinkley được bật; các ablation như \texttt{no\_ph} có trong mã và tài liệu nhưng không xuất hiện trong bộ kết quả lịch sử hiện tại.
+
+\section{AUBC: diện tích dưới đường cong ngân sách}
+
+AUBC được định nghĩa trong \sourcefile{mpage\_bmab/documents/METRICS\_AUBC\_HV.md} và cài đặt trong \sourcefile{mpage\_bmab/profiler.py}. Với đường cong $HV(b)$ theo ngân sách tiêu thụ $b$, AUBC được tính xấp xỉ bằng quy tắc hình thang:
+
+\begin{equation}
+  \mathrm{AUBC} = \frac{1}{B}\int_0^B HV(b)\,db.
+\end{equation}
+
+Profiler neo đường cong tại $(0,0)$ và kéo phẳng giá trị cuối nếu quá trình kết thúc trước $B$. Metric này có ý nghĩa khi chi phí sinh heuristic là yếu tố quan trọng: hai phương pháp có thể có HV cuối tương tự nhau, nhưng phương pháp đạt HV cao sớm hơn sẽ có AUBC lớn hơn.
+
+\section{Kiểm kê kỹ thuật trong dự án}
+
+Bảng~\ref{tab:technique-inventory} tổng hợp các kỹ thuật Generative AI và học máy được tìm thấy hoặc không tìm thấy trong kho mã nguồn. Bảng này có vai trò kiểm soát phạm vi: luận văn chỉ phân tích các kỹ thuật có bằng chứng.
+
+\input{tables/technique_inventory}
+
+\section{Nhận xét về khoảng trống của phương pháp hiện có}
+
+MPaGE đã giải quyết tốt bài toán tạo đa dạng heuristic bằng LLM và quần thể Pareto, nhưng lịch phân bổ lời gọi LLM còn ít thích nghi với tín hiệu thực nghiệm trong quá trình chạy. \texttt{mpage\_bmab} bổ sung bandit để dùng chính kết quả đánh giá heuristic làm tín hiệu điều khiển. Tuy nhiên, do hệ thống vẫn phụ thuộc vào API LLM đóng và prompt sinh mã, nó còn chịu rủi ro về tính không quyết định, lỗi cú pháp, lỗi runtime và chi phí. Các rủi ro này được phản ánh trong thiết kế \texttt{BudgetTracker}, \texttt{SecureEvaluator}, \texttt{RewardComputer} và các thống kê invalid/null-score.

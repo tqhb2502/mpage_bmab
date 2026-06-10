@@ -1,0 +1,51 @@
+\chapter{Kết luận và hướng phát triển}
+
+\section{Tổng kết}
+
+Luận văn đã phân tích dự án \texttt{mpage\_bmab}, một phần mở rộng của MPaGE cho bài toán thiết kế heuristic bằng mô hình ngôn ngữ lớn trong tối ưu tổ hợp đa mục tiêu. Dự án giữ lại các thành phần cốt lõi của MPaGE như SEMO, Pareto Front Grid, phân cụm ngữ nghĩa, prompt sinh heuristic và evaluator benchmark, đồng thời thêm một lớp điều phối ngân sách dựa trên bandit.
+
+Từ mã nguồn và tài liệu, phương pháp đề xuất có thể được tóm tắt như sau. Hệ thống xem mỗi lời gọi LLM là một tài nguyên có chi phí, dùng \texttt{BudgetTracker} để đảm bảo ngân sách cứng, dùng \texttt{OperatorBandit} để chọn giữa đột biến và lai ghép, dùng \texttt{ClusterBandit} để chọn cụm ngữ nghĩa trong từng thế hệ, dùng Page--Hinkley để reset thống kê khi phần thưởng trôi, và dùng \texttt{RewardComputer} để biến kết quả đánh giá heuristic thành tín hiệu học. Phiên bản hiện tại bổ sung thêm reward mặc định hướng HV cuối cùng, reward ablation \texttt{dense\_reward}/\texttt{hybrid\_reward}, annealing thăm dò theo ngân sách và xả quần thể chờ trước khi ghi kết quả cuối.
+
+\section{Đóng góp chính}
+
+Đóng góp đầu tiên là mô hình hóa rõ bài toán thiết kế heuristic dưới ràng buộc ngân sách lời gọi LLM. Thay vì chỉ quan tâm chất lượng cuối cùng, dự án đưa đường cong chất lượng theo ngân sách vào quá trình đánh giá thông qua AUBC.
+
+Đóng góp thứ hai là thiết kế cơ chế bandit hai tầng. Tầng toán tử học khuynh hướng dài hạn giữa mutation và crossover; tầng cụm học lựa chọn ngắn hạn dựa trên chất lượng cụm, prior toán tử và ngân sách còn lại. Thiết kế này phù hợp với bản chất không ổn định của vòng lặp sinh heuristic bằng LLM.
+
+Đóng góp thứ ba là xây dựng pipeline thực nghiệm có thể tổng hợp, so sánh và trực quan hóa kết quả. Các artifact như \texttt{budget\_curve.json}, \texttt{aubc.json}, \texttt{bandit\_log.json}, \texttt{validity\_stats.csv} và các hình trong \sourcefile{mpage\_bmab/experiments/results/images/} cho phép phân tích không chỉ điểm cuối mà cả quá trình tiêu thụ ngân sách.
+
+Đóng góp thứ tư là phân tích và sửa các điểm có thể làm suy yếu HV cuối cùng: reward dùng score thực của heuristic vừa sinh, pending offspring được xả vào quần thể cuối, lời gọi cuối không bị tiêu cho phân cụm đơn thuần, prior cụm xét đóng góp HV/front và chọn cha mẹ có trọng số theo PFG.
+
+\section{Phát hiện chính}
+
+Kết quả lịch sử hiện tại cho thấy \texttt{mpage\_bmab} cải thiện AUBC trong 15/16 tổ hợp bài toán--ngân sách và thắng 71/80 cặp chạy theo seed so với \texttt{mpage\_orig}. Mức cải thiện nổi bật ở Bi-CVRP và Tri-TSP, đặc biệt trong ngân sách nhỏ hoặc trung bình. Điều này phù hợp với giả thuyết rằng điều phối lời gọi LLM thích nghi có lợi khi tài nguyên khan hiếm.
+
+Tuy nhiên, HV cuối cùng trong bộ kết quả lịch sử không cải thiện nhất quán. BMAB chỉ cao hơn trong 10/16 cell và thắng 38/80 cặp seed. Vì vậy, kết luận đúng nhất cho bộ kết quả này là BMAB cải thiện hiệu quả theo ngân sách, không phải luôn tạo ra quần thể heuristic cuối cùng tốt hơn. Các chỉnh sửa hiện tại nhắm trực tiếp vào hạn chế này nhưng cần thí nghiệm mới để định lượng.
+
+Phân tích invalid/null-score và valid heuristic yield cho thấy việc sinh heuristic hợp lệ là quan trọng nhưng không đủ để giải thích mọi kết quả. Ở Bi-CVRP, BMAB có valid yield thấp hơn nhưng AUBC cao hơn đáng kể, cho thấy chất lượng phân bổ lời gọi và giá trị biên của heuristic mới có thể quan trọng hơn số lượng heuristic hợp lệ.
+
+\section{Hạn chế}
+
+Luận văn chỉ dựa trên kết quả hiện có trong \sourcefile{mpage\_bmab/experiments/results/}. Mỗi cell có năm seed, do đó kiểm định Wilcoxon hai phía không đạt mức $p<0.05$. Các kết luận thống kê cần được xem là bằng chứng ban đầu có tính nhất quán thực nghiệm, không phải chứng minh cuối cùng.
+
+Bộ kết quả hiện tại không chứa ablation cho từng thành phần như Page--Hinkley, diversity reward, operator-only hoặc cluster-only. Vì vậy, chưa thể định lượng riêng đóng góp của từng mô-đun. Bộ kết quả cũng chưa chứa các thí nghiệm mới cho \texttt{full} với \texttt{reward\_mode=final\_hv}, \texttt{dense\_reward}, \texttt{hybrid\_reward} hoặc \texttt{no\_budget\_anneal}. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án về GPU, bộ nhớ, chi phí token, chi phí tiền tệ hoặc latency API.
+
+Ngoài ra, kết quả trong luận văn dùng HV/AUBC ở cấp quần thể heuristic. Chúng không tương đương trực tiếp với các bảng benchmark chuẩn hóa trong bài báo MPaGE gốc. Mọi so sánh trong luận văn vì vậy được giới hạn trong cùng pipeline \texttt{mpage\_bmab}.
+
+\section{Hướng phát triển}
+
+Hướng phát triển quan trọng nhất là chạy các thí nghiệm đã chuẩn bị trong \sourcefile{mpage\_bmab/experiments/HV\_FINAL\_EXPERIMENTS.md}. Trước hết nên chạy \texttt{hvfix\_smoke}, sau đó \texttt{hv\_final\_priority}; nếu kết quả hứa hẹn mới mở rộng sang \texttt{hv\_final\_full}. Trong các thí nghiệm này, \texttt{full} là phương pháp đã sửa với reward \texttt{final\_hv}, \texttt{dense\_reward} chỉ thay reward về HVI tức thời trong implementation đã sửa, còn \texttt{hybrid\_reward} trộn hai tín hiệu. \texttt{no\_budget\_anneal} là ablation tùy chọn và có thể bỏ qua nếu ngân sách chạy thí nghiệm hạn chế.
+
+Hướng tiếp theo là chạy đầy đủ ablation truyền thống. Các cấu hình \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, \texttt{cluster\_only} và \texttt{mpage\_budget} đã xuất hiện trong \sourcefile{mpage\_bmab/main.py}, nhưng chưa có kết quả đầy đủ trong thư mục hiện tại. Ablation sẽ giúp trả lời thành phần nào đóng góp nhiều nhất cho AUBC.
+
+Hướng thứ hai là mở rộng số seed và mô hình LLM. Với nhiều seed hơn, kiểm định thống kê sẽ có lực mạnh hơn. Với nhiều model hơn, có thể kiểm tra liệu bandit có còn hiệu quả khi chất lượng sinh mã, độ ổn định và chi phí lời gọi thay đổi.
+
+Hướng thứ ba là đưa chi phí token và latency vào ngân sách. Hiện tại mỗi lời gọi được tính chi phí bằng nhau, nhưng trong thực tế prompt dài, completion dài hoặc model khác nhau có chi phí khác nhau. Một biến thể budgeted MAB theo chi phí token có thể phản ánh thực tế triển khai tốt hơn.
+
+Hướng thứ tư là phân tích sâu hơn lỗi sinh mã. Nếu lưu đầy đủ invalid attempts của BMAB cùng loại lỗi, có thể tách lỗi cú pháp, lỗi runtime, timeout và heuristic hợp lệ nhưng kém. Điều này giúp thiết kế prompt hoặc cơ chế sửa lỗi tốt hơn.
+
+Hướng cuối cùng là kết hợp thêm cơ chế tìm kiếm cấp cao như Monte Carlo Tree Search hoặc lập kế hoạch prompt, nhưng hướng này cần được kiểm chứng cẩn thận để tránh làm tăng chi phí LLM vượt quá lợi ích AUBC.
+
+\section{Kết luận chung}
+
+\texttt{mpage\_bmab} là một mở rộng hợp lý và có bằng chứng thực nghiệm của MPaGE trong bối cảnh ngân sách LLM hữu hạn. Điểm mạnh của dự án nằm ở việc biến ngân sách thành một phần của thuật toán thay vì chỉ là giới hạn dừng. Kết quả lịch sử cho thấy cách tiếp cận bandit hai tầng có thể cải thiện đáng kể chất lượng tích lũy theo ngân sách, đặc biệt trên các bài toán phức tạp. Phiên bản hiện tại đã được chỉnh sửa để nhắm tốt hơn tới HV cuối cùng, nhưng kết luận định lượng về cải thiện HV cuối cần chờ các suite thí nghiệm mới. Dù còn thiếu ablation và số seed lớn hơn, dự án đã tạo ra một nền tảng rõ ràng để nghiên cứu sâu hơn về thiết kế heuristic bằng Generative AI dưới ràng buộc chi phí.

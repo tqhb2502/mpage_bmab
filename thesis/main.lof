@@ -1,0 +1,19 @@
+\babel@toc {vietnamese}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Tổng quan MPaGE. Nguồn hình: \sourcefile {figure/Overview.png}.}}{7}{figure.caption.5}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Cơ chế chọn lựa dựa trên Pareto Front Grid của MPaGE. Nguồn hình: \sourcefile {figure/Selection.png}.}}{7}{figure.caption.6}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Logical architecture of BMAB-LLM{}. The method preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control.}}{14}{figure.caption.7}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces AUBC trung bình theo ngân sách. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/aubc\_mean\_by\_budget.png}.}}{33}{figure.caption.11}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Heatmap phần trăm thay đổi AUBC của BMAB so với MPaGE-orig. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/aubc\_delta\_percent\_heatmap.png}.}}{34}{figure.caption.12}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Đường cong HV theo ngân sách chuẩn hóa. Nguồn: các tệp \sourcefile {budget\_curves\_B*.png} trong \sourcefile {mpage\_bmab/experiments/results/images/}.}}{35}{figure.caption.13}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces HV cuối cùng trung bình theo ngân sách. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/hv\_final\_mean\_by\_budget.png}.}}{37}{figure.caption.14}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Heatmap phần trăm thay đổi HV cuối cùng của BMAB so với MPaGE-orig. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/hv\_final\_delta\_percent\_heatmap.png}.}}{37}{figure.caption.15}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Valid heuristic yield theo ngân sách. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/valid\_yield\_by\_budget.png}.}}{39}{figure.caption.16}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Heatmap phần trăm thay đổi valid heuristic yield. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/valid\_yield\_delta\_percent\_heatmap.png}.}}{39}{figure.caption.17}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Tỷ lệ invalid/null-score theo ngân sách. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/invalid\_null\_rate\_by\_budget.png}.}}{40}{figure.caption.18}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Phân phối chênh lệch AUBC theo cặp seed. Nguồn: \sourcefile {mpage\_bmab/experiments/results/images/paired\_aubc\_delta\_boxplot.png}.}}{41}{figure.caption.19}%
+\addvspace {10\p@ }
