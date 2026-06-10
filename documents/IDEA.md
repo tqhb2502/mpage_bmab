@@ -123,46 +123,47 @@ The operator with maximal `score_o` is selected.
 **Step (ii) — Cluster selection given `o`.** For each cluster `k`, statistics
 `(N_k, S_k^R, S_k^c)` are warm-started from:
 
-* the parent cluster's average quality (proxy: max-elite score in `C_k`);
+* the parent cluster's quality prior (current implementation combines outer
+  HV contribution, best inner-HV proxy and runtime proxy);
 * an optimistic prior with `N_k = 1`, `S_k^R = R̄ + β·σ_R`.
 
 A **Budgeted UCB1** score is computed:
 
 ```
 score_k = (S_k^R / max(S_k^c, 1))                       (Exploitation per unit cost)
-        + c_cl · sqrt(2 · ln Σ_k' N_{k'} / N_k)         (Exploration)
-        + γ_b  · ln(b_t / B)                            (Budget pressure, ≤ 0)
+        + c_cl · (b_t/B)^γ_b · sqrt(2 · ln Σ_k' N_{k'} / N_k)
+                                                               (Annealed exploration)
 ```
 
-The `γ_b · ln(b_t/B)` term discourages risky exploration as `b_t → 0`, in line with
-finite-horizon MAB analysis. We use `γ_b = 1` by default; setting `γ_b = 0`
-recovers ordinary BUCB.
+The `(b_t/B)^γ_b` factor discourages risky exploration as `b_t → 0`, in line
+with finite-horizon MAB intuition. The current code uses `γ_b = 0.5` by
+default. Disabling budget annealing recovers ordinary BUCB exploration.
 
 ### 3.3 Reward Function (Multi-Objective + Diversity)
 
 For each generated heuristic `h`, evaluated with score `s(h) = (–HV, time)`:
 
 ```
-R(h) = w_q · Δ_HV(s(h) ; F_t)  +  w_d · ΔCDI(h ; H_t)
+R(h) = w_q · quality_signal(s(h) ; F_t)  +  w_d · ΔCDI(h ; H_t)
        + w_r · rank_score(s(h) ; H_t)
        –  λ_pen · 1[h is invalid or times-out]
 ```
 
-* `Δ_HV(s; F)` = hypervolume improvement of the heuristic-Pareto-front `F`
-  after inserting `s`, with reference point set to the user-provided
-  `(–HV_low, time_high)`. Uses `pymoo.indicators.hv.HV`.
+* `quality_signal` is selected by `reward_mode`. The default `final_hv` mode
+  uses normalized HV gain after applying the managed-population cap. The
+  `dense` mode uses immediate HVI, and `hybrid` averages the two.
 * `ΔCDI(h; H_t)` = increase of the cumulative diversity index after inserting
   `h` into the population (uses the same code definition as MPaGE).
-* `rank_score(s; H_t)` ∈ [0,1] = `1 − rank(s)/|H_t|`, smoothing the binary
-  `Δ_HV ∈ {0, +}` reward into a dense signal.
+* `rank_score(s; H_t)` ∈ [0,1] is the fraction of population members that the
+  new score improves on at least one objective, smoothing sparse quality
+  feedback into a dense signal.
 * Default weights: `w_q = 1.0`, `w_d = 0.3`, `w_r = 0.2`, `λ_pen = 1.0`.
-* We **rank-normalise** the cumulative reward stream per arm before exposing it
-  to UCB, in line with Fialho et al. (2010) — robust to heavy-tailed reward
-  distributions.
+* Immediate HVI and managed-population HV delta are normalized over a rolling
+  window before being exposed to UCB, making the reward scale more stable.
 
 ### 3.4 Drift Detection (Page–Hinkley)
 
-For each arm we maintain `m_t = m_{t−1} + (R_t − R̄_t − δ)`, `M_t = max_{s ≤ t} m_s`.
+For each arm we maintain `m_t = m_{t−1} + (R_t − R̄_t + δ)`, `M_t = max_{s ≤ t} m_s`.
 If `M_t − m_t > λ_PH`, the arm's statistics are reset to optimistic values
 *for that generation only*. This handles the situation where a previously good
 cluster becomes barren after the population has adopted its style.

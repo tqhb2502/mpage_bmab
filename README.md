@@ -19,18 +19,23 @@ BMAB-LLM extends MPaGE by:
    UCB1 bandit that carries statistics across generations.
 2. Treating the **cluster choice** (which semantic cluster to draw the parent
    from) as a per-generation Budgeted UCB1 bandit, warm-started from
-   cluster-quality and operator-level priors.
+   front-aware cluster-quality and operator-level priors.
 3. Adding a **Page-Hinkley** drift test that resets a `(cluster, operator)`
    arm whenever its reward distribution drops, so a cluster that *was*
    productive but has become barren no longer eats budget.
-4. Defining a **bounded multi-objective reward** combining HVI on the
-   heuristic Pareto front, a rank-based smoothing term, and a CDI-based
-   diversity bonus, with a penalty for invalid heuristics.
+4. Defining a **bounded multi-objective reward** combining a configurable
+   quality signal, a rank-based smoothing term, and a CDI-based diversity
+   bonus, with a penalty for invalid heuristics. The default quality signal is
+   final managed-population HV improvement; legacy immediate-HVI and hybrid
+   modes are available for ablation.
 5. Replacing the fixed *generation budget* with an explicit **LLM-call
    budget** `B`. The loop terminates exactly when `B` is exhausted.
 6. Recording the full **budget-vs-HV curve** so we can compute the
    **AUBC** metric (Area-Under-Budget-Curve), which captures the speed
    at which budget is converted into Pareto quality.
+7. Flushing pending valid offspring into the final managed population and
+   avoiding a final cluster-only call when only one generation call remains,
+   so terminal HV reflects the useful work paid for by the final budget units.
 
 ## Folder layout
 
@@ -102,9 +107,11 @@ Use `--help` to see the full set of CLI options. Highlights:
 | `--budget` | `50` | LLM-call budget `B`. The loop terminates when `B` is exhausted. |
 | `--budget_mode` | `call` | `call` = unit cost per LLM request; `token` = future-work hook for token-aware accounting. |
 | `--c_op`, `--c_cluster` | `1.0` | UCB1 exploration coefficients for the operator / cluster bandits. |
-| `--gamma_budget` | `0.5` | Weight of the budget-pressure term `γ_b · ln(b_t / B)` in the cluster bandit. |
+| `--gamma_budget` | `0.5` | Exponent used to anneal cluster-bandit exploration as remaining budget shrinks. |
 | `--ph_delta`, `--ph_threshold` | `0.005`, `0.5` | Page-Hinkley parameters. |
 | `--w_quality`, `--w_diversity`, `--w_rank` | `1.0`, `0.3`, `0.2` | Reward weights. |
+| `--reward_mode` | `final_hv` | Quality signal: `final_hv`, `dense`, or `hybrid`. |
+| `--disable_budget_annealing` | `False` | Disable remaining-budget exploration annealing in the cluster bandit. |
 | `--review` | `False` | Enable LLM-based reflection/suggestion call before crossover (extra +1 budget per call). |
 
 ## Output
@@ -155,7 +162,7 @@ print('AUBC =', profiler.aubc(50))
 | Drift handling | None | Page-Hinkley reset per `(cluster, operator)` arm |
 | Stopping criterion | Fixed `max_generations` or `max_sample_nums` | Fixed LLM-call budget `B` |
 | Headline metric | HV / IGD at fixed quota | **AUBC** + HV / IGD / SWDI / CDI |
-| Reward signal | None (population-level non-dominated filter only) | HVI + rank + diversity, penalty for invalid code |
+| Reward signal | None (population-level non-dominated filter only) | Final managed-population HV improvement by default, plus rank + diversity and invalid-code penalty |
 
 ## Ablations supported
 
@@ -164,6 +171,15 @@ The `BMABLLM` constructor accepts flags that disable each upgrade individually:
 * `c_explore_cluster=0.0, gamma_budget=0.0` → pure exploitation cluster bandit.
 * `ph_threshold=1e9` → effectively disable Page-Hinkley.
 * `w_diversity=0.0` → no diversity term.
+* `reward_mode='dense'` → legacy immediate-HVI quality signal inside the fixed
+  method (`dense_reward` ablation).
+* `reward_mode='hybrid'` → half immediate-HVI, half final managed-population HV
+  quality signal (`hybrid_reward` ablation).
+* `budget_annealing=False` → no remaining-budget exploration annealing
+  (`no_budget_anneal` ablation).
 * Set both `c_explore_op=0` and only one of `use_m*`/`use_e*` flags → single-operator ablation.
 
 These match the ablation set described in [`IDEA.md`](IDEA.md) §4.3.
+
+For the final-HV-focused follow-up experiments, see
+[`experiments/HV_FINAL_EXPERIMENTS.md`](experiments/HV_FINAL_EXPERIMENTS.md).

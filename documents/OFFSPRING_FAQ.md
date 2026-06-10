@@ -41,7 +41,7 @@ in_cluster = [full_elites[i] for i in cluster
               and getattr(full_elites[i], 'algorithm', None)]
 
 if op == 'mutate':
-    parent = random.choice(in_cluster)                            # one parent, intra-cluster
+    parent = weighted_parent_choice(in_cluster, pfg_elites)       # one parent, intra-cluster
     ...
     return (lambda: EoHPrompt.get_prompt_m1/m2(..., parent, ...)), [parent]
 
@@ -55,21 +55,21 @@ for j in other_clusters:
             if getattr(f, 'algorithm', None) is not None:
                 other_indivs.append(f)
 ...
-p1 = random.choice(in_cluster)         # one parent from the bandit-picked cluster
-p2 = random.choice(other_indivs)       # one parent from the UNION of all other clusters
+p1 = weighted_parent_choice(in_cluster, pfg_elites)    # one parent from the bandit-picked cluster
+p2 = weighted_parent_choice(other_indivs, pfg_elites)  # one parent from the UNION of all other clusters
 parents = [p1, p2]
 ```
 
 So the bandit picks **exactly one cluster — call it `k`**. Then:
 
-* **Mutation (`μ`)**: one parent is sampled uniformly at random from
-  cluster `k`. The bandit's cluster decision is the only "where do I draw
-  parents from" decision. No second cluster.
+* **Mutation (`μ`)**: one parent is sampled from cluster `k`, with
+  PFG-selected candidates upweighted. The bandit's cluster decision is the
+  only "where do I draw parents from" decision. No second cluster.
 * **Crossover (`χ`)**: one parent is sampled from cluster `k`; the **other
-  parent is sampled uniformly at random from the union of *every other
-  cluster***. There is no second bandit decision — the bandit's cluster
-  choice fixes which cluster is the *primary parent's* origin, and the
-  second parent is essentially "anyone not in `k`."
+  parent is sampled from the union of *every other cluster***. Both draws use
+  the same PFG-weighted parent sampler. There is no second bandit decision —
+  the bandit's cluster choice fixes which cluster is the *primary parent's*
+  origin, and the second parent is essentially "anyone not in `k`."
 
 ### Why this design
 
@@ -79,10 +79,10 @@ balloon to `K²` per generation, and with `pop_size = 6` and one
 observation per arm per generation, the bandit would have far too little
 data to estimate `K²` arms.
 
-By collapsing "the other parent" to "uniform random from everyone else,"
+By collapsing "the other parent" to "PFG-weighted random from everyone else,"
 the bandit credit-assigns the *primary* parent's cluster `k` for the
 quality of the resulting offspring, which is a reasonable signal even if
-the partner happens to be random.
+the partner is not itself selected by a second cluster-bandit decision.
 
 ### Code reference
 
@@ -96,21 +96,22 @@ always able to find two parents.
 
 ## 2. Q2: After a cluster is selected, is the heuristic chosen at random?
 
-**Yes — uniformly at random within the selected cluster.** Both `p1` (for
-mutation or crossover) and `p2` (for crossover only) are picked with
-`random.choice`:
+**Yes, but not uniformly in the current fixed implementation.** Both `p1`
+(for mutation or crossover) and `p2` (for crossover only) are picked by
+`_weighted_parent_choice`, where candidates returned by PFG selection receive
+higher weight:
 
 ```python
-parent = random.choice(in_cluster)         # mutation
-p1     = random.choice(in_cluster)         # crossover, primary
-p2     = random.choice(other_indivs)       # crossover, partner
+parent = weighted_parent_choice(in_cluster, pfg_elites)         # mutation
+p1     = weighted_parent_choice(in_cluster, pfg_elites)         # crossover, primary
+p2     = weighted_parent_choice(other_indivs, pfg_elites)       # crossover, partner
 ```
 
 No bandit operates inside the cluster. The bandit's job is to choose
 *which cluster* to draw from; once a cluster is chosen, the within-cluster
-parent is a flat random draw from the heuristics in that cluster.
+parent is a weighted random draw from the heuristics in that cluster.
 
-### Why uniform within a cluster
+### Why only lightweight weighting within a cluster
 
 Two reasons:
 
@@ -298,12 +299,14 @@ initialised to zero.
 * `ClusterBandit.select(restrict_operator=mutate)` → between arms
   `(0, μ)` and `(1, μ)`, picks `(1, μ)` (prior 0.775 > 0.575). Cluster
   1 = `{h2, h4}`.
-* `random.choice([h2, h4])` → say `h4`.
+* weighted parent choice from `[h2, h4]`, with PFG-selected candidates upweighted
+  → say `h4`.
 * Build prompt `M1(h4)`. Charge budget: **13 − 1 = 12**.
 * LLM returns a mutated version → `h5` with score `(−11.0, 0.25)`.
 * Reward computation:
-  * HVI of `h5` vs current front: small positive (h5 fills a bit
-    between h2 and h4); say `HVI = 1.4`, normalised `h_norm = 0.3`.
+  * Quality signal: in default `final_hv` mode, normalized managed-population
+    HV gain; in `dense_reward`, immediate HVI. Suppose the selected quality
+    signal is `0.3`.
   * Rank score: h5 beats h1, h3, h4 on objective 1 → some positive.
   * Diversity gain: tiny positive.
   * Total reward, say `R₁ = 0.45`.
@@ -316,10 +319,10 @@ initialised to zero.
 * `OperatorBandit.select()` → `crossover` (UCB pushed χ above μ now
   that μ has been sampled more).
 * `ClusterBandit.select(restrict_operator=crossover)` → between
-  `(0, χ)` and `(1, χ)`, picks `(0, χ)` (let's say the budget-pressure
-  term tilted things).
-* `p1 = random.choice([h1, h3])` → `h1`.
-* `p2 = random.choice([h2, h4])` (everyone *not* in cluster 0) → `h2`.
+  `(0, χ)` and `(1, χ)`, picks `(0, χ)` after budget-annealed exploration.
+* `p1 = weighted_parent_choice([h1, h3], pfg_elites)` → `h1`.
+* `p2 = weighted_parent_choice([h2, h4], pfg_elites)` (everyone *not* in
+  cluster 0) → `h2`.
 * Build prompt `E1([h1, h2])`. Charge budget: **12 − 1 = 11**.
 * LLM returns a hybrid → `h6` with score `(−9.5, 0.45)`.
 * Reward, say `R₂ = 0.2` (modest improvement on the front).
@@ -498,9 +501,9 @@ If you want richer in-generation data, three knobs are available:
 1. **`pop_size`** — larger pop_size means more inner-loop iterations
    per generation, so more observations per arm. Cost: fewer total
    generations under fixed budget.
-2. **`gamma_budget`** — lowering the budget-pressure weight makes the
-   bandit explore more aggressively in early-budget steps, giving
-   under-explored arms a fairer evaluation.
+2. **`gamma_budget`** — lowering the exploration-annealing exponent makes
+   the bandit keep exploring more aggressively late in the budget; increasing
+   it makes late-budget cluster choices more exploitative.
 3. **`prior_n`** — raising the virtual count of warm-start observations
    makes the bandit trust the prior more (less responsive to in-
    generation data); lowering it makes the bandit weight in-generation

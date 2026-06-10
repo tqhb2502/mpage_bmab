@@ -64,6 +64,7 @@ class BMABLLM:
                  gamma_budget: float = 0.5,
                  ph_delta: float = 0.005,
                  ph_threshold: float = 0.5,
+                 budget_annealing: bool = True,
                  disable_cluster_bandit: bool = False,
                  disable_operator_bandit: bool = False,
                  # reward weights
@@ -71,6 +72,7 @@ class BMABLLM:
                  w_diversity: float = 0.3,
                  w_rank: float = 0.2,
                  reward_penalty: float = 1.0,
+                 reward_mode: str = 'final_hv',
                  # call costs
                  cluster_call_cost: float = 1.0,
                  generation_call_cost: float = 1.0,
@@ -112,19 +114,22 @@ class BMABLLM:
             template_function=self._function_to_evolve,
             budget=self._budget,
             cluster_call_cost=cluster_call_cost,
+            ref_point=ref_point,
         )
 
         self._operator_bandit = OperatorBandit(c_explore=c_explore_op)
         self._cluster_bandit = ClusterBandit(c_explore=c_explore_cluster,
                                              gamma_budget=gamma_budget,
                                              ph_delta=ph_delta,
-                                             ph_threshold=ph_threshold)
+                                             ph_threshold=ph_threshold,
+                                             budget_annealing=budget_annealing)
         self._reward = RewardComputer(
             ref_point=ref_point,
             w_quality=w_quality,
             w_diversity=w_diversity,
             w_rank=w_rank,
             penalty=reward_penalty,
+            reward_mode=reward_mode,
         )
 
         # population
@@ -142,6 +147,7 @@ class BMABLLM:
         self._init_target_successes = init_target_successes or pop_size
         self._init_max_calls = init_max_calls or max(pop_size * 5, 25)
         self._gen_call_cost = generation_call_cost
+        self._cluster_call_cost = cluster_call_cost
         self._init_call_cost = init_call_cost
         self._review_call_cost = review_call_cost
         self._ref_point = np.asarray(ref_point, dtype=float)
@@ -212,7 +218,7 @@ class BMABLLM:
                and attempts < self._init_max_calls
                and not self._budget.is_exhausted()
                and self._budget.can_afford(self._init_call_cost)):
-            ok = self._sample_eval_register(
+            ok, _, _ = self._sample_eval_register(
                 lambda: EoHPrompt.get_prompt_i1(
                     self._task_description_str, self._function_to_evolve),
                 cost=self._init_call_cost,
@@ -230,7 +236,7 @@ class BMABLLM:
 
         # 1. select an elite pool from PFG (re-using MPaGE's parent_selection)
         try:
-            elites = self._population.selection(self._selection_num)
+            pfg_elites = self._population.selection(self._selection_num)
         except Exception:
             return
         # The PFG selection above returns ≤ 5 individuals. We expand to a wider
@@ -241,8 +247,19 @@ class BMABLLM:
         if len(full_elites) < 3:
             full_elites = full_elites or []
 
-        # 2. cluster (decrements budget by 1 if a real call is issued)
-        partition, cluster_quality = self._cluster_mgr.cluster(full_elites)
+        # 2. cluster (decrements budget by 1 if a real call is issued). If the
+        # remaining budget can only afford one generation call, skip the LLM
+        # cluster call and use singleton clusters so the last call can still
+        # produce a candidate for terminal HV.
+        needs_cluster_call = len(full_elites) >= 3
+        if (needs_cluster_call
+                and not self._budget.can_afford(self._cluster_call_cost
+                                                + self._gen_call_cost)):
+            partition = self._cluster_mgr.fallback_partition(full_elites)
+            cluster_quality = self._cluster_mgr.cluster_quality(partition,
+                                                                full_elites)
+        else:
+            partition, cluster_quality = self._cluster_mgr.cluster(full_elites)
         if not partition:
             return
         n_clusters = len(partition)
@@ -284,6 +301,7 @@ class BMABLLM:
             prompt_builder, parents_used = self._make_prompt(
                 op=op, cluster_idx=cluster_idx,
                 partition=partition, full_elites=full_elites,
+                pfg_elites=pfg_elites,
             )
             if prompt_builder is None:
                 # fallback -- consume one budget unit on a vanilla i1
@@ -299,21 +317,16 @@ class BMABLLM:
                     self._budget.charge(self._review_call_cost,
                                         label='suggestion')
 
-            score_before = self._population_scores()
+            score_before = self._population_scores(include_pending=True)
             div_before = cumulative_diversity(score_before)
 
-            ok = self._sample_eval_register(
+            ok, new_score, _ = self._sample_eval_register(
                 prompt_builder, cost=cost,
                 label=f'{op}#{cluster_idx}',
             )
 
             # Compute reward + update bandit
-            new_score = None
-            if ok and len(self._population.population) > 0:
-                # The newly registered function is the most recent one in
-                # _next_gen_pop or the population.
-                new_score = self._latest_score()
-            score_after = self._population_scores()
+            score_after = self._population_scores(include_pending=True)
             div_after = cumulative_diversity(score_after)
 
             reward, breakdown = self._reward.reward(
@@ -322,6 +335,7 @@ class BMABLLM:
                 diversity_before=div_before,
                 diversity_after=div_after,
                 invalid=(not ok),
+                managed_pop_size=self._pop_size,
             )
 
             if not self._disable_operator_bandit:
@@ -354,17 +368,18 @@ class BMABLLM:
     # -------------------------------------------------------- sampling
 
     def _sample_eval_register(self, prompt_builder, *,
-                              cost: float, label: str) -> bool:
+                              cost: float, label: str):
         """Run one (sample → evaluate → register) cycle. Decrements the budget.
-        Returns True iff a valid heuristic was registered."""
+        Returns ``(ok, score, func)`` where ``ok`` is true iff a valid heuristic
+        was registered."""
         if not self._budget.charge(cost, label=label):
-            return False
+            return False, None, None
         try:
             prompt = prompt_builder()
         except Exception:
-            return False
+            return False, None, None
         if prompt is None:
-            return False
+            return False, None, None
 
         sample_start = time.time()
         try:
@@ -372,18 +387,18 @@ class BMABLLM:
         except Exception:
             if self._debug:
                 traceback.print_exc()
-            return False
+            return False, None, None
         sample_time = time.time() - sample_start
         if thought is None or func is None:
-            return False
+            return False, None, None
 
         try:
             program = TextFunctionProgramConverter.function_to_program(
                 func, self._template_program)
         except Exception:
-            return False
+            return False, None, None
         if program is None:
-            return False
+            return False, None, None
 
         # evaluate (this may take a while). We do it inline (single thread).
         try:
@@ -393,9 +408,10 @@ class BMABLLM:
             score, eval_time = None, 0.0
 
         if not _is_valid_score(score):
-            return False
+            return False, None, None
 
-        func.score = list(score) if isinstance(score, tuple) else score
+        score_list = np.asarray(score, dtype=float).tolist()
+        func.score = score_list
         func.evaluate_time = eval_time
         func.sample_time = sample_time
         func.algorithm = thought
@@ -412,13 +428,14 @@ class BMABLLM:
             self._population.register_function(func)
         except Exception:
             pass
-        return True
+        return True, score_list, func
 
     # -------------------------------------------------------- prompt selection
 
     def _make_prompt(self, *, op: str, cluster_idx: int,
                      partition: List[List[int]],
-                     full_elites: List[Function]):
+                     full_elites: List[Function],
+                     pfg_elites: List[Function]):
         """Return a *callable* that produces a fresh prompt, plus the parent
         functions actually used (so we can also issue an optional review call).
         """
@@ -432,7 +449,7 @@ class BMABLLM:
             return None, []
 
         if op == 'mutate':
-            parent = random.choice(in_cluster)
+            parent = self._weighted_parent_choice(in_cluster, pfg_elites)
             use_m2 = self._use_m2 and (
                 random.random() < 0.5 or not self._use_m1)
             if use_m2:
@@ -458,8 +475,8 @@ class BMABLLM:
                             and getattr(f, 'algorithm', None) is not None]
         if not other_indivs:
             return None, []
-        p1 = random.choice(in_cluster)
-        p2 = random.choice(other_indivs)
+        p1 = self._weighted_parent_choice(in_cluster, pfg_elites)
+        p2 = self._weighted_parent_choice(other_indivs, pfg_elites)
         parents = [p1, p2]
         suggestions = None
         if self._review:
@@ -480,20 +497,36 @@ class BMABLLM:
 
     # -------------------------------------------------------- helpers
 
-    def _population_scores(self):
+    def _function_key(self, func: Function) -> str:
+        return str(func)
+
+    def _weighted_parent_choice(self, candidates: List[Function],
+                                pfg_elites: List[Function]) -> Function:
+        if not candidates:
+            raise ValueError("No parent candidates available")
+        pfg_keys = {self._function_key(f) for f in (pfg_elites or [])}
+        weights = [3.0 if self._function_key(f) in pfg_keys else 1.0
+                   for f in candidates]
+        return random.choices(candidates, weights=weights, k=1)[0]
+
+    def _population_scores(self, *, include_pending: bool = False):
         out = []
-        for f in self._population.population:
+        funcs = list(self._population.population)
+        if include_pending and hasattr(self._population, 'pending_population'):
+            funcs.extend(self._population.pending_population())
+        for f in funcs:
             if f.score is not None and _is_valid_score(f.score):
                 out.append(list(f.score))
         return out
 
-    def _latest_score(self):
-        if not self._population.population:
-            return None
-        f = self._population.population[-1]
-        return list(f.score) if f.score is not None else None
-
     def _finish(self):
+        try:
+            if hasattr(self._population, 'flush_pending'):
+                flushed = self._population.flush_pending()
+                if flushed:
+                    self._record_curve_point()
+        except Exception:
+            pass
         if self._profiler is not None:
             try:
                 self._profiler.record_budget(self._budget)

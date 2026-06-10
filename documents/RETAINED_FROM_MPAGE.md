@@ -99,21 +99,21 @@ BMAB-LLM groups `{E1, E2}` under "crossover" and `{M1, M2}` under "mutation" for
 
 ### 2.5 Intra-cluster mutation, inter-cluster crossover
 
-This dichotomy is the key insight of MPaGE's cluster-aware sampling: a mutation parent should come from *inside* the selected cluster (preserve style), while a crossover should mix parents from *different* clusters (cross-pollinate styles). BMAB-LLM uses this rule unchanged in [bmab_llm.py:416-444](../bmab_llm.py#L416-L444):
+This dichotomy is the key insight of MPaGE's cluster-aware sampling: a mutation parent should come from *inside* the selected cluster (preserve style), while a crossover should mix parents from *different* clusters (cross-pollinate styles). BMAB-LLM keeps this rule, but parent draws are now weighted so PFG-selected elites are more likely to be chosen:
 
 ```python
 if op == 'mutate':
-    parent = random.choice(in_cluster)              # intra-cluster
+    parent = weighted_parent_choice(in_cluster, pfg_elites)   # intra-cluster
     ...
 else:  # crossover
     other_clusters = [i for i in range(len(partition)) if i != cluster_idx]
     other_indivs   = [... from those other clusters ...]
-    p2 = random.choice(other_indivs)                # inter-cluster
+    p2 = weighted_parent_choice(other_indivs, pfg_elites)     # inter-cluster
 ```
 
 ### 2.6 Hypervolume as the quality metric
 
-Both methods evaluate the heuristic-Pareto-front via reference-point hypervolume (via `pymoo`). BMAB-LLM's HVI reward is the *increment* in HV when a new heuristic is added — that is, the same quantity MPaGE uses for evaluation, just used as the reward signal too. This makes the optimisation target and the evaluation target consistent.
+Both methods evaluate the heuristic-Pareto-front via reference-point hypervolume (via `pymoo`). In the current fixed BMAB-LLM implementation, the default reward quality signal is the normalized HV gain after adding a candidate and applying the same managed-population cap used for the final population. The legacy immediate-HVI signal is still available through the `dense_reward` ablation, and a half-immediate/half-final blend is available through `hybrid_reward`.
 
 ### 2.7 Multi-objective evaluation conventions
 
@@ -153,7 +153,7 @@ For completeness, here is the *scheduling layer* added on top of all the above.
 | `BudgetTracker` ([budget.py](../budget.py)) | The hard stop. Replaces MPaGE's "stop at `max_sample_nums`" with a uniform per-call accounting that also covers cluster + review calls. |
 | `OperatorBandit` + `ClusterBandit` ([bandit.py](../bandit.py)) | Replaces MPaGE's round-robin operator schedule and uniform random cluster selection. |
 | `PageHinkleyState` ([bandit.py:30-63](../bandit.py#L30-L63)) | No analogue in MPaGE — new drift-detection layer for non-stationary cluster rewards. |
-| `RewardComputer` ([reward.py:131-218](../reward.py#L131-L218)) | No analogue in MPaGE — MPaGE has no reward signal, only an end-of-run HV. |
+| `RewardComputer` ([reward.py](../reward.py)) | No analogue in MPaGE — MPaGE has no reward signal, only an end-of-run HV. Current modes are `final_hv`, `dense`, and `hybrid`. |
 | `ClusterManager` ([cluster_manager.py](../cluster_manager.py)) | Thin layer on top of MPaGE's `EoHPrompt.get_prompt_cluster` — adds budget-aware fallback and the warm-start quality priors. |
 | `BMABProfiler.record_curve_point` + `aubc()` ([profiler.py](../profiler.py)) | New AUBC metric; MPaGE only reports final HV. |
 | Adaptive warm-up with success counting | Extension of MPaGE's init loop, not a replacement. |

@@ -162,9 +162,11 @@ class ClusterBandit:
 
     def __init__(self, c_explore: float = 1.0, gamma_budget: float = 0.5,
                  prior_n: float = 1.0, prior_reward: float = 0.5,
-                 ph_delta: float = 0.005, ph_threshold: float = 0.5):
+                 ph_delta: float = 0.005, ph_threshold: float = 0.5,
+                 budget_annealing: bool = True):
         self._c = c_explore
         self._gamma_b = gamma_budget
+        self._budget_annealing = budget_annealing
         self._prior_n = prior_n
         self._prior_reward = prior_reward
         self._ph_delta = ph_delta
@@ -227,8 +229,9 @@ class ClusterBandit:
         """Choose an arm.
 
         Args:
-            budget_fraction: ``b_t / B`` ∈ (0, 1]. Used in the budget-pressure
-                term ``γ_b · ln(budget_fraction)`` (≤ 0).
+            budget_fraction: remaining-budget fraction in ``(0, 1]``. When
+                budget annealing is enabled, exploration is scaled down as the
+                budget runs out so late calls are more exploitative.
             restrict_operator: if set, only arms with this operator are considered.
         """
         self._t += 1
@@ -240,14 +243,21 @@ class ClusterBandit:
             raise RuntimeError("ClusterBandit has no arms to select from.")
 
         total_n = sum(self._stats[a].n for a in candidates)
-        budget_pressure = self._gamma_b * math.log(max(budget_fraction, 1e-3))
+        budget_fraction = max(min(budget_fraction, 1.0), 1e-3)
+        explore_scale = 1.0
+        if self._budget_annealing:
+            # The previous implementation added the same budget-pressure term
+            # to every arm, which did not change the argmax. Scaling the UCB
+            # exploration term changes rankings: broad exploration early,
+            # stronger exploitation near the end for final-HV quality.
+            explore_scale = max(budget_fraction, 1e-3) ** self._gamma_b
 
         scores = {}
         for arm in candidates:
             s = self._stats[arm]
             exploit = s.reward_per_cost
-            explore = self._c * math.sqrt(2.0 * math.log(max(total_n, 2)) / s.n)
-            scores[arm] = exploit + explore + budget_pressure
+            explore = (self._c * explore_scale * math.sqrt(2.0 * math.log(max(total_n, 2)) / s.n))
+            scores[arm] = exploit + explore
         # break ties uniformly
         max_score = max(scores.values())
         best = [a for a, sc in scores.items() if abs(sc - max_score) < 1e-9]

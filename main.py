@@ -45,6 +45,9 @@ _TASKS = {
 # Each value is a dict of overrides applied on top of the parsed CLI args.
 ABLATIONS = {
     'full':         {},
+    'dense_reward': {'reward_mode': 'dense'},
+    'hybrid_reward': {'reward_mode': 'hybrid'},
+    'no_budget_anneal': {'disable_budget_annealing': True},
     'no_ph':        {'ph_threshold': 1e9},
     'no_diversity': {'w_diversity': 0.0},
     'op_only':      {'disable_cluster_bandit': True},
@@ -93,8 +96,15 @@ def main(argv=None) -> None:
     p.add_argument('--w_quality', type=float, default=1.0)
     p.add_argument('--w_diversity', type=float, default=0.3)
     p.add_argument('--w_rank', type=float, default=0.2)
+    p.add_argument('--reward_mode', default='final_hv',
+                   choices=['dense', 'final_hv', 'hybrid'],
+                   help="Bandit reward quality signal. 'dense' is the legacy "
+                        "immediate-HVI reward; 'final_hv' rewards capped final "
+                        "population HV improvement.")
     p.add_argument('--ph_delta', type=float, default=0.005)
     p.add_argument('--ph_threshold', type=float, default=0.5)
+    p.add_argument('--disable_budget_annealing', action='store_true',
+                   help="Disable remaining-budget annealing in the cluster UCB.")
     p.add_argument('--disable_cluster_bandit', action='store_true',
                    help="Sample clusters uniformly at random (op_only ablation).")
     p.add_argument('--disable_operator_bandit', action='store_true',
@@ -152,8 +162,10 @@ def main(argv=None) -> None:
         w_quality=args.w_quality,
         w_diversity=args.w_diversity,
         w_rank=args.w_rank,
+        reward_mode=args.reward_mode,
         ph_delta=args.ph_delta,
         ph_threshold=args.ph_threshold,
+        budget_annealing=not args.disable_budget_annealing,
         disable_cluster_bandit=args.disable_cluster_bandit,
         disable_operator_bandit=args.disable_operator_bandit,
         random_seed=args.seed,

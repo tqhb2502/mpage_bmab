@@ -21,7 +21,7 @@ blocks.
 5. [The two distinct roles of PFG](#5-the-two-distinct-roles-of-pfg)
 6. [The actual mechanism: ε-based parent selection](#6-the-actual-mechanism--based-parent-selection)
 7. [Three implications worth pinning down](#7-three-implications-worth-pinning-down)
-8. [The dead `elites` variable — a design confound](#8-the-dead-elites-variable--a-design-confound)
+8. [PFG-selected elites as a parent-weighting signal](#8-pfg-selected-elites-as-a-parent-weighting-signal)
 
 ---
 
@@ -335,16 +335,16 @@ contain ≥ 3 elites. So MPaGE's clustering really does run in a
 substantial fraction of generations — not "never" — and the paper's
 claim that clustering is a core feature is consistent with the code.
 
-### 7.3 What `elites` would hold in BMAB-LLM if we used it
+### 7.3 What `pfg_elites` holds in BMAB-LLM
 
-The dead line in [bmab_llm.py:228](../bmab_llm.py#L228):
+The PFG selection line in [bmab_llm.py](../bmab_llm.py):
 
 ```python
-elites = self._population.selection(self._selection_num)
+pfg_elites = self._population.selection(self._selection_num)
 ```
 
-calls into exactly the `parent_selection` function above. So `elites`
-would be:
+calls into exactly the `parent_selection` function above. So `pfg_elites`
+contains:
 
 * **80 % of the time**: a 1–5 element list drawn from two adjacent grid
   cells along a random objective axis — i.e. a structurally coherent
@@ -354,7 +354,7 @@ would be:
 
 ---
 
-## 8. The dead `elites` variable — a design confound
+## 8. PFG-selected elites as a parent-weighting signal
 
 The comment in [bmab_llm.py:231-234](../bmab_llm.py#L231-L234) says:
 
@@ -362,17 +362,17 @@ The comment in [bmab_llm.py:231-234](../bmab_llm.py#L231-L234) says:
 
 That suggests the original design *intended* to feed `elites` into the
 bandit — so the bandit would pick within the adjacent-cell neighbourhood
-rather than over the whole population. That intent was **dropped**:
-`full_elites = list(self._population.population)` (the entire admitted
-population) is what actually goes into `_cluster_mgr.cluster(...)`. Grep
-[bmab_llm.py](../bmab_llm.py) for `elites` (singular, not `full_elites`)
-and you will see line 228 is the only mention.
+rather than treating every population member equally. The current fixed
+implementation keeps `full_elites = list(self._population.population)` for
+clustering, but uses `pfg_elites` inside `_weighted_parent_choice`: candidates
+that appear in the PFG-selected slice receive higher sampling weight.
 
 ### Why this matters for the thesis
 
-There is an honest design question lurking here: **should BMAB-LLM
-restore that PFG-narrowing slice and cluster *it*, rather than the whole
-population?** Arguments either way:
+There is still an honest design question lurking here: **should BMAB-LLM
+cluster the PFG-narrowing slice itself, rather than clustering the whole
+population and only using PFG as a parent-weighting signal?** Arguments either
+way:
 
 **For restoring it**
 * Matches MPaGE's intent more faithfully (the bandit picks within an
@@ -390,13 +390,11 @@ population?** Arguments either way:
   cluster bandit degenerate to "uniform random within the only cluster"
   for that generation.
 
-For the thesis comparison this is currently a **confound**: BMAB-LLM
-gets more clusters to choose from than the equivalent MPaGE slice would
-offer. If you want to control for that exactly, you can replace
-`full_elites` with `elites` (currently unused) in
-[bmab_llm.py:240](../bmab_llm.py#L240) and re-run the headline
-experiments — a one-line code change. Worth being aware of before you
-write the ablation table.
+For the thesis comparison this remains a possible **design difference**:
+BMAB-LLM gets more clusters to choose from than the equivalent MPaGE slice
+would offer, although its final parent draw is now biased back toward PFG
+elites. If you want to control for that exactly, add an explicit
+`--cluster_pool {full,narrow}` ablation and re-run the headline experiments.
 
 ### Practical recommendation
 
@@ -406,12 +404,12 @@ There are three reasonable options:
    clusters the whole PFG-curated population while MPaGE clusters an
    adjacent-cell slice." Defensible because the bandit needs cluster
    counts to be informative.
-2. **Restore `elites`** for a strict apples-to-apples comparison; report
-   AUBC both ways to show whether the difference matters.
-3. **Add a CLI flag** (e.g. `--cluster_pool {full, narrow}`) and ablate
+2. **Add a CLI flag** (e.g. `--cluster_pool {full, narrow}`) and ablate
    both. Cleanest experimentally; adds a small amount of code complexity.
+3. **Use the current fixed compromise**: cluster the whole PFG-curated
+   population for enough cluster arms, but weight parent draws toward the
+   PFG-selected slice.
 
-Option 2 is probably the right one if the thesis defence is going to
-emphasise "BMAB-LLM is a drop-in improvement over MPaGE" — the burden of
-proof for "drop-in" requires that the only difference be the scheduler,
-not the cluster input.
+Option 2 is the cleanest if the thesis defence is going to emphasise
+"BMAB-LLM is a drop-in improvement over MPaGE" — the burden of proof for
+"drop-in" requires checking whether the cluster input itself matters.

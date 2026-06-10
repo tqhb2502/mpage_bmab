@@ -1,6 +1,8 @@
 # MPaGE vs mpage_bmab Experimental Analysis
 
-This report analyzes the runs under `mpage_bmab/experiments/results`. The comparison is between the original MPaGE workflow, represented by the `mpage_orig` wrapper, and the proposed `full` mpage_bmab method. In this report, `full` is called **mpage_bmab**.
+This report analyzes the runs under `mpage_bmab/experiments/results`. The comparison is between the original MPaGE workflow, represented by the `mpage_orig` wrapper, and the historical `full` mpage_bmab method that produced this result set. In this report, `full` is called **mpage_bmab**.
+
+**Important version note.** These results were generated before the later final-HV-oriented implementation fixes. In the current code, `full` means the fixed method with `reward_mode=final_hv`; `dense_reward` means the fixed method with the legacy immediate-HVI reward. Therefore, the numbers in this report should be cited as the historical/pre-fix `full` result set, not as evidence for the new fixed `full`, `dense_reward`, or `hybrid_reward` methods.
 
 ## Experimental Setup
 

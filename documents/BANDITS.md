@@ -64,7 +64,7 @@ In our project:
 |-------------|---------------------|
 | Arm | "Pick operator μ" or "pick cluster `k` with operator μ" |
 | Pulling an arm | Issuing one LLM call with the corresponding prompt |
-| Reward | A scalar function of HVI + diversity + rank − penalty |
+| Reward | A scalar function of selected quality signal + diversity + rank − penalty |
 | Round | One iteration of the inner offspring loop |
 | Time horizon `T` | The LLM-call budget `B` |
 
@@ -166,36 +166,38 @@ budget unit than `μ̂_μ = 0.2, c̄_μ = 1` (`0.6/5 = 0.12 < 0.2`). Plain UCB1
 on raw reward would prefer crossover; Budgeted UCB1 correctly prefers
 mutation.
 
-### One more refinement: budget-pressure term
+### One more refinement: remaining-budget exploration annealing
 
-The cluster bandit adds a third term to the score:
+The fixed cluster bandit scales its UCB exploration term by the remaining
+budget fraction:
 
 ```
-budget_pressure  =  γ_b · ln( b_t / B )       (≤ 0)
+explore_scale = (b_t / B) ^ γ_b
+BUCB(a, t)    = S_a^R / S_a^c
+             + c · explore_scale · √( 2 · ln(N_t) / n_a )
 ```
 
 where `b_t` is the remaining budget and `B` the total budget. As budget runs
-out, `b_t / B → 0` and `ln(b_t/B) → −∞`. This term is the *same* for every
-arm in a single decision, so it does not change *which* arm is best — what
-it changes is the spread of UCB scores. Effectively it shrinks the
-exploration bonus when there is no time left to recover from a bad
-exploration decision. It is "explore aggressively early, exploit aggressively
-late."
+out, `b_t / B → 0`, so the confidence bonus shrinks and the bandit becomes
+more exploitative. This replaced the earlier additive
+`γ_b · ln(b_t/B)` term, because that term was identical for all arms in a
+single decision and therefore did not change the selected arm.
 
 This is documented in IDEA.md §3.2 and implemented in
 [bandit.py:236-243](bandit.py#L236-L243):
 
 ```python
-budget_pressure = self._gamma_b * math.log(max(budget_fraction, 1e-3))
+explore_scale = max(budget_fraction, 1e-3) ** self._gamma_b
 for arm in candidates:
     s = self._stats[arm]
     exploit = s.reward_per_cost
-    explore = self._c * math.sqrt(2.0 * math.log(max(total_n, 2)) / s.n)
-    scores[arm] = exploit + explore + budget_pressure
+    explore = self._c * explore_scale * math.sqrt(
+        2.0 * math.log(max(total_n, 2)) / s.n)
+    scores[arm] = exploit + explore
 ```
 
-`max(budget_fraction, 1e-3)` floors the log to avoid `−∞` exactly at
-budget exhaustion.
+`max(budget_fraction, 1e-3)` floors the scale so exploration does not become
+exactly zero due to floating-point edge cases.
 
 ---
 
@@ -434,7 +436,7 @@ Two things differ from the operator-level `select`:
    with that operator are considered. This is what makes the two-layer
    structure correct: the cluster bandit doesn't *re-decide* the operator;
    it picks the best cluster *given* the operator.
-2. **Budget pressure term + uniform tie-breaking.** Already discussed in §3.
+2. **Remaining-budget exploration annealing + uniform tie-breaking.** Already discussed in §3.
 
 ### 6.4 Update with drift detection
 
@@ -505,9 +507,9 @@ Three pieces of information flow into the cluster bandit's reset:
 
 | Source | What it carries | Why it matters |
 |--------|-----------------|----------------|
-| `cluster_quality` from `ClusterManager` | Per-cluster `[0,1]` HV-derived prior | "Cluster `k` looks promising because its members have high HV" |
+| `cluster_quality` from `ClusterManager` | Per-cluster `[0,1]` front-aware prior | "Cluster `k` looks promising because it contributes HV, contains strong inner-HV candidates, or has a good runtime proxy" |
 | `op_priors` from `OperatorBandit.softmax_probs()` | Per-operator probability `[0,1]` | "Operator `o` has been productive across the run" |
-| Hyperparameters `c, γ_b, δ, λ` from the BMAB config | UCB1 / budget-pressure / PH constants | Tuning of exploration strength and drift sensitivity |
+| Hyperparameters `c, γ_b, δ, λ` from the BMAB config | UCB1 / exploration-annealing / PH constants | Tuning of exploration strength and drift sensitivity |
 
 The arm prior `init_reward = 0.5 * (q + op_prior)` is the **product channel**
 through which knowledge from the long-running operator bandit reaches the
@@ -560,7 +562,7 @@ working better than crossover.
                 │              budget_fraction,           │
                 │              restrict_operator=op)      │
                 │     prompt = E1/E2/M1/M2(arm.cluster)   │
-                │     reward = ... (HVI + diversity etc.) │
+                │     reward = ... (quality + diversity etc.) │
                 │     OperatorBandit.update(op, reward)   │
                 │     ClusterBandit.update(arm, reward)   │
                 │       ↓ may trigger PH reset            │
@@ -589,23 +591,24 @@ while (produced < target_offspring
         budget_fraction=self._budget.fraction_remaining(),  # e.g. 0.6
         restrict_operator=op,
     )
-    # Suppose: arm = (0, 'mutate') with score 0.85 + 0.30 + (-0.26) = 0.89
-    # versus (1, 'mutate') with score 0.55 + 0.42 + (-0.26) = 0.71.
+    # Suppose: arm = (0, 'mutate') with score 0.85 + 0.18 = 1.03
+    # versus (1, 'mutate') with score 0.55 + 0.25 = 0.80.
     cluster_idx, op_picked = arm
 
     # Step 3 — prompt construction, parents drawn from cluster 0
     prompt_builder, parents_used = self._make_prompt(
         op=op, cluster_idx=cluster_idx,
         partition=partition, full_elites=full_elites,
+        pfg_elites=pfg_elites,
     )
 
     # Step 4 — diversity snapshot (CDI before)
-    score_before = self._population_scores()
+    score_before = self._population_scores(include_pending=True)
     div_before   = cumulative_diversity(score_before)   # e.g. 4.2
 
     # Step 5 — atomic (charge → sample → evaluate → register)
     cost = self._gen_call_cost  # 1.0 in call-mode
-    ok = self._sample_eval_register(
+    ok, new_score, _ = self._sample_eval_register(
         prompt_builder, cost=cost,
         label=f'{op}#{cluster_idx}',     # e.g. "mutate#0"
     )
@@ -613,17 +616,18 @@ while (produced < target_offspring
     # SecureEvaluator runs the heuristic, score returned.
 
     # Step 6 — diversity after, reward
-    new_score = self._latest_score() if ok else None
-    div_after = cumulative_diversity(self._population_scores())
+    score_after = self._population_scores(include_pending=True)
+    div_after = cumulative_diversity(score_after)
     reward, breakdown = self._reward.reward(
         new_score=new_score,
         population_scores=score_before,
         diversity_before=div_before,
         diversity_after=div_after,
         invalid=(not ok),
+        managed_pop_size=self._pop_size,
     )
-    # breakdown: {'hvi': 0.4, 'rank': 0.66, 'diversity': 0.05, 'penalty': 0,
-    #             'total': 1.0·0.4 + 0.3·0.05 + 0.2·0.66 = 0.547}
+    # breakdown includes hvi, managed_hv_delta, quality, rank, diversity,
+    # penalty and total.
 
     # Step 7 — bandit updates
     if not self._disable_operator_bandit:
@@ -705,7 +709,7 @@ UCB1's Hoeffding-based analysis.
 |----------------|---------|----------------------|
 | `c_explore_op` (--c_op) | 1.0 | More exploration of the rare operator; slower convergence on the truly best one |
 | `c_explore_cluster` (--c_cluster) | 1.0 | More exploration across clusters; mitigates over-confidence in early-pulled arms |
-| `gamma_budget` (--gamma_budget) | 0.5 | Stronger budget-pressure damping; explore less when budget low |
+| `gamma_budget` (--gamma_budget) | 0.5 | Stronger exploration annealing; explore less when budget low |
 | `prior_n` | 1 | Heavier reliance on warm-start; less responsive to first observed rewards |
 | `prior_reward` | 0.5 | Higher prior makes new arms look better → more exploration of fresh clusters |
 | `ph_delta` (--ph_delta) | 0.005 | Less sensitive PH; ignores small drops; longer detection delay |

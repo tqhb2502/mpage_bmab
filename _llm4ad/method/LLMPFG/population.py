@@ -232,6 +232,38 @@ class Population:
         finally:
             self._lock.release()
 
+    def flush_pending(self) -> bool:
+        """Merge any valid pending offspring into the managed population.
+
+        The original MPaGE population only applies survivor selection when a
+        full generation of ``pop_size`` offspring has accumulated. BMAB can
+        exhaust its hard LLM-call budget in the middle of a generation, leaving
+        useful valid offspring in ``_next_gen_pop``. For final-HV accounting we
+        need those candidates to participate in the final survivor selection.
+
+        Returns:
+            True if at least one pending candidate was merged.
+        """
+        try:
+            self._lock.acquire()
+            pending = [f for f in self._next_gen_pop if f.score is not None]
+            if not pending:
+                self._next_gen_pop = []
+                return False
+            pop = self._population + pending
+            self._population = population_management(pop, self._pop_size)
+            self._next_gen_pop = []
+            self._generation += 1
+            return True
+        except Exception:
+            return False
+        finally:
+            self._lock.release()
+
+    def pending_population(self) -> List[Function]:
+        """Return a snapshot of valid offspring waiting for generation flush."""
+        return [f for f in self._next_gen_pop if f.score is not None]
+
     def has_duplicate_function(self, func: str | Function) -> bool:
         for f in self._population:
             if str(f) == str(func) or func.score == f.score:
@@ -284,4 +316,3 @@ class Population:
             print(e)
             return []
         
-

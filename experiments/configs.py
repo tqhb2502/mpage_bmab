@@ -7,7 +7,7 @@ The runner enumerates the cartesian product and dispatches each cell to
 Suite presets
 -------------
 
-Three ready-made suites are provided for common workflows:
+Suite presets are provided for common workflows:
 
 * **smoke** — 2 ablations × 1 task × 1 budget × 1 seed = 2 runs.
   Tiny budget; used to confirm the pipeline end-to-end with the cheapest
@@ -16,6 +16,8 @@ Three ready-made suites are provided for common workflows:
   This is the experiment that produces the AUBC table in the thesis chapter.
 * **full** — 4 ablations × 4 tasks × 4 budgets × 5 seeds = 320 runs.
   Full coverage; only run after you've validated the pipeline.
+* **hvfix_smoke / hv_final_priority / hv_final_full** — follow-up suites for
+  the final-HV fixes and reward-mode ablations.
 
 You can compose your own suite with command-line flags to ``run.py``.
 """
@@ -42,7 +44,8 @@ ABLATIONS: List[str] = [
 ]
 
 ALL_ABLATIONS: List[str] = [
-    'full', 'no_ph', 'no_diversity', 'op_only',
+    'full', 'dense_reward', 'hybrid_reward', 'no_budget_anneal',
+    'no_ph', 'no_diversity', 'op_only',
     'cluster_only', 'mpage_budget',
     # `mpage_orig` dispatches to mpage_bmab.mpage_orig (the actual MPaGE class
     # capped at B sample calls) instead of mpage_bmab.main. The runner picks
@@ -149,6 +152,41 @@ SUITES: Dict[str, Suite] = {
         seeds=SEEDS,
         description='Full MPaGE-orig vs BMAB-LLM-full matrix '
                     '(2 × 4 × 4 × 5 = 160 runs). Expensive.',
+    ),
+    'hvfix_smoke': Suite(
+        name='hvfix_smoke',
+        ablations=['full', 'dense_reward', 'no_budget_anneal', 'mpage_orig'],
+        tasks=['bi_kp'],
+        budgets=[25],
+        seeds=[2025],
+        description='Cheap sanity check for the final-HV fixes on the weakest '
+                    'previous cell: Bi-KP, B=25, one seed.',
+    ),
+    'hv_final_priority': Suite(
+        name='hv_final_priority',
+        ablations=['full', 'dense_reward', 'hybrid_reward',
+                   'no_budget_anneal', 'mpage_orig'],
+        tasks=['bi_tsp', 'bi_cvrp', 'bi_kp'],
+        budgets=[25, 50, 100],
+        seeds=SEEDS,
+        description='Focused final-HV sweep over cells where terminal HV was '
+                    'mixed or weak. 5 × 3 × 3 × 5 = 225 runs.',
+    ),
+    'hv_final_full': Suite(
+        name='hv_final_full',
+        ablations=[
+            'full',
+            'dense_reward',
+            'hybrid_reward',
+            #'no_budget_anneal',
+            #'mpage_orig'
+        ],
+        tasks=TASKS,
+        budgets=BUDGETS,
+        seeds=SEEDS,
+        description='Full final-HV comparison after fixes. '
+                    'Default: 3 × 4 × 4 × 5 = 240 runs. '
+                    'Add no_budget_anneal or mpage_orig manually if needed.',
     ),
     'all_methods': Suite(
         name='all_methods',

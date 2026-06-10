@@ -62,6 +62,14 @@ MPaGE (Ha et al., 2025) iterates a population of heuristics through generations:
 | W2 | Cluster selection is **uniform random**; promising and barren clusters get equal budget | A per-generation **Budgeted UCB1 bandit** over clusters, warm-started with cluster-quality + operator-level priors, with a **Page-Hinkley** drift test that resets dead arms |
 | W3 | **No explicit LLM-call budget**; loop only stops on generation count | Every LLM call (init, cluster, mutate, crossover, suggestion) is **debited from a hard budget `B`**; loop terminates exactly when `B` is exhausted |
 
+The current fixed implementation also adds final-HV-oriented corrections:
+the default reward quality signal is managed-population HV gain
+(`reward_mode=final_hv`), pending valid offspring are flushed into the final
+population before reporting, the final usable budget unit is reserved for
+candidate generation rather than a cluster-only call, cluster priors use
+front-aware HV contribution plus inner-HV/runtime proxies, and parent sampling
+is biased toward PFG-selected elites.
+
 ### The headline metric: AUBC
 
 To capture not just *final* quality but the *speed* at which budget converts to
@@ -156,7 +164,7 @@ one tip. Implemented in `_llm4ad/method/LLMPFG/population.py`.
         │     c. parents = pick from partition[cluster]              │
         │     d. prompt = E1/E2 (χ) or M1/M2 (μ)                     │
         │     e. (sample, evaluate, register) → 1 budget unit        │
-        │     f. reward = HVI + diversity gain + rank − penalty      │
+        │     f. reward = quality + diversity gain + rank − penalty  │
         │     g. OperatorBandit.update(op, reward)                   │
         │     h. drift = ClusterBandit.update(arm, reward)           │
         │           if drift: arm reset to optimistic prior          │
@@ -195,7 +203,7 @@ mpage_bmab/
 ├── main.py                  ← CLI entry point (python -m mpage_bmab.main)
 ├── budget.py                ← BudgetTracker (charges every LLM call)
 ├── bandit.py                ← OperatorBandit + ClusterBandit + PageHinkleyState
-├── reward.py                ← HVI + diversity + RewardComputer
+├── reward.py                ← HV utilities + diversity + RewardComputer
 ├── cluster_manager.py       ← Wraps the cluster LLM call + computes priors
 ├── profiler.py              ← BMABProfiler (extends EoHProfiler with AUBC)
 ├── bmab_llm.py              ← BMABLLM main orchestrator (the analogue of MPaGE)
@@ -284,7 +292,7 @@ single point of enforcement that guarantees the run stops at exactly `B` calls
 — there is no other path through which the LLM can be hit.
 
 `fraction_remaining()` returns `remaining / total` and is used by the cluster
-bandit's budget-pressure term (see §5.4).
+bandit's remaining-budget exploration annealing (see §5.4).
 
 ---
 
@@ -341,18 +349,20 @@ operators, used as a warm-start prior when the cluster bandit is reset.
 Per-generation Budgeted UCB1 over `(cluster_idx, operator)` arms. Reset every
 generation, warm-started from cluster quality and operator priors.
 
-The score combines three terms:
+The score combines exploitation and budget-annealed exploration:
 
 ```python
-exploit         = s.reward_per_cost
-explore         = c · √(2·ln(total_n) / n_a)
-budget_pressure = γ_b · ln(b_t / B)              # ≤ 0; → −∞ as budget runs out
-score           = exploit + explore + budget_pressure
+exploit       = s.reward_per_cost
+explore_scale = (remaining_budget / total_budget) ** gamma_budget
+explore       = c · explore_scale · √(2·ln(total_n) / n_a)
+score         = exploit + explore
 ```
 
-The budget-pressure term is the same for every arm in a step, so it does not
-change *which* arm is best; what it does is shrink the *spread* of UCB scores
-as `b_t → 0`, naturally damping exploration when budget is scarce.
+The old additive budget-pressure term was uniform across arms and therefore
+did not change the argmax. The fixed method scales the exploration term
+itself, so cluster selection is broad early in the run and more exploitative
+near the end. Pass `--disable_budget_annealing` or use the
+`no_budget_anneal` ablation to turn this off.
 
 `update(arm, reward, cost)` does two things:
 1. Update arm sufficient statistics.
@@ -402,17 +412,23 @@ The class that combines everything into the scalar reward fed to the bandits.
 
 ```python
 def reward(self, new_score, population_scores,
-           diversity_before, diversity_after, *, invalid=False):
+           diversity_before, diversity_after, *,
+           invalid=False, managed_pop_size=None):
     if invalid or new_score is None or not _is_valid_score(new_score):
         return -self._pen, {...}                    # penalty for bad heuristic
 
     h        = hvi(new_score, population_scores, self._ref)
-    h_norm   = h / max(recent_hvi_max, ε)           # rolling-window normalisation
+    h_norm   = h / max(recent_hvi_max, ε)           # immediate-HVI signal
+
+    managed_delta = HV(managed_scores(pop + [new], managed_pop_size)) \
+                    - HV(managed_scores(pop, managed_pop_size))
+    final_norm    = managed_delta / max(recent_managed_delta_max, ε)
+    quality       = select_by_reward_mode(h_norm, final_norm)
 
     rank_score = (# popmembers any-objective-worse than new) / |pop|
     d_gain     = max(0, diversity_after - diversity_before)
 
-    total = w_q · h_norm  +  w_d · d_gain  +  w_r · rank_score
+    total = w_q · quality  +  w_d · d_gain  +  w_r · rank_score
     return total, breakdown
 ```
 
@@ -420,6 +436,14 @@ def reward(self, new_score, population_scores,
 - Pure HVI is sparse (most offspring don't improve the front → reward = 0).
 - `rank_score` provides a dense signal (always in [0, 1]).
 - `d_gain` discourages collapse onto a single Pareto region.
+
+`reward_mode` controls the quality signal:
+
+| Mode | Meaning |
+|------|---------|
+| `final_hv` | default `full`; rewards normalized managed-population HV gain |
+| `dense` | `dense_reward`; rewards normalized immediate HVI |
+| `hybrid` | `hybrid_reward`; averages the two signals |
 
 **Rolling-window normalisation** of HVI keeps the reward bounded in [0, ~1]
 even when early-stage hypervolume jumps are huge — this matters because UCB1's
@@ -463,7 +487,8 @@ Three behaviours worth highlighting:
    response, invalid partition) collapses to "every elite is its own cluster"
    — the loop continues degraded but does not crash.
 3. **`_cluster_quality()`** maps each cluster to a `[0,1]` quality score
-   derived from the best-HV member. This is the prior fed to
+   combining current outer-front HV contribution, the best inner-HV proxy
+   (`-score[0]`) and the best runtime proxy. This is the prior fed to
    `ClusterBandit.reset()`.
 
 ---
@@ -523,8 +548,10 @@ class BMABLLM:
                  budget, ref_point, pop_size=6,
                  c_explore_op=1.0, c_explore_cluster=1.0, gamma_budget=0.5,
                  ph_delta=0.005, ph_threshold=0.5,
+                 budget_annealing=True,
                  disable_cluster_bandit=False, disable_operator_bandit=False,
                  w_quality=1.0, w_diversity=0.3, w_rank=0.2, reward_penalty=1.0,
+                 reward_mode='final_hv',
                  random_seed=None, profiler=None, ...)
 
     def run(self) -> List[Function]      # the main entry; returns final population
@@ -550,7 +577,9 @@ def run(self) -> List[Function]:
 ```
 
 Two stop conditions: budget exhaustion (canonical) or an optional
-`max_generations` cap (sanity).
+`max_generations` cap (sanity). `_finish()` flushes pending valid offspring
+into the managed population and records a final curve point before writing
+profiler artefacts.
 
 #### `_init_population()` — adaptive warm-up
 
@@ -562,7 +591,7 @@ while (successes < self._init_target_successes
        and attempts  < self._init_max_calls
        and not self._budget.is_exhausted()
        and self._budget.can_afford(self._init_call_cost)):
-    ok = self._sample_eval_register(
+    ok, _, _ = self._sample_eval_register(
         lambda: EoHPrompt.get_prompt_i1(self._task_description_str,
                                         self._function_to_evolve),
         cost=self._init_call_cost, label='init')
@@ -579,11 +608,11 @@ The structural backbone of the project. Breakdown:
 
 ```python
 # 1. PFG selection
-elites      = self._population.selection(self._selection_num)
+pfg_elites  = self._population.selection(self._selection_num)
 full_elites = list(self._population.population)
 
-# 2. Cluster (1 LLM call, debits budget)
-partition, cluster_quality = self._cluster_mgr.cluster(full_elites)
+# 2. Cluster, unless the last affordable call should be saved for generation
+partition, cluster_quality = maybe_cluster_or_singleton_fallback(full_elites)
 
 # 3. Reset cluster bandit with warm-start priors
 op_priors = self._operator_bandit.softmax_probs(temperature=1.0)
@@ -614,16 +643,17 @@ while produced < pop_size and not budget.is_exhausted() \
     # 4c. Build prompt + parents
     prompt_builder, parents_used = self._make_prompt(
         op=op, cluster_idx=arm[0],
-        partition=partition, full_elites=full_elites)
+        partition=partition, full_elites=full_elites,
+        pfg_elites=pfg_elites)
 
     # 4d. Snapshot diversity, then sample/evaluate/register
-    score_before = self._population_scores()
+    score_before = self._population_scores(include_pending=True)
     div_before   = cumulative_diversity(score_before)
-    ok           = self._sample_eval_register(prompt_builder,
-                                              cost=cost,
-                                              label=f'{op}#{arm[0]}')
-    new_score    = self._latest_score() if ok else None
-    div_after    = cumulative_diversity(self._population_scores())
+    ok, new_score, _ = self._sample_eval_register(prompt_builder,
+                                                  cost=cost,
+                                                  label=f'{op}#{arm[0]}')
+    score_after  = self._population_scores(include_pending=True)
+    div_after    = cumulative_diversity(score_after)
 
     # 4e. Compute reward
     reward, breakdown = self._reward.reward(
@@ -631,7 +661,8 @@ while produced < pop_size and not budget.is_exhausted() \
         population_scores=score_before,
         diversity_before=div_before,
         diversity_after=div_after,
-        invalid=(not ok))
+        invalid=(not ok),
+        managed_pop_size=self._pop_size)
 
     # 4f. Update bandits
     if not self._disable_operator_bandit:
@@ -659,8 +690,9 @@ The single point that **(a) charges the budget**, (b) calls the LLM via the
 sampler, (c) parses the response into a `Function`+`Program`, (d) runs the
 secure evaluator, and (e) registers a successful function in the population.
 
-Returns `True` iff a valid heuristic was registered. A `False` return signals
-"invalid heuristic" to the reward computer, which applies the penalty.
+Returns `(ok, score, func)`. `ok=False` signals "invalid heuristic" to the
+reward computer, which applies the penalty. Returning the actual child score
+prevents stale-population scores from being used in the reward.
 
 ---
 
@@ -675,7 +707,7 @@ non-obvious bits:
 _TASKS = {
     'bi_tsp':   ('mpage_bmab._llm4ad.task.optimization.bi_tsp_semo',
                  'BITSPEvaluation', (20.0, 60.0)),
-    'tri_tsp':  (..., 'TRITSPEvaluation', (20.0, 20.0, 60.0)),
+    'tri_tsp':  (..., 'TRITSPEvaluation', (20.0, 60.0)),
     'bi_cvrp':  (..., 'BICVRPEvaluation', (40.0, 60.0)),
     'bi_kp':    (..., 'BIKPEvaluation',   (0.0, 60.0)),
 }
@@ -690,6 +722,9 @@ The reference point is the upper bound for HV computation, in the
 ```python
 ABLATIONS = {
     'full':         {},
+    'dense_reward': {'reward_mode': 'dense'},
+    'hybrid_reward': {'reward_mode': 'hybrid'},
+    'no_budget_anneal': {'disable_budget_annealing': True},
     'no_ph':        {'ph_threshold': 1e9},
     'no_diversity': {'w_diversity': 0.0},
     'op_only':      {'disable_cluster_bandit': True},
@@ -706,6 +741,10 @@ When you pass `--ablation NAME`, the corresponding dict is merged on top of the
 parsed CLI args, and the resulting parameters are passed to `BMABLLM`. The
 profiler's method tag is set to `BMAB-<ablation>` so that downstream
 aggregation can group runs by ablation.
+
+`full` is the current fixed final-HV-oriented method. `dense_reward` and
+`hybrid_reward` change only `reward_mode`; they do not revert the other
+final-HV fixes.
 
 ---
 
@@ -924,7 +963,7 @@ each row is a point `(x=budget_consumed, y=hv)`.
 |------|---------|---------|
 | `--c_op` | `1.0` | UCB1 exploration coefficient for the operator bandit |
 | `--c_cluster` | `1.0` | UCB1 exploration coefficient for the cluster bandit |
-| `--gamma_budget` | `0.5` | Weight of the budget-pressure term `γ_b · ln(b_t / B)` |
+| `--gamma_budget` | `0.5` | Exponent for remaining-budget exploration annealing |
 | `--ph_delta` | `0.005` | Page-Hinkley slack |
 | `--ph_threshold` | `0.5` | Page-Hinkley drift threshold |
 
@@ -932,15 +971,17 @@ each row is a point `(x=budget_consumed, y=hv)`.
 
 | Flag | Default | Meaning |
 |------|---------|---------|
-| `--w_quality` | `1.0` | Weight of normalised HVI |
+| `--w_quality` | `1.0` | Weight of the selected quality signal |
 | `--w_diversity` | `0.3` | Weight of ΔCDI diversity gain |
 | `--w_rank` | `0.2` | Weight of rank score |
+| `--reward_mode` | `final_hv` | Quality signal: `final_hv`, `dense`, or `hybrid` |
 
 ### Ablation presets and toggles
 
 | Flag | Default | Meaning |
 |------|---------|---------|
-| `--ablation` | `full` | One of `full`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget` (overrides the relevant params) |
+| `--ablation` | `full` | One of `full`, `dense_reward`, `hybrid_reward`, `no_budget_anneal`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget` (overrides the relevant params) |
+| `--disable_budget_annealing` | off | Disable remaining-budget exploration annealing |
 | `--disable_cluster_bandit` | off | Sample clusters uniformly at random (op_only ablation) |
 | `--disable_operator_bandit` | off | Round-robin operators instead of UCB1 |
 | `--method_name` | `BMAB-<ablation>` | Override profiler method tag |
@@ -990,7 +1031,7 @@ In `main.py`, add an entry to `ABLATIONS`:
 ```python
 'my_ablation': {
     'w_diversity': 0.0,
-    'gamma_budget': 0.0,
+    'disable_budget_annealing': True,
     'c_explore_cluster': 0.0,
 }
 ```

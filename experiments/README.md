@@ -24,11 +24,20 @@ experiments/
 | name | what it changes | flag(s) it sets |
 |------|------------------|-----------------|
 | `full`         | the proposed BMAB-LLM | (defaults) |
+| `dense_reward` | fixed BMAB-LLM with the legacy immediate-HVI reward quality signal | `reward_mode=dense` |
+| `hybrid_reward` | fixed BMAB-LLM with half immediate-HVI and half final managed-population HV reward | `reward_mode=hybrid` |
+| `no_budget_anneal` | fixed BMAB-LLM without remaining-budget exploration annealing | `disable_budget_annealing=True` |
 | `no_ph`        | disable Page-Hinkley drift | `ph_threshold=1e9` |
 | `no_diversity` | drop the ΔCDI reward term | `w_diversity=0.0` |
 | `op_only`      | uniform random cluster sampling | `disable_cluster_bandit=True` |
 | `cluster_only` | round-robin operator selection | `disable_operator_bandit=True` |
 | `mpage_budget` | MPaGE-style baseline (no bandits, no diversity) | all three above + `w_rank=0` |
+| `mpage_orig` | actual MPaGE wrapper under the same budget accounting | dispatches to `mpage_bmab.mpage_orig` |
+
+In the current code, `full` means the fixed final-HV-oriented method
+(`reward_mode=final_hv`). Historical outputs under
+`experiments/results/full` were produced before those fixes and should be
+reported as the historical/pre-fix `full` result set, not as `dense_reward`.
 
 ## Pre-flight
 
@@ -48,6 +57,9 @@ contains `mpage_bmab/`).
 | `headline` | 48 | ≈ 4,650 | the main AUBC table for the thesis chapter |
 | `budget50` | 80 | ≈ 4,000 | comparison across all 4 tasks at the tight-budget regime |
 | `full` | 320 | ≈ 30,950 | the complete matrix from IDEA.md §4 |
+| `hvfix_smoke` | 4 | ≈ 100 | cheap sanity check for the final-HV fixes |
+| `hv_final_priority` | 225 | ≈ 13,125 | focused final-HV sweep including reward ablations and `mpage_orig` |
+| `hv_final_full` | 240 by default | ≈ 22,500 | full final-HV sweep for `full`, `dense_reward`, and `hybrid_reward`; optional ablations can be added manually |
 
 The "total LLM calls" column is approximate: each cell consumes its
 `--budget` plus a small overhead for the cluster-LLM calls (already
@@ -139,7 +151,7 @@ Aggregated CSV columns:
 
 | column | description |
 |--------|-------------|
-| `ablation` | one of {full, no_ph, no_diversity, op_only, cluster_only, mpage_budget} |
+| `ablation` | method tag such as `full`, `dense_reward`, `hybrid_reward`, `no_budget_anneal`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget`, or `mpage_orig` |
 | `task` | `bi_tsp` / `tri_tsp` / `bi_cvrp` / `bi_kp` |
 | `budget` | total LLM-call budget B |
 | `seed` | RNG seed |

@@ -57,6 +57,80 @@ def _pareto_front(points: np.ndarray) -> np.ndarray:
     return points[keep]
 
 
+def _dominates(a: np.ndarray, b: np.ndarray) -> bool:
+    return bool(np.all(a <= b) and np.any(a < b))
+
+
+def managed_scores(scores: Sequence[Sequence[float]], max_size: int) -> np.ndarray:
+    """Score-only equivalent of MPaGE's population survivor selection.
+
+    This mirrors ``population_management``: keep non-dominated fronts first and
+    use crowding distance to truncate the last accepted front. It is used by the
+    final-HV reward so the bandit learns the value of a candidate after the same
+    population cap used at the end of the run.
+    """
+    pts = np.asarray([s for s in scores if _is_valid_score(s)], dtype=float)
+    if len(pts) == 0 or max_size <= 0:
+        return np.zeros((0, 0), dtype=float)
+    if len(pts) <= max_size:
+        return pts
+
+    n = len(pts)
+    dominates_list = [[] for _ in range(n)]
+    dominated_count = [0 for _ in range(n)]
+    fronts: List[List[int]] = [[]]
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            if _dominates(pts[i], pts[j]):
+                dominates_list[i].append(j)
+            elif _dominates(pts[j], pts[i]):
+                dominated_count[i] += 1
+        if dominated_count[i] == 0:
+            fronts[0].append(i)
+
+    front_idx = 0
+    while front_idx < len(fronts):
+        nxt: List[int] = []
+        for i in fronts[front_idx]:
+            for j in dominates_list[i]:
+                dominated_count[j] -= 1
+                if dominated_count[j] == 0:
+                    nxt.append(j)
+        if nxt:
+            fronts.append(nxt)
+        front_idx += 1
+
+    selected: List[int] = []
+    for front in fronts:
+        if len(selected) + len(front) <= max_size:
+            selected.extend(front)
+            continue
+        remaining = max_size - len(selected)
+        distances = {idx: 0.0 for idx in front}
+        if len(front) <= 2:
+            for idx in front:
+                distances[idx] = float('inf')
+        else:
+            for obj in range(pts.shape[1]):
+                ordered = sorted(front, key=lambda idx: pts[idx, obj])
+                distances[ordered[0]] = float('inf')
+                distances[ordered[-1]] = float('inf')
+                lo = pts[ordered[0], obj]
+                hi = pts[ordered[-1], obj]
+                if hi == lo:
+                    continue
+                for pos in range(1, len(ordered) - 1):
+                    distances[ordered[pos]] += (
+                        pts[ordered[pos + 1], obj]
+                        - pts[ordered[pos - 1], obj]
+                    ) / (hi - lo)
+        selected.extend(sorted(front, key=lambda idx: -distances[idx])[:remaining])
+        break
+    return pts[selected]
+
+
 def hypervolume(points: np.ndarray, ref_point: np.ndarray) -> float:
     """Hypervolume of ``points`` with respect to ``ref_point`` (minimisation)."""
     if len(points) == 0:
@@ -139,7 +213,8 @@ class RewardComputer:
                  w_rank: float = 0.2,
                  penalty: float = 1.0,
                  rank_window: int = 50,
-                 hvi_floor: float = 0.0):
+                 hvi_floor: float = 0.0,
+                 reward_mode: str = 'final_hv'):
         self._ref = np.asarray(ref_point, dtype=float)
         self._w_q = w_quality
         self._w_d = w_diversity
@@ -147,9 +222,13 @@ class RewardComputer:
         self._pen = penalty
         self._rank_window = rank_window
         self._hvi_floor = hvi_floor
+        if reward_mode not in {'dense', 'final_hv', 'hybrid'}:
+            raise ValueError("reward_mode must be one of: dense, final_hv, hybrid")
+        self._reward_mode = reward_mode
 
         self._reward_history: List[float] = []
         self._hvi_history: List[float] = []
+        self._quality_history: List[float] = []
 
     # ----------------------------------------------------------------- compute
 
@@ -159,7 +238,8 @@ class RewardComputer:
                diversity_before: float,
                diversity_after: float,
                *,
-               invalid: bool = False) -> Tuple[float, dict]:
+               invalid: bool = False,
+               managed_pop_size: Optional[int] = None) -> Tuple[float, dict]:
         """Compute a scalar reward and return it together with a breakdown.
 
         Args:
@@ -171,7 +251,8 @@ class RewardComputer:
                 after inserting the new heuristic.
             invalid: whether the heuristic is invalid (penalty applied).
         """
-        breakdown = {'hvi': 0.0, 'rank': 0.0, 'diversity': 0.0,
+        breakdown = {'hvi': 0.0, 'managed_hv_delta': 0.0,
+                     'quality': 0.0, 'rank': 0.0, 'diversity': 0.0,
                      'penalty': 0.0, 'total': 0.0}
 
         if invalid or new_score is None or not _is_valid_score(new_score):
@@ -179,6 +260,7 @@ class RewardComputer:
             breakdown['total'] = -self._pen
             self._reward_history.append(-self._pen)
             self._hvi_history.append(0.0)
+            self._quality_history.append(0.0)
             return -self._pen, breakdown
 
         # 1. HVI
@@ -189,6 +271,30 @@ class RewardComputer:
         recent = self._hvi_history[-self._rank_window:]
         h_max = max(recent + [self._hvi_floor + 1e-9])
         h_norm = h / h_max if h_max > 0 else 0.0
+
+        # 1b. Final-population HV delta after applying the population cap.
+        managed_delta = h
+        if managed_pop_size is not None and managed_pop_size > 0:
+            before = managed_scores(population_scores, managed_pop_size)
+            after_scores = list(population_scores) + [new_score]
+            after = managed_scores(after_scores, managed_pop_size)
+            hv_before = hypervolume(before, self._ref) if len(before) else 0.0
+            hv_after = hypervolume(after, self._ref) if len(after) else 0.0
+            managed_delta = max(0.0, hv_after - hv_before)
+        breakdown['managed_hv_delta'] = managed_delta
+
+        recent_quality = self._quality_history[-self._rank_window:]
+        q_max = max(recent_quality + [managed_delta, self._hvi_floor + 1e-9])
+        final_norm = managed_delta / q_max if q_max > 0 else 0.0
+        self._quality_history.append(managed_delta)
+
+        if self._reward_mode == 'dense':
+            quality_signal = h_norm
+        elif self._reward_mode == 'hybrid':
+            quality_signal = 0.5 * h_norm + 0.5 * final_norm
+        else:
+            quality_signal = final_norm
+        breakdown['quality'] = quality_signal
 
         # 2. Rank score within window
         rank_score = 0.0
@@ -210,7 +316,7 @@ class RewardComputer:
         d_gain = max(0.0, diversity_after - diversity_before)
         breakdown['diversity'] = d_gain
 
-        total = (self._w_q * h_norm
+        total = (self._w_q * quality_signal
                  + self._w_d * d_gain
                  + self._w_r * rank_score)
         breakdown['total'] = total

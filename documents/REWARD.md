@@ -2,7 +2,8 @@
 
 This document is a complete reference for the scalar reward signal that drives
 every bandit update in BMAB-LLM. It explains *why* the reward is a weighted
-sum of four components, *how* each component is computed, where it lives in
+sum of a quality signal, diversity, rank smoothing and invalid-code penalty,
+*how* each component is computed, where it lives in
 the source, how it interacts with the rest of the system, and how to retune
 it.
 
@@ -18,7 +19,7 @@ Companion documents:
 
 1. [Why reward design matters here](#1-why-reward-design-matters-here)
 2. [The reward formula at a glance](#2-the-reward-formula-at-a-glance)
-3. [Component 1 — Normalised Hypervolume Improvement (HVI)](#3-component-1--normalised-hypervolume-improvement-hvi)
+3. [Component 1 — Quality signal: immediate HVI vs final managed-population HV](#3-component-1--quality-signal-immediate-hvi-vs-final-managed-population-hv)
 4. [Component 2 — Diversity gain ΔCDI](#4-component-2--diversity-gain-cdi)
 5. [Component 3 — Rank score](#5-component-3--rank-score)
 6. [Component 4 — Invalid penalty](#6-component-4--invalid-penalty)
@@ -67,7 +68,7 @@ For each newly generated heuristic with objective-space score `s = (s_1,
 s_2, …)` (e.g. `(neg_HV_solutions, runtime)`):
 
 ```
-R(s)  =  w_q · h_norm(s)              ← normalised HVI ∈ [0, 1]
+R(s)  =  w_q · quality_signal(s)      ← selected mode ∈ [0, 1]
        + w_d · max(0, ΔCDI(s))        ← diversity gain ∈ [0, ∞)
        + w_r · rank_score(s)          ← rank in population ∈ [0, 1]
        − λ_pen · 1[s is invalid]      ← penalty if heuristic is bad
@@ -77,7 +78,8 @@ Default weights from [bmab_llm.py:67-71](bmab_llm.py#L67-L71):
 
 | Symbol | CLI flag | Default | Role |
 |--------|----------|---------|------|
-| `w_q`     | `--w_quality`   | `1.0`  | Primary signal, normalised HVI |
+| `reward_mode` | `--reward_mode` | `final_hv` | Selects the quality signal: `final_hv`, `dense`, or `hybrid` |
+| `w_q`     | `--w_quality`   | `1.0`  | Primary signal, selected by `reward_mode` |
 | `w_d`     | `--w_diversity` | `0.3`  | Anti-collapse, encourages spreading the population |
 | `w_r`     | `--w_rank`      | `0.2`  | Dense smoothing, never zero unless the new heuristic is dominated by everything |
 | `λ_pen`   | hard-coded as `reward_penalty` (`1.0`) | `1.0` | Discourages invalid heuristics |
@@ -92,7 +94,21 @@ The whole computation lives in `RewardComputer.reward` at
 
 ---
 
-## 3. Component 1 — Normalised Hypervolume Improvement (HVI)
+## 3. Component 1 — Quality signal: immediate HVI vs final managed-population HV
+
+The current fixed implementation supports three quality modes:
+
+| Mode | Quality signal | Used by |
+|------|----------------|---------|
+| `final_hv` | Normalized HV gain after adding the candidate and applying the same managed-population cap used for the final population | Default `full` |
+| `dense` | Normalized immediate Hypervolume Improvement (HVI) against the current heuristic front | `dense_reward` |
+| `hybrid` | `0.5 * dense + 0.5 * final_hv` | `hybrid_reward` |
+
+The historical pre-fix implementation effectively rewarded immediate HVI.
+That historical result set is not identical to `dense_reward`, because
+`dense_reward` keeps the other final-HV fixes: actual child score reward,
+pending-population flush, final-call cluster guard, front-aware cluster priors,
+budget exploration annealing and PFG-weighted parent sampling.
 
 ### 3.1 What hypervolume is
 
@@ -209,6 +225,25 @@ This keeps the bandit's reward roughly bounded in `[0, 1]` regardless of the
 absolute HVI scale at any point in the run. The window length 50 is a
 practical compromise — long enough to remember bursts, short enough to adapt
 to the late-stage regime.
+
+### 3.5 Final managed-population HV delta
+
+Immediate HVI answers: "does this point improve the current front right now?"
+That is useful dense feedback, but it can overvalue candidates that are later
+discarded by the fixed population cap. The final-HV fix therefore computes a
+second quality signal:
+
+```python
+before = managed_scores(population_scores, managed_pop_size)
+after  = managed_scores(population_scores + [new_score], managed_pop_size)
+managed_delta = HV(after, ref) - HV(before, ref)
+```
+
+`managed_scores` mirrors MPaGE-style survivor selection at score level: keep
+non-dominated fronts first and use crowding distance to truncate the last
+accepted front. In default `reward_mode='final_hv'`, this normalized
+`managed_delta` is the quality term. This aligns the bandit's learning target
+with the terminal `hv_final` metric more directly than immediate HVI.
 
 ---
 
@@ -408,9 +443,11 @@ def reward(self,
            diversity_before: float,
            diversity_after: float,
            *,
-           invalid: bool = False) -> Tuple[float, dict]:
+           invalid: bool = False,
+           managed_pop_size: Optional[int] = None) -> Tuple[float, dict]:
 
-    breakdown = {'hvi': 0.0, 'rank': 0.0, 'diversity': 0.0,
+    breakdown = {'hvi': 0.0, 'managed_hv_delta': 0.0,
+                 'quality': 0.0, 'rank': 0.0, 'diversity': 0.0,
                  'penalty': 0.0, 'total': 0.0}
 
     # ▼ Path A — invalid: short-circuit with penalty only
@@ -421,15 +458,32 @@ def reward(self,
         self._hvi_history.append(0.0)
         return -self._pen, breakdown
 
-    # ▼ Path B — valid: compute three positive components
+    # ▼ Path B — valid: compute positive components
 
-    # 1. HVI (rolling-window normalised)
+    # 1. Immediate HVI (rolling-window normalised)
     h = hvi(new_score, population_scores, self._ref)
     breakdown['hvi'] = h
     self._hvi_history.append(h)
     recent = self._hvi_history[-self._rank_window:]
     h_max  = max(recent + [self._hvi_floor + 1e-9])
     h_norm = h / h_max if h_max > 0 else 0.0
+
+    # 1b. Final managed-population HV delta (also normalised)
+    managed_delta = h
+    if managed_pop_size is not None and managed_pop_size > 0:
+        before = managed_scores(population_scores, managed_pop_size)
+        after  = managed_scores(list(population_scores) + [new_score],
+                                managed_pop_size)
+        managed_delta = max(0.0, HV(after) - HV(before))
+    final_norm = normalise_over_recent_quality(managed_delta)
+
+    if self._reward_mode == 'dense':
+        quality_signal = h_norm
+    elif self._reward_mode == 'hybrid':
+        quality_signal = 0.5 * h_norm + 0.5 * final_norm
+    else:
+        quality_signal = final_norm
+    breakdown['quality'] = quality_signal
 
     # 2. Rank score
     rank_score = 0.0
@@ -450,7 +504,7 @@ def reward(self,
     breakdown['diversity'] = d_gain
 
     # 4. Combine
-    total = (self._w_q * h_norm
+    total = (self._w_q * quality_signal
              + self._w_d * d_gain
              + self._w_r * rank_score)
     breakdown['total'] = total
@@ -500,7 +554,10 @@ exact composition of that number matters so much.
 ## 9. Worked numerical example
 
 Setup: bi-TSP, ref point `(20.0, 60.0)`, default weights, `rank_window = 50`,
-generation 3 of a `B = 50` run.
+generation 3 of a `B = 50` run. For compact arithmetic, this example shows
+the `dense` immediate-HVI path. In default `final_hv` mode, Step 1 also
+computes the managed-population HV delta and uses that normalized value as
+`quality_signal`.
 
 State right before the LLM call:
 
@@ -549,7 +606,8 @@ total = 1.0 · 0.178   +  0.3 · 0.12  +  0.2 · 1.0
 
 **Breakdown returned**:
 ```python
-{'hvi': 2.7, 'rank': 1.0, 'diversity': 0.12, 'penalty': 0.0, 'total': 0.414}
+{'hvi': 2.7, 'managed_hv_delta': 2.7, 'quality': 0.178,
+ 'rank': 1.0, 'diversity': 0.12, 'penalty': 0.0, 'total': 0.414}
 ```
 
 The bandits both receive `0.414`. UCB1's reward-per-cost for the
@@ -581,12 +639,12 @@ heuristics, but not so catastrophically worse that one breaks the bandit.
 
 ## 10. Tuning the weights
 
-The defaults are calibrated to a `[0, 1]` rolling-normalised HVI. If you
-change reward range you must rescale.
+The defaults are calibrated to a `[0, 1]` rolling-normalised quality signal.
+If you change reward range you must rescale.
 
 | Weight | Default | Effect of increasing | Effect of decreasing |
 |--------|---------|----------------------|----------------------|
-| `w_quality` | `1.0` | Bandit chases HVI more aggressively; risk of front-collapse | Treats HVI as a tie-breaker; over-emphasises rank/diversity |
+| `w_quality` | `1.0` | Bandit chases the selected quality signal more aggressively; risk of front-collapse | Treats quality as a tie-breaker; over-emphasises rank/diversity |
 | `w_diversity` | `0.3` | Stronger anti-collapse pressure; may slow HVI growth | Front concentrates on whatever region is currently most productive |
 | `w_rank` | `0.2` | Reward becomes denser; bandit converges faster but may chase shallow wins | Reward becomes sparser; if too small the bandit sees mostly zeros |
 | `reward_penalty` | `1.0` | Hard avoidance of clusters that yielded any invalid; risk of premature exclusion | Invalids barely register; the LLM's noise leaks into the bandit |
@@ -620,7 +678,7 @@ how much each weight matters.
 | `new_score` is a tuple of wrong length | `_is_valid_score` checks `arr.ndim == 1`; mismatched dimensions ⇒ invalid. |
 | Population is empty (very first call after init failure) | `len(population_scores) > 0` guard skips the rank loop; `rank_score = 0.0`. HVI uses an empty front (`HV = 0`). |
 | `pymoo` is not installed | `_HAS_PYMOO = False`, `hypervolume()` falls back to a 2-D analytic calculation (see [reward.py:60-81](reward.py#L60-L81)). For `M ≥ 3` the fallback is a degenerate over-estimate; `pymoo` should always be available — `requirements.txt` pins it. |
-| All HVI values in the recent window are `0.0` | `h_max` is floored at `1e-9` so `h_norm` is `0` (not `nan`). |
+| All HVI or managed-HV values in the recent window are `0.0` | The rolling maxima are floored at `1e-9`, so normalized quality is `0` (not `nan`). |
 | Pareto-improving point is dominated by reference | `np.any(new_pt >= ref)` triggers, returns 0; the run continues but no quality reward earned. |
 | `rank_score` denominator `n = 0` (all population members invalid) | `max(n, 1)` floor; `rank_score = 0`. |
 | Diversity drops after insertion (CDI shrunk) | `d_gain = max(0, ...)`; cannot be negative. |
@@ -641,7 +699,7 @@ The `no_diversity` ablation in [main.py](main.py)'s `ABLATIONS`:
 sets `w_d = 0`, so `d_gain` no longer contributes. Reward becomes:
 
 ```
-R(s)  =  w_q · h_norm  +  w_r · rank_score  −  λ_pen · 1[invalid]
+R(s)  =  w_q · quality_signal  +  w_r · rank_score  −  λ_pen · 1[invalid]
 ```
 
 This isolates the contribution of the diversity term. The thesis Wilcoxon

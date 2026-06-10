@@ -117,7 +117,8 @@ because they match [IDEA.md §3.2](IDEA.md).
 |-----------|------:|----------|------|
 | `c_explore_op`      | `1.0` | `--c_op`           | UCB1 exploration coefficient for the operator bandit (textbook value is `√2 ≈ 1.41`; 1.0 is slightly more exploitative, fine for only 2 arms). |
 | `c_explore_cluster` | `1.0` | `--c_cluster`      | UCB1 exploration coefficient for the cluster bandit. Same justification. |
-| `gamma_budget`      | `0.5` | `--gamma_budget`   | Weight of the budget-pressure term `γ_b · ln(b_t / B)`. Matches IDEA §3.2. |
+| `gamma_budget`      | `0.5` | `--gamma_budget`   | Exponent for remaining-budget exploration annealing in the cluster bandit. Exploration is scaled by `(remaining/total)^gamma_budget`. |
+| `budget_annealing`  | `True` | `--disable_budget_annealing` to turn off | Makes late-budget cluster selection more exploitative for final-HV quality. |
 | `prior_n`           | `1.0` | (no CLI flag)      | Virtual count for warm-start. `1` ⇒ first real observation has equal weight. |
 | `prior_reward`      | `0.5` | (no CLI flag)      | Neutral mid-range prior reward used when no quality signal is available. |
 
@@ -149,20 +150,36 @@ contribution of Page-Hinkley to AUBC.
 
 ## 5. Reward function (BMAB-LLM only)
 
-From [bmab_llm.py:68-70](../bmab_llm.py#L68-L70) and matching
-[IDEA.md §3.3](IDEA.md):
+From [bmab_llm.py](../bmab_llm.py), [reward.py](../reward.py) and matching
+[IDEA.md §3.3](IDEA.md), with the post-analysis final-HV fix:
 
 | Parameter | Value | CLI flag | Role |
 |-----------|------:|----------|------|
-| `w_quality`     | `1.0` | `--w_quality`   | Weight of rolling-window-normalised HVI. Primary signal. |
+| `reward_mode`   | `final_hv` | `--reward_mode` | Selects the quality signal: `final_hv`, `dense`, or `hybrid`. |
+| `w_quality`     | `1.0` | `--w_quality`   | Weight of the selected quality signal. |
 | `w_diversity`   | `0.3` | `--w_diversity` | Weight of ΔCDI diversity gain. Anti-collapse. |
 | `w_rank`        | `0.2` | `--w_rank`      | Weight of rank-score (any-objective-better fraction). Dense smoothing. |
 | `reward_penalty`| `1.0` | (no CLI flag)   | Penalty subtracted when the heuristic is invalid. Same magnitude as max positive reward. |
-| `rank_window`   | `50`  | (no CLI flag)   | Window length for HVI rolling-max normalisation. |
+| `rank_window`   | `50`  | (no CLI flag)   | Window length for immediate-HVI and final-HV rolling-max normalisation. |
 
-The reward magnitudes stay roughly in `[−1, 1.5]` with these weights —
-suitable for UCB1's Hoeffding-based analysis. If you change any
-`w_*` significantly, also re-tune `ph_delta` and `ph_threshold`
+The valid-heuristic reward is:
+
+```text
+R = w_quality * quality_signal + w_diversity * max(0, ΔCDI)
+    + w_rank * rank_score
+```
+
+where `quality_signal` depends on `reward_mode`:
+
+| Mode | Quality signal | Intended comparison |
+|------|----------------|---------------------|
+| `final_hv` | normalized HV gain after adding the candidate and applying the managed-population cap | Default `full`; aligns the bandit with terminal population HV |
+| `dense` | normalized immediate HVI against the current heuristic front | `dense_reward`; closest to the legacy reward before the final-HV fix |
+| `hybrid` | `0.5 * dense + 0.5 * final_hv` | `hybrid_reward`; tests whether dense early feedback plus final-HV alignment is better |
+
+Invalid heuristics return only `-reward_penalty`. With the default weights,
+positive rewards still stay on a small bounded scale suitable for UCB1. If you
+change any `w_*` significantly, also re-tune `ph_delta` and `ph_threshold`
 proportionally (PAGE_HINKLEY.md §4).
 
 ---
@@ -230,7 +247,10 @@ four BMAB-LLM ablations referenced in IDEA.md §4.3:
 
 | Ablation       | Overrides applied | What it isolates |
 |----------------|-------------------|------------------|
-| `full`         | (none)            | The proposed system |
+| `full`         | (none)            | The proposed fixed system: `reward_mode=final_hv`, budget annealing on |
+| `dense_reward` | `reward_mode = dense` | Legacy immediate-HVI reward inside the fixed implementation |
+| `hybrid_reward` | `reward_mode = hybrid` | Blend of immediate-HVI feedback and final-population HV feedback |
+| `no_budget_anneal` | `disable_budget_annealing = True` | Marginal value of remaining-budget exploration annealing |
 | `no_ph`        | `ph_threshold = 1e9` | Marginal value of Page-Hinkley |
 | `no_diversity` | `w_diversity = 0.0` | Marginal value of ΔCDI in reward |
 | `op_only`      | `disable_cluster_bandit = True` (cluster picks uniform random) | Marginal value of the cluster bandit |
@@ -277,9 +297,11 @@ code changes are needed.
 | pop_size at `B=200` | 10 (bi_*) / 12 (tri_tsp) | OFFSPRING_FAQ §5.B |
 | selection_num | 2 | MPaGE paper |
 | c_op, c_cluster | 1.0 each | IDEA §3.2 |
-| gamma_budget | 0.5 | IDEA §3.2 |
+| gamma_budget | 0.5 | IDEA §3.2 / final-HV fix |
+| budget annealing | on | final-HV fix |
 | ph_delta | 0.005 | IDEA §3.4 |
 | ph_threshold | 0.5 | IDEA §3.4 |
+| reward_mode | `final_hv` | final-HV fix |
 | w_quality, w_diversity, w_rank | 1.0, 0.3, 0.2 | IDEA §3.3 |
 | reward_penalty | 1.0 | IDEA §3.3 |
 | rank_window | 50 | empirical |
