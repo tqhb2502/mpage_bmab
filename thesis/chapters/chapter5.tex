@@ -2,17 +2,17 @@
 
 \section{Câu hỏi thực nghiệm}
 
-Thực nghiệm hiện tại nhằm trả lời ba câu hỏi trên bộ kết quả lịch sử. Thứ nhất, \texttt{mpage\_bmab} có dùng ngân sách lời gọi LLM hiệu quả hơn MPaGE-orig hay không, xét theo AUBC? Thứ hai, hiệu quả theo ngân sách có đi kèm cải thiện HV cuối cùng hay không? Thứ ba, tỷ lệ heuristic hợp lệ và invalid/null-score có giúp giải thích khác biệt giữa hai phương pháp hay không?
+Thực nghiệm hiện tại nhằm trả lời ba câu hỏi trên bộ kết quả hiện có. Thứ nhất, \texttt{mpage\_bmab} có dùng ngân sách lời gọi LLM hiệu quả hơn MPaGE-orig hay không, xét theo AUBC? Thứ hai, hiệu quả theo ngân sách có đi kèm cải thiện HV cuối cùng hay không? Thứ ba, tỷ lệ heuristic hợp lệ và invalid/null-score có giúp giải thích khác biệt giữa hai phương pháp hay không?
 
 Các câu hỏi này được đặt dựa trên mục tiêu trong \sourcefile{mpage\_bmab/documents/IDEA.md}, metric trong \sourcefile{mpage\_bmab/documents/METRICS\_AUBC\_HV.md} và kết quả trong \sourcefile{mpage\_bmab/experiments/results/}.
 
 \section{Thiết lập thực nghiệm}
 
-Bộ kết quả hiện tại gồm 160 lượt chạy: hai phương pháp, bốn bài toán, bốn mức ngân sách và năm seed. Hai phương pháp là \texttt{full} lịch sử và \texttt{mpage\_orig}. Trong phần thảo luận, \texttt{full} lịch sử được gọi là \texttt{mpage\_bmab} hoặc BMAB; \texttt{mpage\_orig} là MPaGE gốc chạy qua wrapper ngân sách.
+Bộ kết quả hiện tại gồm 160 lượt chạy: hai phương pháp, bốn bài toán, bốn mức ngân sách và năm seed. Hai phương pháp là \texttt{full} và \texttt{mpage\_orig}. Trong phần thảo luận, \texttt{full} được gọi là \texttt{mpage\_bmab} hoặc BMAB; \texttt{mpage\_orig} là MPaGE gốc chạy qua wrapper ngân sách.
 
 Các bài toán gồm Bi-TSP, Tri-TSP, Bi-CVRP và Bi-KP. Các ngân sách là $B \in \{25,50,100,200\}$. Các seed là 2025, 2026, 2027, 2028 và 2029. Mỗi lượt chạy đều tiêu thụ đúng ngân sách được cấu hình, theo \sourcefile{mpage\_bmab/experiments/results/summary.csv} và kiểm tra trong \sourcefile{mpage\_bmab/experiments/results/analysis\_report.md}.
 
-Cần nhấn mạnh rằng các kết quả này được sinh trước nhóm chỉnh sửa hướng HV cuối cùng của implementation hiện tại. Vì vậy, các số liệu trong chương này không phải là kết quả của \texttt{full} mới với \texttt{reward\_mode=final\_hv}, cũng không phải là kết quả của \texttt{dense\_reward} hay \texttt{hybrid\_reward}. Chúng vẫn có giá trị để chứng minh lợi thế AUBC của thiết kế bandit lịch sử, nhưng cần chạy thêm các suite trong \sourcefile{mpage\_bmab/experiments/HV\_FINAL\_EXPERIMENTS.md} để kết luận về phương pháp đã sửa.
+Các số liệu trong chương này tập trung vào hai phương pháp có kết quả đầy đủ trong thư mục thực nghiệm hiện có. Các ablation như \texttt{dense\_reward}, \texttt{hybrid\_reward}, \texttt{no\_budget\_anneal}, \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only} và \texttt{cluster\_only} cần được chạy bổ sung nếu muốn định lượng riêng đóng góp của từng thành phần.
 
 \section{Metric đánh giá}
 
@@ -150,8 +150,8 @@ Bi-KP là trường hợp không ổn định. Ở ngân sách 25, AUBC giảm n
 
 \section{Hạn chế của thực nghiệm}
 
-Bộ kết quả hiện tại có năm hạn chế chính. Thứ nhất, mỗi cell chỉ có năm seed, chưa đủ mạnh cho kết luận thống kê ở mức 0.05. Thứ hai, kết quả chỉ so sánh \texttt{full} lịch sử với \texttt{mpage\_orig}; các ablation \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, \texttt{cluster\_only} và \texttt{mpage\_budget} có trong mã nhưng không có trong thư mục kết quả hiện tại. Thứ ba, bộ kết quả này chưa đánh giá các biến thể sau chỉnh sửa HV cuối cùng: \texttt{full} mới, \texttt{dense\_reward}, \texttt{hybrid\_reward} và tùy chọn \texttt{no\_budget\_anneal}. Thứ tư, không có số liệu token, latency API, chi phí tiền tệ, GPU hoặc bộ nhớ. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. Thứ năm, metric hiện tại là heuristic-population HV/AUBC, không trực tiếp so sánh với bảng nghiệm chuẩn hóa trong bài báo MPaGE.
+Bộ kết quả hiện tại có bốn hạn chế chính. Thứ nhất, mỗi cell chỉ có năm seed, chưa đủ mạnh cho kết luận thống kê ở mức 0.05. Thứ hai, kết quả chỉ so sánh \texttt{full} với \texttt{mpage\_orig}; các ablation \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, \texttt{cluster\_only}, \texttt{dense\_reward}, \texttt{hybrid\_reward}, \texttt{no\_budget\_anneal} và \texttt{mpage\_budget} có trong mã nhưng không có đầy đủ trong thư mục kết quả hiện tại. Thứ ba, không có số liệu token, latency API, chi phí tiền tệ, GPU hoặc bộ nhớ. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. Thứ tư, metric hiện tại là heuristic-population HV/AUBC, không trực tiếp so sánh với bảng nghiệm chuẩn hóa trong bài báo MPaGE.
 
 \section{Kết luận thực nghiệm}
 
-Bằng chứng thực nghiệm lịch sử ủng hộ kết luận rằng \texttt{mpage\_bmab} cải thiện hiệu quả sử dụng ngân sách lời gọi LLM. Kết luận mạnh nhất là về AUBC: BMAB thường đạt HV cao sớm hơn trong quá trình chạy. Kết luận yếu hơn là về HV cuối cùng: kết quả mixed và phụ thuộc bài toán. Validity analysis cho thấy số heuristic hợp lệ là một yếu tố liên quan nhưng không đủ để giải thích toàn bộ cải thiện, đặc biệt ở Bi-CVRP. Kết luận về phiên bản đã sửa hướng HV cuối cùng cần dựa trên các thí nghiệm \texttt{hvfix\_smoke}, \texttt{hv\_final\_priority} hoặc \texttt{hv\_final\_full}.
+Bằng chứng thực nghiệm ủng hộ kết luận rằng \texttt{mpage\_bmab} cải thiện hiệu quả sử dụng ngân sách lời gọi LLM. Kết luận mạnh nhất là về AUBC: BMAB thường đạt HV cao sớm hơn trong quá trình chạy. Kết luận yếu hơn là về HV cuối cùng: kết quả mixed và phụ thuộc bài toán. Validity analysis cho thấy số heuristic hợp lệ là một yếu tố liên quan nhưng không đủ để giải thích toàn bộ cải thiện, đặc biệt ở Bi-CVRP. Các ablation reward và điều phối cần được chạy thêm để định lượng đóng góp riêng của từng cơ chế.

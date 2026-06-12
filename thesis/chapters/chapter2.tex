@@ -28,7 +28,7 @@ Hypervolume là chỉ số phổ biến để đo chất lượng một tập ng
 
 \section{MPaGE}
 
-MPaGE là phương pháp thiết kế heuristic dùng LLM cho tối ưu tổ hợp đa mục tiêu. Theo \sourcefile{README.md}, \sourcefile{references/original\_mpage.docx} và mã nguồn \sourcefile{llm4ad/method/LLMPFG/}, MPaGE kết hợp ba ý tưởng chính.
+MPaGE là phương pháp thiết kế heuristic dùng LLM cho tối ưu tổ hợp đa mục tiêu. Về mặt phương pháp, MPaGE kết hợp ba ý tưởng chính.
 
 Thứ nhất là vòng lặp tiến hóa đơn điệu đa mục tiêu. Các heuristic được giữ trong một quần thể, đánh giá bằng vector mục tiêu và chọn lọc bằng quan hệ không bị trội cùng crowding distance. Cài đặt nằm trong \sourcefile{llm4ad/method/LLMPFG/population.py}.
 
@@ -78,7 +78,7 @@ Trong \sourcefile{mpage\_bmab/bandit.py}, \texttt{OperatorBandit} dùng phần t
 
 Phần thưởng của một cụm hoặc toán tử không nhất thiết ổn định. Khi quần thể đã khai thác một vùng nào đó, cùng một cụm heuristic có thể giảm ích lợi biên. Page--Hinkley là một kiểm định online để phát hiện thay đổi trung bình chuỗi quan sát \cite{page1954continuous}. Trong \sourcefile{mpage\_bmab/bandit.py}, trạng thái \texttt{PageHinkleyState} cập nhật trung bình online và tổng tích lũy; khi độ lệch giữa cực đại lịch sử và tổng hiện tại vượt ngưỡng, arm được xem là bị trôi và thống kê arm đó được reset.
 
-Tài liệu \sourcefile{mpage\_bmab/documents/PAGE\_HINKLEY.md} và \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md} ghi các tham số mặc định $\delta = 0.005$ và ngưỡng $0.5$. Trong cấu hình \texttt{full}, Page--Hinkley được bật; các ablation như \texttt{no\_ph} có trong mã và tài liệu nhưng không xuất hiện trong bộ kết quả lịch sử hiện tại.
+Tài liệu \sourcefile{mpage\_bmab/documents/PAGE\_HINKLEY.md} và \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md} ghi các tham số mặc định $\delta = 0.005$ và ngưỡng $0.5$. Trong cấu hình \texttt{full}, Page--Hinkley được bật; các ablation như \texttt{no\_ph} có trong mã và tài liệu nhưng không xuất hiện trong bộ kết quả hiện có.
 
 \section{AUBC: diện tích dưới đường cong ngân sách}
 

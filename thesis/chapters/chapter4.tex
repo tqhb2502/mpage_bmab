@@ -67,7 +67,7 @@ Cấu trúc artifact được mô tả trong \sourcefile{mpage\_bmab/README.md},
 
 \section{Tái lập kết quả}
 
-Theo \sourcefile{mpage\_bmab/experiments/README.md}, có thể chạy các suite như \texttt{smoke}, \texttt{headline}, \texttt{budget50}, \texttt{full}, hoặc các suite sau chỉnh sửa HV cuối cùng như \texttt{hvfix\_smoke}, \texttt{hv\_final\_priority} và \texttt{hv\_final\_full}. Bộ kết quả đang phân tích trong Chương 5 tương ứng đầy đủ với hai phương pháp, bốn bài toán, bốn ngân sách và năm seed, nhưng là bộ \texttt{full} lịch sử được sinh trước các chỉnh sửa HV cuối cùng. Các lệnh cụ thể có thể thay đổi tùy môi trường API, nhưng entrypoint chính là \sourcefile{mpage\_bmab/experiments/run.py}.
+Theo \sourcefile{mpage\_bmab/experiments/README.md}, có thể chạy các suite như \texttt{smoke}, \texttt{headline}, \texttt{budget50}, \texttt{full}, \texttt{hvfix\_smoke}, \texttt{hv\_final\_priority} và \texttt{hv\_final\_full}. Bộ kết quả đang phân tích trong Chương 5 tương ứng đầy đủ với hai phương pháp, bốn bài toán, bốn ngân sách và năm seed. Các lệnh cụ thể có thể thay đổi tùy môi trường API, nhưng entrypoint chính là \sourcefile{mpage\_bmab/experiments/run.py}.
 
 Vì hệ thống phụ thuộc LLM qua API, tái lập bit-by-bit là khó nếu dịch vụ LLM thay đổi hoặc sampling không hoàn toàn quyết định. Kho mã nguồn giảm rủi ro bằng cách lưu toàn bộ samples, curves và logs. Tuy nhiên, không tìm thấy thông tin về snapshot chính xác của model API, cấu hình temperature đầy đủ ở mọi nơi, hoặc chi phí token thực tế trong kết quả hiện tại.
 

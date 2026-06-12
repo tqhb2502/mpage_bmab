@@ -13,3 +13,5 @@ __pycache__/
 experiments/results/full/
 experiments/results/mpage_orig/
 experiments/archive/
+
+.DS_Store
