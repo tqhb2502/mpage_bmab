@@ -10,8 +10,8 @@ __pycache__/
 *.pyc
 
 # experiments results
-experiments/results/full/
-experiments/results/mpage_orig/
-experiments/archive/
+experiments/archive_v1.0/
+experiments/archive_v1.1/full/
+experiments/archive_v1.1/mpage_orig/
 
 .DS_Store
