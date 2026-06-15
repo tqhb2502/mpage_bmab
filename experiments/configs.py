@@ -184,9 +184,11 @@ SUITES: Dict[str, Suite] = {
         tasks=TASKS,
         budgets=BUDGETS,
         seeds=SEEDS,
-        description='Full final-HV comparison after fixes. '
-                    'Default: 3 × 4 × 4 × 5 = 240 runs. '
-                    'Add no_budget_anneal or mpage_orig manually if needed.',
+        description='Full reward-mode comparison for the finalized BMAB '
+                    'implementation: full/final_hv, dense_reward/dense, and '
+                    'hybrid_reward/hybrid across all tasks, budgets, and seeds '
+                    '(3 × 4 × 4 × 5 = 240 runs). Add no_budget_anneal or '
+                    'mpage_orig manually if needed.',
     ),
     'all_methods': Suite(
         name='all_methods',

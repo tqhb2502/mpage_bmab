@@ -112,15 +112,19 @@ python -m mpage_bmab.experiments.run \
   --results_root mpage_bmab/experiments/results_hvfix
 ```
 
-## Full Final-HV Sweep
+## Full Reward-Mode Sweep
 
 Run this only after the priority sweep looks promising:
 
 ```bash
-python -m mpage_bmab.experiments.run \
-  --suite hv_final_full \
+mpage_bmab/experiments/run_hv_final_full.sh \
   --results_root mpage_bmab/experiments/results_hvfix
 ```
+
+The `hv_final_full` suite compares the three reward modes of the finalized
+BMAB implementation across all tasks, budgets, and seeds: `full`
+(`reward_mode=final_hv`), `dense_reward` (`reward_mode=dense`), and
+`hybrid_reward` (`reward_mode=hybrid`).
 
 ## Manual High-Value Slice
 
