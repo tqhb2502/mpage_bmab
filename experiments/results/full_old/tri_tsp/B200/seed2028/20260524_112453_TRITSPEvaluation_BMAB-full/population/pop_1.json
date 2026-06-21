@@ -1,0 +1,98 @@
+[
+     {
+          "algorithm": "{First, randomly select a promising solution from the archive based on non-domination rank and diversity of objectives, then apply a novel local search operator that swaps two nodes within the tour to create a neighbor solution, ensuring that the new solution remains a valid TSP tour while optimizing for improvements in all three objective spaces by evaluating the distances in each matrix and selecting the swap that leads to the most balanced reduction across the three objectives.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choice(archive)\n\n    # Step 2: Create a neighbor solution by swapping two nodes\n    neighbor_solution = selected_solution.copy()\n    n = len(neighbor_solution)\n\n    # Randomly select two different indices to swap\n    idx1, idx2 = random.sample(range(n), 2)\n    neighbor_solution[idx1], neighbor_solution[idx2] = neighbor_solution[idx2], neighbor_solution[idx1]\n\n    return neighbor_solution\n\n",
+          "score": [
+               -3303.1357516122625,
+               1.996064829826355
+          ]
+     },
+     {
+          "algorithm": "{The algorithm starts by randomly selecting a promising solution from the archive based on their objective values, then it applies a hybrid local search operator by randomly choosing two nodes in the selected tour and swapping their positions to generate a neighbor solution, ensuring the resulting tour is valid and maintains the properties of a TSP solution while simultaneously aiming to improve the objectives in all three spaces.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choice(archive)\n\n    # Step 2: Create a copy of the selected solution to generate a neighbor\n    neighbor_solution = selected_solution.copy()\n\n    # Step 3: Randomly choose two distinct indices to swap\n    idx1, idx2 = random.sample(range(len(neighbor_solution)), 2)\n\n    # Step 4: Swap the two nodes to create a neighbor solution\n    neighbor_solution[idx1], neighbor_solution[idx2] = neighbor_solution[idx2], neighbor_solution[idx1]\n\n    return neighbor_solution\n\n",
+          "score": [
+               -3296.383962174476,
+               1.9914414167404175
+          ]
+     },
+     {
+          "algorithm": "{The algorithm first randomly selects a solution from the archive based on a weighted probability reflecting their objective values, then applies a novel local search operator that consists of a 2-opt swap on two randomly chosen edges in the selected tour, ensuring that the resulting tour remains valid, and returns the newly generated neighbor solution.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    total_quality = sum([1 / (obj[0] + obj[1] + obj[2]) for _, obj in archive])\n    probabilities = [(1 / (obj[0] + obj[1] + obj[2])) / total_quality for _, obj in archive]\n    selected_index = np.random.choice(len(archive), p=probabilities)\n    selected_solution, _ = archive[selected_index]\n    \n    # Convert solution to list for easier manipulation\n    tour = selected_solution.tolist()\n    n = len(tour)\n\n    # Apply a 2-opt operator to generate a neighbor solution\n    i, j = sorted(random.sample(range(n), 2))  # Randomly select two indices\n    new_tour = tour[:i] + list(reversed(tour[i:j + 1])) + tour[j + 1:]  # 2-opt swap\n\n    return np.array(new_tour)\n\n",
+          "score": [
+               -3548.1236077244184,
+               3.8367971897125246
+          ]
+     },
+     {
+          "algorithm": "{The algorithm first calculates the fitness of each solution in the archive based on the objectives, then selects a promising solution using a weighted random choice where the weights are inversely proportional to the objectives' costs, subsequently applies a strategic 2-opt local search, which involves selecting two edges in the tour and reversing the segment between them to generate a neighbor solution, ensuring that the neighbor remains a valid TSP tour.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    fitness_scores = [1 / sum(obj) for _, obj in archive]\n    total_fitness = sum(fitness_scores)\n    probabilities = [score / total_fitness for score in fitness_scores]\n\n    # Select a promising solution based on fitness\n    selected_index = np.random.choice(range(len(archive)), p=probabilities)\n    selected_solution, _ = archive[selected_index]\n\n    # Apply 2-opt local search to generate a neighbor solution\n    neighbor_solution = selected_solution.copy()\n    n = len(neighbor_solution)\n\n    # Randomly select two indices to perform the 2-opt operation\n    i, j = sorted(random.sample(range(n), 2))\n\n    # Reverse the segment between i and j\n    neighbor_solution[i:j + 1] = neighbor_solution[i:j + 1][::-1]\n\n    return neighbor_solution\n\n",
+          "score": [
+               -3539.462783453314,
+               3.6809009671211244
+          ]
+     },
+     {
+          "algorithm": "{First, randomly select a solution with promising objectives from the archive based on their distance to the Pareto front, then apply a 2-opt local search operator that swaps two edges in the tour to generate a neighbor solution, ensuring the new solution remains valid while attempting to improve the total tour length in all three objective spaces.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choice(archive)\n\n    # 2-opt local search operator\n    neighbor = selected_solution.copy()\n    n = len(neighbor)\n\n    # Randomly pick two indices to swap\n    i, j = sorted(random.sample(range(n), 2))\n\n    # Perform the 2-opt swap\n    neighbor[i:j+1] = neighbor[i:j+1][::-1]\n\n    return neighbor\n\n",
+          "score": [
+               -3534.1029357254797,
+               2.2647239804267882
+          ]
+     },
+     {
+          "algorithm": "{The algorithm starts by randomly selecting a solution from the archive that has the highest minimum objective value among the three objectives, then applies a novel local search operator that randomly selects two nodes in the tour, swaps their positions to create a new tour, and ensures that this new tour remains feasible by checking if it still visits all nodes exactly once, finally returning the newly generated neighbor solution.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution = max(archive, key=lambda x: min(x[1]))[0]  # Select solution with the highest minimum objective value\n    selected_tour = selected_solution.copy()\n\n    # Step 2: Generate a neighbor solution using a local search operator\n    # Randomly select two distinct nodes to swap\n    idx1, idx2 = random.sample(range(len(selected_tour)), 2)\n    \n    # Swap the two nodes in the tour\n    selected_tour[idx1], selected_tour[idx2] = selected_tour[idx2], selected_tour[idx1]\n\n    return selected_tour\n\n",
+          "score": [
+               -1619.5696142539434,
+               1.9013399004936218
+          ]
+     },
+     {
+          "algorithm": "{The new algorithm randomly selects a solution from the archive based on its non-dominated status and applies a novel local search operator that performs a 2-opt move, which involves reversing a segment of the tour to potentially improve the total distances in all three objective spaces, while ensuring the generated neighbor solution remains feasible as a valid TSP tour.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choice(archive)\n    \n    # Convert solution to a list for manipulation\n    selected_solution = selected_solution.tolist()\n    \n    # Apply a 2-opt move to create a neighbor solution\n    n = len(selected_solution)\n    i, j = random.sample(range(1, n - 1), 2)  # Avoid the first and last nodes\n    if i > j:\n        i, j = j, i  # Ensure i < j\n\n    # Reverse the segment between i and j\n    new_solution = selected_solution[:i] + selected_solution[i:j + 1][::-1] + selected_solution[j + 1:]\n\n    return np.array(new_solution)\n\n",
+          "score": [
+               -3488.0954508772447,
+               2.225313127040863
+          ]
+     },
+     {
+          "algorithm": "{Select a promising solution from the archive based on a probabilistic approach weighted by its non-dominance rank across the three objectives, then apply a hybrid local search operator that combines 2-opt and a random swap of two nodes to generate a neighbor solution, ensuring the generated solution remains a valid TSP tour.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    total_objectives = len(archive)\n    selected_index = random.choices(range(total_objectives), weights=[1.0 / (i + 1) for i in range(total_objectives)])[0]\n    selected_solution, _ = archive[selected_index]\n\n    # Step 2: Create a neighbor solution using a hybrid local search\n    neighbor_solution = selected_solution.copy()\n    \n    # Choose two different nodes to swap (for 2-opt)\n    idx1, idx2 = random.sample(range(len(neighbor_solution)), 2)\n    \n    # Apply a 2-opt move: reverse the segment between idx1 and idx2\n    if idx1 > idx2:\n        idx1, idx2 = idx2, idx1\n    neighbor_solution[idx1:idx2 + 1] = neighbor_solution[idx1:idx2 + 1][::-1]\n    \n    # Randomly swap two nodes to introduce diversity\n    swap_idx1, swap_idx2 = random.sample(range(len(neighbor_solution)), 2)\n    neighbor_solution[swap_idx1], neighbor_solution[swap_idx2] = neighbor_solution[swap_idx2], neighbor_solution[swap_idx1]\n    \n    return neighbor_solution\n\n",
+          "score": [
+               -3142.186251826948,
+               1.9409093260765076
+          ]
+     },
+     {
+          "algorithm": "{The algorithm first randomly selects a solution from the archive that is non-dominated and promising in terms of objective values, then applies a hybrid local search operator where two nodes in the selected tour are swapped to generate a new tour, ensuring that this new tour remains feasible by maintaining the TSP constraints, while also computing the new objective values and ensuring that the newly generated solution reflects an improvement in at least one of the objective spaces without degrading others significantly.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choice(archive)\n\n    # Convert to list for easier manipulation\n    tour = selected_solution.tolist()\n    n = len(tour)\n\n    # Apply a hybrid local search through a swap operation\n    # Randomly select two distinct nodes to swap\n    i, j = random.sample(range(n), 2)\n    \n    # Create a new tour by swapping nodes at indices i and j\n    new_tour = tour[:]\n    new_tour[i], new_tour[j] = new_tour[j], new_tour[i]\n\n    # Convert back to numpy array\n    return np.array(new_tour)\n\n",
+          "score": [
+               -3342.034213166456,
+               2.0233699560165403
+          ]
+     },
+     {
+          "algorithm": "{This algorithm first randomly selects a solution from the archive based on a weighted probability that favors solutions with lower objective values, then applies a 2-opt local search operator by randomly choosing two edges in the current tour to swap and generate a neighbor solution, which maintains feasibility by ensuring that the new tour remains valid and visits each node exactly once.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    total_objectives = sum([1 / (1 + obj[1][0] + obj[1][1] + obj[1][2]) for obj in archive])\n    probabilities = [1 / (1 + obj[1][0] + obj[1][1] + obj[1][2]) / total_objectives for obj in archive]\n    \n    selected_index = np.random.choice(len(archive), p=probabilities)\n    selected_solution = archive[selected_index][0].copy()\n    \n    # Apply a 2-opt move\n    n = len(selected_solution)\n    i, j = random.sample(range(1, n - 1), 2)  # Choose two random indices, avoiding the first and last\n    \n    if i > j:\n        i, j = j, i  # Ensure i < j\n    \n    # Create a new tour by reversing the segment between i and j\n    new_solution = np.concatenate((selected_solution[:i], selected_solution[j:i-1:-1], selected_solution[j+1:]))\n    \n    return new_solution\n\n",
+          "score": [
+               -3494.347462000764,
+               4.43128616809845
+          ]
+     },
+     {
+          "algorithm": "{Select a solution from the archive based on a weighted probability proportional to its performance across the three objectives, then apply a local search operator that performs a 2-opt move on the selected tour to create a new neighbor solution by swapping two edges, ensuring that the resulting tour remains valid while potentially lowering the total distance in all three objective spaces.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    selected_solution = random.choices(archive, weights=[1/(obj[0]**2 + obj[1]**2 + obj[2]**2 + 1e-6) for _, obj in archive], k=1)[0][0]\n\n    # Step 2: Apply 2-opt local search operator\n    n = len(selected_solution)\n    neighbor_solution = selected_solution.copy()\n    \n    # Perform 2-opt swap\n    i, j = random.sample(range(1, n-1), 2)  # Avoid swapping the first and last node (starting point)\n    if i > j:\n        i, j = j, i\n    \n    # Reverse the segment between i and j\n    neighbor_solution[i:j+1] = neighbor_solution[i:j+1][::-1]\n    \n    return neighbor_solution\n\n",
+          "score": [
+               -3461.1133884012256,
+               3.576944386959076
+          ]
+     },
+     {
+          "algorithm": "{Select a solution randomly from the best-performing half of the archive based on their objective values, then apply a hybrid local search strategy that involves a 2-opt move followed by a random swap in the tour to generate a new neighbor solution while ensuring it maintains the valid TSP tour property.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray, distance_matrix_3: np.ndarray) -> np.ndarray:\n    sorted_archive = sorted(archive, key=lambda x: x[1])\n    promising_solutions = sorted_archive[:len(sorted_archive) // 2]  # Take the top half\n\n    # Randomly select one promising solution\n    selected_solution, _ = random.choice(promising_solutions)\n    neighbor_solution = selected_solution.copy()\n\n    # Apply a 2-opt move\n    n = len(neighbor_solution)\n    i, j = random.sample(range(n), 2)\n    if i > j:\n        i, j = j, i\n    # Reverse the tour segment between i and j\n    neighbor_solution[i:j+1] = neighbor_solution[i:j+1][::-1]\n\n    # Apply a random swap to add diversity\n    idx1, idx2 = random.sample(range(n), 2)\n    neighbor_solution[idx1], neighbor_solution[idx2] = neighbor_solution[idx2], neighbor_solution[idx1]\n\n    return neighbor_solution\n\n",
+          "score": [
+               -2990.525911162674,
+               2.025132179260254
+          ]
+     }
+]

@@ -1,51 +1,67 @@
-\chapter{Kết luận và hướng phát triển}
+\chapter{Conclusion and Future Work}
 
-\section{Tổng kết}
+\section{Summary}
 
-Luận văn đã phân tích dự án \texttt{mpage\_bmab}, một phần mở rộng của MPaGE cho bài toán thiết kế heuristic bằng mô hình ngôn ngữ lớn trong tối ưu tổ hợp đa mục tiêu. Dự án giữ lại các thành phần cốt lõi của MPaGE như SEMO, Pareto Front Grid, phân cụm ngữ nghĩa, prompt sinh heuristic và evaluator benchmark, đồng thời thêm một lớp điều phối ngân sách dựa trên bandit.
+This thesis analyzed \texttt{mpage\_bmab}, a budget-aware extension of MPaGE for LLM-based heuristic design in multi-objective combinatorial optimization. The project preserves MPaGE's core generative and evaluative mechanisms, including SEMO-style archive updates, Pareto Front Grid selection, semantic clustering, prompt-based heuristic generation, and benchmark evaluation. It extends this foundation with an adaptive scheduling layer that treats LLM calls as a scarce resource.
 
-Từ mã nguồn và tài liệu, phương pháp đề xuất có thể được tóm tắt như sau. Hệ thống xem mỗi lời gọi LLM là một tài nguyên có chi phí, dùng \texttt{BudgetTracker} để đảm bảo ngân sách cứng, dùng \texttt{OperatorBandit} để chọn giữa đột biến và lai ghép, dùng \texttt{ClusterBandit} để chọn cụm ngữ nghĩa trong từng thế hệ, dùng Page--Hinkley để reset thống kê khi phần thưởng trôi, và dùng \texttt{RewardComputer} để biến kết quả đánh giá heuristic thành tín hiệu học. Phương pháp chính dùng reward hướng HV cuối cùng, hỗ trợ ablation \texttt{dense\_reward}/\texttt{hybrid\_reward}, annealing thăm dò theo ngân sách và xả quần thể chờ trước khi ghi kết quả cuối.
+The proposed \bmab{} method can be summarized as follows. Each generator or clusterer invocation is charged by a hard \texttt{BudgetTracker}. An operator-level UCB controller chooses between mutation and crossover. A cluster-level budgeted UCB controller selects semantic cluster--operator arms within each generation. Page--Hinkley drift detection resets stale cluster statistics when reward behavior changes. A bounded reward function converts heuristic-evaluation outcomes into bandit feedback using final managed-population hypervolume gain, diversity gain, rank smoothing, and invalid-code penalties. The profiler records budget curves, AUBC, bandit logs, and final population artifacts for analysis.
 
-\section{Đóng góp chính}
+At a broader level, the project shows that MPaGE-style heuristic design can be strengthened by making LLM-call allocation adaptive. MPaGE already provides a productive foundation through PFG selection, semantic clustering, and prompt-based variation. The contribution of \texttt{mpage\_bmab} is to place these mechanisms under a controller that learns which operators and semantic regions deserve additional budget during the run.
 
-Đóng góp đầu tiên là mô hình hóa rõ bài toán thiết kế heuristic dưới ràng buộc ngân sách lời gọi LLM. Thay vì chỉ quan tâm chất lượng cuối cùng, dự án đưa đường cong chất lượng theo ngân sách vào quá trình đánh giá thông qua AUBC.
+\section{Main Contributions}
 
-Đóng góp thứ hai là thiết kế cơ chế bandit hai tầng. Tầng toán tử học khuynh hướng dài hạn giữa mutation và crossover; tầng cụm học lựa chọn ngắn hạn dựa trên chất lượng cụm, prior toán tử và ngân sách còn lại. Thiết kế này phù hợp với bản chất không ổn định của vòng lặp sinh heuristic bằng LLM.
+The first contribution is the formulation of LLM-based heuristic design as a budget-constrained sequential decision problem. Rather than treating the budget merely as a stopping condition, the project makes budget consumption part of the algorithmic state and evaluates progress over the entire budget trajectory through AUBC.
 
-Đóng góp thứ ba là xây dựng pipeline thực nghiệm có thể tổng hợp, so sánh và trực quan hóa kết quả. Các artifact như \texttt{budget\_curve.json}, \texttt{aubc.json}, \texttt{bandit\_log.json}, \texttt{validity\_stats.csv} và các hình trong \sourcefile{mpage\_bmab/experiments/results/images/} cho phép phân tích không chỉ điểm cuối mà cả quá trình tiêu thụ ngân sách.
+The second contribution is a two-level bandit scheduler for MPaGE-style heuristic generation. The operator bandit learns long-term preferences between mutation and crossover, while the cluster bandit adapts to the short-lived semantic clusters constructed in each generation. This structure is well matched to the project setting: operators are stable across the run, whereas cluster identities are local and non-stationary.
 
-Đóng góp thứ tư là thiết kế các cơ chế hướng HV cuối cùng: reward dùng score thực của heuristic vừa sinh, pending offspring được xả vào quần thể cuối, lời gọi cuối không bị tiêu cho phân cụm đơn thuần, prior cụm xét đóng góp HV/front và chọn cha mẹ có trọng số theo PFG.
+The third contribution is the integration of non-stationarity handling through Page--Hinkley drift detection. Because a semantic cluster can become less useful after repeated exploitation, resetting stale cluster statistics is a practical mechanism for avoiding persistent overconfidence in outdated reward estimates.
 
-\section{Phát hiện chính}
+The fourth contribution is the final-HV-oriented reward and population-handling design. The finalized method rewards the actual generated child, aligns the quality signal with the managed final-population hypervolume, prevents the last affordable call from being spent only on clustering, incorporates front-aware cluster priors, weights parents by PFG membership, and flushes pending valid offspring into the final population before result writing.
 
-Kết quả hiện tại cho thấy \texttt{mpage\_bmab} cải thiện AUBC trong 15/16 tổ hợp bài toán--ngân sách và thắng 71/80 cặp chạy theo seed so với \texttt{mpage\_orig}. Mức cải thiện nổi bật ở Bi-CVRP và Tri-TSP, đặc biệt trong ngân sách nhỏ hoặc trung bình. Điều này phù hợp với giả thuyết rằng điều phối lời gọi LLM thích nghi có lợi khi tài nguyên khan hiếm.
+The fifth contribution is an experimental and analysis pipeline that records not only terminal results but also the process by which budget is consumed. Artifacts such as \code{budget\_curve.json}, \code{aubc.json}, \code{bandit\_log.json}, validity summaries, and the generated thesis figures under \sourcefile{mpage\_bmab/thesis/figures/} support analysis of both final quality and budget efficiency.
 
-Tuy nhiên, HV cuối cùng trong bộ kết quả hiện có không cải thiện nhất quán. BMAB chỉ cao hơn trong 10/16 cell và thắng 38/80 cặp seed. Vì vậy, kết luận đúng nhất cho bộ kết quả này là BMAB cải thiện hiệu quả theo ngân sách, không phải luôn tạo ra quần thể heuristic cuối cùng tốt hơn.
+\section{Main Findings}
 
-Phân tích invalid/null-score và valid heuristic yield cho thấy việc sinh heuristic hợp lệ là quan trọng nhưng không đủ để giải thích mọi kết quả. Ở Bi-CVRP, BMAB có valid yield thấp hơn nhưng AUBC cao hơn đáng kể, cho thấy chất lượng phân bổ lời gọi và giá trị biên của heuristic mới có thể quan trọng hơn số lượng heuristic hợp lệ.
+The current result set provides strong practical evidence that BMAB-style scheduling improves budget efficiency over the original MPaGE workflow. Across the five-setup matrix, the official \texttt{full} method wins 15 of 16 AUBC task--budget cells against \texttt{mpage\_orig}, while \texttt{dense\_reward} and \texttt{hybrid\_reward} each win all 16 AUBC cells against \texttt{mpage\_orig}. The largest qualitative differences appear in tasks where the baseline budget curve rises later, particularly Tri-TSP, Bi-CVRP, and Bi-KP.
 
-\section{Hạn chế}
+The evidence for final hypervolume is also favorable to the official \texttt{full} method, but it remains more nuanced than AUBC. The \texttt{full} setup has the best mean final-HV rank, six best final-HV cells, and eleven top-two final-HV cells. It also wins 13 of 16 final-HV cells against both \texttt{full\_old} and \texttt{mpage\_orig}. Nevertheless, \texttt{dense\_reward}, \texttt{hybrid\_reward}, and occasionally \texttt{mpage\_orig} remain competitive in some terminal cells. Therefore, the correct conclusion is not uniform terminal domination, but improved budget trajectory with generally strong terminal quality.
 
-Luận văn chỉ dựa trên kết quả hiện có trong \sourcefile{mpage\_bmab/experiments/results/}. Mỗi cell có năm seed, do đó kiểm định Wilcoxon hai phía không đạt mức $p<0.05$. Các kết luận thống kê cần được xem là bằng chứng ban đầu có tính nhất quán thực nghiệm, không phải chứng minh cuối cùng.
+The reward-mode comparison clarifies an important trade-off. The \texttt{hybrid\_reward} setup obtains the best valid-yield profile and a slightly higher normalized AUBC score than \texttt{full}, whereas \texttt{full} has the strongest final-HV rank. The \texttt{dense\_reward} setup remains competitive but is weaker than \texttt{full} in final-HV score. These results support the final-HV-oriented reward as the safest official default while showing that dense and hybrid reward signals remain useful for early progress and valid candidate production.
 
-Bộ kết quả hiện tại không chứa ablation đầy đủ cho từng thành phần như Page--Hinkley, diversity reward, operator-only, cluster-only, reward mode hoặc budget annealing. Vì vậy, chưa thể định lượng riêng đóng góp của từng mô-đun. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án về GPU, bộ nhớ, chi phí token, chi phí tiền tệ hoặc latency API.
+The task-level analysis gives a more nuanced view. On Bi-TSP, several methods reach similar final-HV values, so the BMAB advantage is expressed mainly through better budget trajectory. On Tri-TSP, final-HV values are also close, but BMAB-style methods reach high outer HV earlier. On Bi-CVRP, the AUBC gap against MPaGE-orig is especially large, suggesting that adaptive scheduling is valuable when route feasibility and structured local moves make generation more fragile. On Bi-KP, hybrid reward is particularly competitive, which suggests that dense local feedback may be useful for binary item-selection representations.
 
-Ngoài ra, kết quả trong luận văn dùng HV/AUBC ở cấp quần thể heuristic. Chúng không tương đương trực tiếp với các bảng benchmark chuẩn hóa trong bài báo MPaGE gốc. Mọi so sánh trong luận văn vì vậy được giới hạn trong cùng pipeline \texttt{mpage\_bmab}.
+The most accurate empirical conclusion is therefore careful rather than absolute. The proposed method should not be described as uniformly dominating every setup on every metric. It should be described as consistently improving budget-integrated performance while maintaining strong terminal quality. This interpretation matches the research objective more closely than a final-HV-only summary would.
 
-\section{Hướng phát triển}
+\section{Limitations}
 
-Hướng phát triển quan trọng nhất là chạy thêm các thí nghiệm ablation cho HV cuối cùng. Trong nhóm này, \texttt{full} là phương pháp chính với reward \texttt{final\_hv}, \texttt{dense\_reward} thay reward về HVI tức thời, \texttt{hybrid\_reward} trộn hai tín hiệu, và \texttt{no\_budget\_anneal} kiểm tra vai trò của annealing thăm dò theo ngân sách.
+The thesis is limited by the available experimental evidence. Each task--budget cell contains five seeds, which is too small for strong statistical conclusions under a two-sided Wilcoxon signed-rank test. The reported trends are broad and consistent, but they should be interpreted as empirical evidence rather than definitive statistical proof.
 
-Hướng tiếp theo là chạy đầy đủ ablation truyền thống. Các cấu hình \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, \texttt{cluster\_only} và \texttt{mpage\_budget} đã xuất hiện trong \sourcefile{mpage\_bmab/main.py}, nhưng chưa có kết quả đầy đủ trong thư mục hiện tại. Ablation sẽ giúp trả lời thành phần nào đóng góp nhiều nhất cho AUBC.
+The current complete result matrix includes the MPaGE baseline, the official \texttt{full} method, two reward-mode variants, and an archival previous result set. However, it does not include complete matrices for all component ablations. The codebase implements additional variants, including \texttt{no\_budget\_anneal}, \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}. Without complete result matrices for these variants, the thesis cannot isolate the causal contribution of every scheduler component.
 
-Hướng thứ hai là mở rộng số seed và mô hình LLM. Với nhiều seed hơn, kiểm định thống kê sẽ có lực mạnh hơn. Với nhiều model hơn, có thể kiểm tra liệu bandit có còn hiệu quả khi chất lượng sinh mã, độ ổn định và chi phí lời gọi thay đổi.
+The repository does not provide hardware specifications, GPU usage, memory usage, API latency, token-level cost, or monetary cost for the reported runs. No information was found in the project source code or documentation for these measurements. Consequently, the current budget model counts LLM calls rather than modeling heterogeneous token costs or real-time latency.
 
-Hướng thứ ba là đưa chi phí token và latency vào ngân sách. Hiện tại mỗi lời gọi được tính chi phí bằng nhau, nhưng trong thực tế prompt dài, completion dài hoặc model khác nhau có chi phí khác nhau. Một biến thể budgeted MAB theo chi phí token có thể phản ánh thực tế triển khai tốt hơn.
+Finally, the reported HV and AUBC values are outer heuristic-population metrics. They are meaningful for comparing budget-aware heuristic-design processes under the project harness, but they are not a direct reproduction of all inner-task solution-quality tables from the original MPaGE paper.
 
-Hướng thứ tư là phân tích sâu hơn lỗi sinh mã. Nếu lưu đầy đủ invalid attempts của BMAB cùng loại lỗi, có thể tách lỗi cú pháp, lỗi runtime, timeout và heuristic hợp lệ nhưng kém. Điều này giúp thiết kế prompt hoặc cơ chế sửa lỗi tốt hơn.
+The thesis is also limited by the absence of qualitative code analysis. The saved generated samples make it possible to inspect recurring heuristic motifs, invalid-generation patterns, or semantic differences between clusters, but the current study focuses on quantitative outer-population metrics. Such qualitative analysis would be useful for explaining why particular reward modes or task families behave differently.
 
-Hướng cuối cùng là kết hợp thêm cơ chế tìm kiếm cấp cao như Monte Carlo Tree Search hoặc lập kế hoạch prompt, nhưng hướng này cần được kiểm chứng cẩn thận để tránh làm tăng chi phí LLM vượt quá lợi ích AUBC.
+\section{Future Work}
 
-\section{Kết luận chung}
+The most immediate future direction is to run a complete component ablation matrix. The reward-mode comparison is now available for \texttt{full}, \texttt{dense\_reward}, and \texttt{hybrid\_reward}, but the effects of Page--Hinkley drift detection, diversity reward, operator-only scheduling, cluster-only scheduling, and budget annealing still require complete controlled sweeps.
 
-\texttt{mpage\_bmab} là một mở rộng hợp lý và có bằng chứng thực nghiệm của MPaGE trong bối cảnh ngân sách LLM hữu hạn. Điểm mạnh của dự án nằm ở việc biến ngân sách thành một phần của thuật toán thay vì chỉ là giới hạn dừng. Kết quả hiện có cho thấy cách tiếp cận bandit hai tầng có thể cải thiện đáng kể chất lượng tích lũy theo ngân sách, đặc biệt trên các bài toán phức tạp. Dù còn thiếu ablation và số seed lớn hơn, dự án đã tạo ra một nền tảng rõ ràng để nghiên cứu sâu hơn về thiết kế heuristic bằng Generative AI dưới ràng buộc chi phí.
+A second direction is to increase the number of seeds. More seeds would improve the power of statistical tests and make it easier to distinguish robust effects from noise caused by stochastic LLM generation, random initial archives, and generated heuristic randomness.
+
+A third direction is to extend the budget model from uniform call cost to token- or latency-aware cost. In practical LLM deployments, prompts and completions can differ substantially in length, and different models can have different price and latency profiles. A token-aware budgeted bandit would better reflect deployment constraints.
+
+A fourth direction is to log and analyze invalid-generation failures more precisely. Separating syntax errors, missing function definitions, runtime exceptions, infeasible outputs, and timeouts would support targeted prompt engineering and repair strategies. Such diagnostics could also clarify whether validity improvements or reward allocation contribute more to AUBC gains.
+
+Finally, the search controller could be extended with higher-level planning mechanisms, such as prompt repair, memory over successful heuristic motifs, or structured exploration over operator sequences. These extensions should be evaluated carefully because any additional LLM calls must justify their cost under the same AUBC-oriented budget criterion.
+
+A sixth direction is adaptive reward scheduling. The current results show that dense reward is useful for early progress and that final-HV reward is strongest for terminal quality. This suggests a natural schedule in which the controller uses more dense or hybrid feedback early and gradually shifts toward final-HV feedback as the remaining budget decreases.
+
+A seventh direction is qualitative heuristic analysis. Since the repository stores generated samples, future work can cluster or manually inspect the generated code to identify recurring local-search structures. This could answer questions that pure HV metrics cannot answer, such as whether successful heuristics share common move operators, whether invalid code arises from specific prompt patterns, or whether crossover actually combines useful motifs from two parents.
+
+An eighth direction is token-aware and cost-aware budgeting. The current budget model counts LLM calls uniformly, but real model usage depends on prompt length, completion length, latency, and model pricing. A future cost-aware controller could treat mutation, crossover, and clustering as actions with variable monetary or token costs. This would make the budgeted-bandit formulation closer to real deployment conditions.
+
+\section{Final Remarks}
+
+\texttt{mpage\_bmab} demonstrates that budget allocation is a substantive algorithmic issue in LLM-driven heuristic design. By adding a two-level bandit scheduler, hard budget accounting, drift detection, and budget-curve profiling to MPaGE, the project turns a fixed-budget search loop into an adaptive resource-allocation process. The current experiments indicate that this design substantially improves budget-integrated performance, especially on more complex benchmark families. Although further ablations and larger seed counts are required for stronger causal and statistical claims, the project provides a coherent foundation for studying Generative AI heuristic design under realistic cost constraints.

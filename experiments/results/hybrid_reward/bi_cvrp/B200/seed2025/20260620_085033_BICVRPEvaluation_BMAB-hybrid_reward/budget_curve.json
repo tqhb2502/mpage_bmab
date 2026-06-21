@@ -1,0 +1,97 @@
+[
+  {
+    "budget_consumed": 21.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 32.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 43.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 54.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 65.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 76.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 87.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 98.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 109.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 120.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 131.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 142.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 153.0,
+    "hv": 19865.050878272094,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 164.0,
+    "hv": 19877.246322911797,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 175.0,
+    "hv": 19877.246322911797,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 186.0,
+    "hv": 19877.246322911797,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 197.0,
+    "hv": 19877.246322911797,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 200.0,
+    "hv": 19877.246322911797,
+    "pareto_size": 10
+  },
+  {
+    "budget_consumed": 200.0,
+    "hv": 19877.246322911797,
+    "pareto_size": 10
+  }
+]

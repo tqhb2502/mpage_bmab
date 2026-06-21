@@ -1,0 +1,40 @@
+\begin{table}[H]
+\centering
+\caption[Task-level normalized scores]{Task-level mean normalized scores for AUBC and final outer hypervolume. Scores are normalized within each task--budget cell before averaging across budgets.}
+\label{tab:task-level-scores}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{subtable}{\linewidth}
+\centering
+\caption{AUBC normalized score}
+\begin{tabular}{lrrrr}
+\toprule
+Setup & Bi-TSP & Tri-TSP & Bi-CVRP & Bi-KP \\
+\midrule
+Current full & 98.6 & 95.5 & 96.4 & 92.0 \\
+Previous full & 98.9 & 96.9 & 93.7 & 83.7 \\
+MPaGE-orig & 88.0 & 76.3 & 66.1 & 72.5 \\
+Dense reward & 97.5 & 97.0 & 95.2 & 89.7 \\
+Hybrid reward & 97.3 & 97.9 & 94.8 & 92.7 \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+
+\vspace{0.5em}
+
+\begin{subtable}{\linewidth}
+\centering
+\caption{Final-HV normalized score}
+\begin{tabular}{lrrrr}
+\toprule
+Setup & Bi-TSP & Tri-TSP & Bi-CVRP & Bi-KP \\
+\midrule
+Current full & 99.6 & 100.0 & 99.2 & 91.7 \\
+Previous full & 99.3 & 99.7 & 91.4 & 77.4 \\
+MPaGE-orig & 99.6 & 99.8 & 87.3 & 78.1 \\
+Dense reward & 99.1 & 99.7 & 94.1 & 91.5 \\
+Hybrid reward & 98.9 & 99.8 & 93.1 & 98.5 \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}

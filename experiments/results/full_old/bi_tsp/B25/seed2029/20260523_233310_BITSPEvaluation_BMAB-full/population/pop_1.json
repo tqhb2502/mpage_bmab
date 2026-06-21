@@ -1,0 +1,34 @@
+[
+     {
+          "algorithm": "{First, we randomly select a solution from the archive that has a high potential for improvement by considering its objective values, then we apply a local search strategy that involves selecting a random segment of the tour and reversing its order to create a new tour while ensuring the feasibility of the resulting tour, thus generating a neighbor solution that may yield better performance across both objective spaces.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choices(archive, weights=[1/(obj[0] + obj[1]) for _, obj in archive], k=1)[0]\n    neighbor_solution = selected_solution.copy()\n    \n    # Randomly choose two indices to reverse a segment\n    i, j = sorted(random.sample(range(len(neighbor_solution)), 2))\n    neighbor_solution[i:j+1] = neighbor_solution[i:j+1][::-1]\n    \n    return neighbor_solution\n\n",
+          "score": [
+               -231.95445311152895,
+               0.15512144565582275
+          ]
+     },
+     {
+          "algorithm": "{The algorithm first selects a promising solution from the archive based on the Pareto dominance of the objectives and then applies a novel local search operator by randomly selecting a segment of the tour to reverse while ensuring that the new tour remains valid, followed by a random swap of two nodes within that segment to introduce further diversity, thus generating a high-quality neighbor solution.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray) -> np.ndarray:\n    selected_solution, _ = random.choice(archive)\n    \n    # Convert to list for easier manipulation\n    tour = selected_solution.tolist()\n    \n    # Choose two random indices to define a segment of the tour\n    idx1, idx2 = sorted(random.sample(range(len(tour)), 2))\n    \n    # Reverse the segment between idx1 and idx2\n    new_tour = tour[:idx1] + tour[idx1:idx2 + 1][::-1] + tour[idx2 + 1:]\n    \n    # Randomly swap two nodes within the reversed segment to introduce more diversity\n    if idx2 - idx1 > 1:  # Ensure there's more than one node in the segment to swap\n        swap_idx1, swap_idx2 = random.sample(range(idx1, idx2 + 1), 2)\n        new_tour[swap_idx1], new_tour[swap_idx2] = new_tour[swap_idx2], new_tour[swap_idx1]\n    \n    return np.array(new_tour)\n\n",
+          "score": [
+               -217.1180060089544,
+               0.1522812843322754
+          ]
+     },
+     {
+          "algorithm": "{The algorithm begins by randomly selecting a solution from the archive based on their performance in terms of both objectives, where solutions with lower costs have a higher probability of being selected, followed by identifying a random segment of the selected solution to apply a creative local search strategy, which entails reversing the order of nodes within the selected segment and slightly perturbing the segment to ensure the neighbor remains a valid TSP tour, thus generating a neighbor solution that retains the original tour's feasibility while potentially improving the objectives.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray) -> np.ndarray:\n    objectives = np.array([obj for _, obj in archive])\n    total_weight = np.sum(1 / (objectives[:, 0] + objectives[:, 1]))  # Inverse weighted based on objectives\n    probabilities = (1 / (objectives[:, 0] + objectives[:, 1])) / total_weight\n    selected_index = np.random.choice(len(archive), p=probabilities)\n    selected_solution = archive[selected_index][0]\n\n    # Generate a neighbor solution\n    neighbor_solution = selected_solution.copy()\n    num_nodes = len(neighbor_solution)\n    \n    # Randomly select a segment of the tour to reverse\n    start = random.randint(0, num_nodes - 1)\n    end = random.randint(start + 1, num_nodes)  # Ensure end is greater than start\n    segment = neighbor_solution[start:end]\n    \n    # Reverse the selected segment to create a neighbor solution\n    neighbor_solution[start:end] = np.flip(segment)\n\n    # Optionally, perturb the neighbor slightly to avoid local optima\n    if random.random() < 0.5:  # 50% chance to perturb\n        perturb_index = random.randint(0, num_nodes - 1)\n        swap_index = (perturb_index + 1) % num_nodes  # Ensure valid swap\n        neighbor_solution[perturb_index], neighbor_solution[swap_index] = neighbor_solution[swap_index], neighbor_solution[perturb_index]\n    \n    return neighbor_solution\n\n",
+          "score": [
+               -223.0680208620315,
+               0.17638283967971802
+          ]
+     },
+     {
+          "algorithm": "{The new algorithm selects a promising solution from the archive based on a random weighted choice considering their objective values, then applies a novel local search strategy that involves a creative insertion of a randomly selected node into the tour at a random position, aiming to improve the total distances in both objective spaces while ensuring the generated tour remains a valid TSP tour.}",
+          "function": "def select_neighbor(archive: List[Tuple[np.ndarray, Tuple[float, float]]], instance: np.ndarray, distance_matrix_1: np.ndarray, distance_matrix_2: np.ndarray) -> np.ndarray:\n    total_weight = sum(1 / (obj[0] + obj[1]) for _, obj in archive)  # Inverse of objectives for weighting\n    probabilities = [(1 / (obj[0] + obj[1])) / total_weight for _, obj in archive]\n    selected_index = np.random.choice(len(archive), p=probabilities)\n    current_solution = archive[selected_index][0].copy()\n\n    # Randomly select a node to insert and a position to insert it into\n    num_nodes = len(current_solution)\n    insert_node_index = random.randint(0, num_nodes - 1)\n    insert_node = current_solution[insert_node_index]\n    current_solution = np.delete(current_solution, insert_node_index)  # Remove the node to be re-inserted\n    \n    # Select a random position to insert the node\n    insert_position = random.randint(0, num_nodes - 2)  # -2 because we removed one node\n    new_solution = np.insert(current_solution, insert_position, insert_node)\n\n    return new_solution\n\n",
+          "score": [
+               -218.61477009854215,
+               0.18220096826553345
+          ]
+     }
+]

@@ -1,76 +1,148 @@
-\chapter{Triển khai hệ thống}
+\chapter{System Implementation}
 
-\section{Cấu trúc mã nguồn}
+\section{Repository Organization}
 
-Kho dự án gồm hai phần chính. Phần thứ nhất là mã nguồn MPaGE gốc ở thư mục \sourcefile{llm4ad/}, kèm entrypoint \sourcefile{main.py} và tài liệu \sourcefile{README.md}. Phần thứ hai là dự án mở rộng \sourcefile{mpage\_bmab/}, trong đó có mã nguồn BMAB, tài liệu thiết kế và pipeline thực nghiệm.
+The repository contains two closely related codebases. The first is the original MPaGE source tree, located mainly under \sourcefile{llm4ad/}, together with the original entry points and documentation. The second is the extended project under \sourcefile{mpage\_bmab/}, which implements the budget-aware BMAB controller, experiment harness, analysis documents, result files, and the thesis source.
 
-Trong \sourcefile{mpage\_bmab/}, các tệp quan trọng gồm:
-
-\begin{itemize}
-  \item \sourcefile{bmab\_llm.py}: vòng lặp chính của BMAB-LLM.
-  \item \sourcefile{bandit.py}: UCB chọn toán tử, Budgeted UCB chọn cụm và Page--Hinkley.
-  \item \sourcefile{budget.py}: theo dõi ngân sách lời gọi LLM.
-  \item \sourcefile{cluster\_manager.py}: gọi LLM để phân cụm ngữ nghĩa và xử lý fallback.
-  \item \sourcefile{reward.py}: tính hypervolume, diversity và reward.
-  \item \sourcefile{profiler.py}: ghi budget curve, AUBC, bandit log và budget history.
-  \item \sourcefile{mpage\_orig.py}: wrapper baseline MPaGE trong cùng giao thức ngân sách.
-  \item \sourcefile{experiments/}: cấu hình, chạy, tổng hợp, so sánh và sinh hình cho thực nghiệm.
-\end{itemize}
-
-\section{Môi trường phần mềm}
-
-\sourcefile{requirements.txt} ở thư mục gốc và \sourcefile{mpage\_bmab/requirements.txt} liệt kê các phụ thuộc Python. Những phụ thuộc quan trọng gồm \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm} và thư viện OpenAI-compatible client. \sourcefile{mpage\_bmab/README.md} cho thấy CLI mặc định dùng mô hình \texttt{gpt-4o-mini}, còn khóa API được đọc từ các tệp cấu hình cục bộ trong \sourcefile{mpage\_bmab/main.py}. Nội dung các tệp khóa không được sử dụng trong luận văn.
-
-Thông tin phần cứng, GPU, hệ điều hành cụ thể của máy chạy thí nghiệm và chi phí tiền tệ trên mỗi lời gọi không xuất hiện trong kết quả hiện tại. Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án.
-
-\section{Chuẩn bị bài toán đánh giá}
-
-Bốn bài toán trong thực nghiệm hiện tại đều nằm dưới \sourcefile{llm4ad/task/optimization/}. Mỗi bài toán định nghĩa một evaluator và template hàm \texttt{select\_neighbor}.
-
-Bi-TSP dùng bốn instance, kích thước bài toán 20, timeout 60 giây, archive ban đầu 100 tour ngẫu nhiên và 2000 vòng lặp. Các thông tin này nằm trong \sourcefile{llm4ad/task/optimization/bi\_tsp/evaluation.py}. Tri-TSP dùng 20 instance, kích thước 20, timeout 90 giây, archive 100 tour và 20000 vòng lặp, theo \sourcefile{llm4ad/task/optimization/tri\_tsp/evaluation.py}. Bi-CVRP dùng tám instance, kích thước 100, capacity 50, timeout 90 giây và 6000 vòng lặp, theo \sourcefile{llm4ad/task/optimization/bi\_cvrp/evaluation.py}. Bi-KP dùng tám instance, kích thước 200, capacity 25, timeout 90 giây và 8000 vòng lặp, theo \sourcefile{llm4ad/task/optimization/bi\_kp/evaluation.py}.
-
-Các tệp \sourcefile{get\_instance.py} trong từng thư mục bài toán đặt seed NumPy bằng 2025, do đó instance benchmark cố định theo mã nguồn hiện tại. Seed 2025--2029 trong thí nghiệm chủ yếu tác động tới vòng lặp sinh/chọn heuristic, không tạo bộ instance mới.
-
-\section{Pipeline sinh và đánh giá heuristic}
-
-Mỗi heuristic được biểu diễn như một đoạn code Python chứa hàm \texttt{select\_neighbor}. LLM sinh code theo prompt, bộ parser trích xuất hàm, sau đó \texttt{SecureEvaluator} trong \sourcefile{llm4ad/base/evaluate.py} chạy evaluator trong tiến trình riêng. Nếu code lỗi, timeout hoặc trả về kết quả không hợp lệ, score có thể là \texttt{None}.
-
-Các evaluator trả về score hai chiều ở cấp heuristic. Với Tri-TSP, dù bài toán bên trong có ba mục tiêu, score outer-loop vẫn là hai chiều $(-HV, runtime)$; điều này được thể hiện trong \sourcefile{llm4ad/task/optimization/tri\_tsp/evaluation.py} và được phản ánh trong \sourcefile{mpage\_bmab/main.py}, nơi \texttt{ref\_point} cho Tri-TSP là \texttt{(20.0, 60.0)}.
-
-\section{Cấu hình thực nghiệm}
-
-\sourcefile{mpage\_bmab/experiments/configs.py} định nghĩa bốn bài toán, bốn ngân sách và năm seed. Hàm \texttt{pop\_size\_for} đặt kích thước quần thể theo ngân sách: với các bài toán hai mục tiêu thông thường là 4, 6, 8, 10 cho ngân sách 25, 50, 100, 200; với Tri-TSP cộng thêm 2, tức 6, 8, 10, 12. Cấu hình này cũng được ghi trong \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
-
-Các tham số bandit mặc định gồm $c_{op}=1.0$, $c_{cluster}=1.0$, $\gamma_{budget}=0.5$, prior count $1$ và prior reward $0.5$. Reward dùng $w_q=1.0$, $w_d=0.3$, $w_r=0.2$, penalty $1.0$ và rank window $50$. Page--Hinkley dùng $\delta=0.005$ và threshold $0.5$. Các giá trị này lấy từ \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
-
-\section{Script chạy, tổng hợp và so sánh}
-
-Pipeline thực nghiệm nằm trong \sourcefile{mpage\_bmab/experiments/}. \sourcefile{run.py} nhận cấu hình, gọi entrypoint phù hợp và lưu kết quả theo cấu trúc thư mục. \sourcefile{aggregate.py} duyệt các thư mục kết quả, đọc \texttt{budget\_curve.json} và \texttt{aubc.json}, sau đó tạo \sourcefile{summary.csv}. \sourcefile{compare.py} thực hiện so sánh theo cặp giữa baseline và phương pháp đầy đủ cho từng bài toán, ngân sách và metric.
-
-Các hình trong \sourcefile{mpage\_bmab/experiments/results/images/} được sinh bởi \sourcefile{mpage\_bmab/experiments/results/image\_generation\_code/generate\_result\_images.py}. Script này tạo các biểu đồ AUBC, HV cuối cùng, budget curves, invalid/null-score rate và valid heuristic yield. Luận văn sao chép các hình này vào \sourcefile{thesis/figures/}.
-
-\section{Artifact đầu ra}
-
-Mỗi lượt chạy có thể tạo các tệp sau:
+The main implementation modules in \sourcefile{mpage\_bmab/} are the following:
 
 \begin{itemize}
-  \item \sourcefile{samples/}: các heuristic được lưu, kèm code và score nếu có.
-  \item \sourcefile{population/}: quần thể heuristic.
-  \item \texttt{budget\_curve.json}: chuỗi điểm $(budget\_consumed, hv, pareto\_size)$.
-  \item \texttt{budget\_history.json}: lịch sử tiêu thụ ngân sách.
-  \item \texttt{bandit\_log.json}: quyết định bandit và reward.
-  \item \texttt{aubc.json}: AUBC cuối cùng.
-  \item \texttt{run\_log.txt}: log quá trình chạy.
+  \item \sourcefile{bmab\_llm.py}: the main BMAB orchestration loop. It performs initialization, PFG selection, semantic clustering, bandit-based operator and cluster selection, offspring generation, reward computation, population update, and final artifact writing.
+  \item \sourcefile{bandit.py}: the implementation of the operator-level UCB controller, cluster-level budgeted UCB controller, and Page--Hinkley drift detector.
+  \item \sourcefile{budget.py}: the hard LLM-call budget tracker. It records consumed and remaining budget and rejects unaffordable actions.
+  \item \sourcefile{cluster\_manager.py}: the wrapper around LLM-based semantic clustering. It charges cluster calls, validates cluster partitions, computes cluster priors, and provides fallback behavior.
+  \item \sourcefile{reward.py}: the reward computation module, including hypervolume, immediate HVI, managed final-HV gain, diversity gain, rank smoothing, and invalid-code penalties.
+  \item \sourcefile{profiler.py}: the logging and measurement module that records budget curves, AUBC, bandit logs, budget history, and population-level artifacts.
+  \item \sourcefile{mpage\_orig.py}: the wrapper that runs the original MPaGE baseline under the same budget-accounting and output conventions used by BMAB.
+  \item \sourcefile{experiments/}: the experiment harness, including suite definitions, run scripts, aggregation, comparison, metric recomputation, diagnostics, and figure-generation code.
 \end{itemize}
 
-Cấu trúc artifact được mô tả trong \sourcefile{mpage\_bmab/README.md}, \sourcefile{mpage\_bmab/experiments/README.md} và \sourcefile{mpage\_bmab/profiler.py}.
+This organization separates methodological logic from experiment execution. The core algorithm is implemented in \sourcefile{bmab\_llm.py}, while the repeatable experimental matrix is controlled by \sourcefile{experiments/configs.py} and \sourcefile{experiments/run.py}.
 
-\section{Tái lập kết quả}
+The separation is important for thesis reproducibility. Methodological claims in Chapter~3 are tied to the algorithm modules, while empirical claims in Chapter~5 are tied to the experiment and analysis modules. This avoids mixing two different concerns: changing the scheduler should happen in the core BMAB implementation, whereas changing which tasks, budgets, or seeds are run should happen in the experiment harness. The current repository mostly follows this separation, which makes it possible to regenerate result tables without rewriting the method itself.
 
-Theo \sourcefile{mpage\_bmab/experiments/README.md}, có thể chạy các suite như \texttt{smoke}, \texttt{headline}, \texttt{budget50}, \texttt{full}, \texttt{hvfix\_smoke}, \texttt{hv\_final\_priority} và \texttt{hv\_final\_full}. Bộ kết quả đang phân tích trong Chương 5 tương ứng đầy đủ với hai phương pháp, bốn bài toán, bốn ngân sách và năm seed. Các lệnh cụ thể có thể thay đổi tùy môi trường API, nhưng entrypoint chính là \sourcefile{mpage\_bmab/experiments/run.py}.
+\section{Software Environment}
 
-Vì hệ thống phụ thuộc LLM qua API, tái lập bit-by-bit là khó nếu dịch vụ LLM thay đổi hoặc sampling không hoàn toàn quyết định. Kho mã nguồn giảm rủi ro bằng cách lưu toàn bộ samples, curves và logs. Tuy nhiên, không tìm thấy thông tin về snapshot chính xác của model API, cấu hình temperature đầy đủ ở mọi nơi, hoặc chi phí token thực tế trong kết quả hiện tại.
+The root \sourcefile{requirements.txt} and \sourcefile{mpage\_bmab/requirements.txt} list the main Python dependencies. The important libraries include \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm}, and an OpenAI-compatible client. The command-line interface in \sourcefile{mpage\_bmab/main.py} uses \texttt{gpt-4o-mini} as the default generator and clusterer model unless overridden by CLI arguments. API credentials are read from local secret files; their contents are not part of the thesis and are not required for interpreting the algorithmic design.
 
-\section{Các điểm cần thận trọng trong triển khai}
+The available repository materials do not specify the exact hardware, GPU, operating system version, API latency, token cost, or monetary cost per call used to produce the reported result set. No information was found in the project source code or documentation for these environment details. For this reason, the thesis treats budget primarily as the number of charged LLM calls rather than as wall-clock cost or monetary cost.
 
-Có ba điểm cần đọc cẩn thận khi diễn giải kết quả. Thứ nhất, \texttt{budget\_history} của \texttt{mpage\_orig} được ghi ở dạng tổng hợp trong wrapper, còn BMAB ghi chi tiết hơn; vì vậy số dòng lịch sử không nên được so sánh như số event tương đương. Thứ hai, BMAB chỉ lưu samples hợp lệ, còn MPaGE-orig có thể lưu score \texttt{None}; do đó invalid/null-score rate là một chẩn đoán chi phí, không phải metric lưu trữ giống hệt. Thứ ba, các tệp \texttt{paras.yaml} của benchmark có giá trị timeout khác với evaluator Python trong một số trường hợp; luận văn ưu tiên mã evaluator vì đó là đường thực thi thực tế.
+\section{Benchmark Evaluators and Task Preparation}
+
+The current BMAB implementation imports task evaluators from the project-local vendored tree \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/}. Each task defines both a template for the generated heuristic function and an evaluator that executes the generated function inside an archive-based inner search procedure.
+
+Bi-TSP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/bi\_tsp\_semo/}. The evaluator uses four fixed instances, problem size 20, a timeout of 60 seconds, an initial archive of 100 random tours, and 2,000 heuristic calls per instance.
+
+Tri-TSP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/tri\_tsp\_semo/}. The evaluator uses 20 fixed instances, problem size 20, a timeout of 90 seconds, an initial archive of 100 random tours, and 20,000 heuristic calls per instance.
+
+Bi-CVRP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/bi\_cvrp/}. The evaluator uses eight fixed instances, problem size 100, capacity 50 for this size range, a timeout of 90 seconds, 10 initial route sets, and 6,000 heuristic calls per instance.
+
+Bi-KP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/bi\_kp/}. The evaluator uses eight fixed instances, problem size 200, capacity 25 for this size range, a timeout of 90 seconds, 20 initial feasible item selections, and 8,000 heuristic calls per instance.
+
+The \code{get\_instance.py} files in these task directories set the NumPy random seed to 2025 before generating benchmark instances. Therefore, the problem instances are fixed under the current code. The experiment seeds 2025--2029 mainly affect the outer heuristic-generation and selection process rather than creating new benchmark instance sets.
+
+\section{Score and Population Data Model}
+
+The core data object flowing through the system is a generated heuristic function. Conceptually, a function object stores the generated code, metadata, and an optional score. A score is valid only when the code can be executed by the corresponding task evaluator and returns behavior that can be measured. For all benchmark tasks analyzed in this thesis, the outer score has two components:
+
+\begin{equation}
+  s(h) = \left(-\overline{HV}_{\mathrm{inner}}(h), \overline{\tau}(h)\right).
+\end{equation}
+
+The first component is negated because the outer population manager follows a minimization convention. The second component is average runtime. This two-dimensional convention is used even for Tri-TSP, whose inner archive has three objective dimensions. The tri-objective inner archive is first summarized by inner hypervolume, and that scalar is then paired with runtime at the outer level.
+
+The population manager keeps a bounded set of generated heuristics. New children enter a pending population during a generation and are later merged through survivor selection. This detail is significant under a strict budget. If a run stops in the middle of a generation, pending valid children must still be considered before the final population is recorded. The finalized implementation includes this flush behavior, which prevents useful generated heuristics from being lost simply because the budget ended before a full generation was completed.
+
+Dominance in the outer population is evaluated over heuristic scores, not over source-code similarity. Semantic clustering is used for parent organization and budget allocation, but the final population is determined by numerical objectives. Thus, a semantically novel heuristic that is slow and low-quality can still be dominated, while a semantically similar heuristic can survive if it improves the quality--runtime trade-off.
+
+\section{Heuristic Generation and Evaluation Pipeline}
+
+Each generated heuristic is represented as Python code containing a task-specific \texttt{select\_neighbor} function. The LLM is prompted using MPaGE prompt templates, the response is parsed into executable code, and the evaluator attempts to run the function in a controlled process. A successful evaluation returns a two-dimensional outer score: negated inner hypervolume and runtime. If the code fails to parse, raises an exception, violates task constraints, times out, or returns an invalid object, the evaluator may return a null score.
+
+The project uses the same conceptual evaluation interface across all benchmark families. For each fixed problem instance, the evaluator creates an initial archive, repeatedly calls the generated \texttt{select\_neighbor} heuristic, inserts feasible and non-dominated candidates, removes dominated archive members, and computes the inner hypervolume of the final archive. The heuristic score used by the outer BMAB population is then averaged over the task instances.
+
+Tri-TSP illustrates the two-level nature of the evaluation. Although the inner task has three distance objectives, the outer heuristic score remains two-dimensional: $(-HV_{\text{inner}}, runtime)$. This convention is reflected in \sourcefile{mpage\_bmab/main.py}, where the outer reference point for Tri-TSP is two-dimensional, \texttt{(20.0, 60.0)}.
+
+\section{Execution Flow of a BMAB Run}
+
+A single BMAB run proceeds through a fixed sequence of stages. First, the command-line entry point in \sourcefile{mpage\_bmab/main.py} resolves the task evaluator, population size, budget, seed, model names, and reward-mode settings. It then constructs the budget tracker, profiler, population manager, cluster manager, bandit controllers, and reward computer.
+
+Second, the method performs an initialization phase. Initial heuristic programs are generated and evaluated until the initial population is available or the budget is exhausted. These initial candidates provide the first set of scores from which PFG selection and semantic clustering can operate. Initialization is therefore not only a warm-up step; it determines the early structure of the outer search space.
+
+Third, each generation starts by selecting elites and preparing a clustering pool. The implementation retains the MPaGE idea that promising heuristic programs should guide the next prompt context, but the finalized BMAB implementation also expands the clustering pool so that the cluster bandit can reason over a richer set of semantic regions. The cluster manager either obtains an LLM-based partition or falls back to a deterministic singleton-style partition when the budget is too small to justify a clustering call.
+
+Fourth, the inner generation loop repeatedly selects an operator and a cluster arm. The operator-level bandit chooses between mutation and crossover. The cluster-level bandit chooses which semantic region should receive the current call under the selected operator family. Parent heuristics are then sampled, with higher weight assigned to parents that also appear in the PFG-selected elite set. The LLM generates a child program, the evaluator scores it, and the reward computer converts the outcome into a scalar feedback signal.
+
+Finally, the run writes artifacts. The profiler records budget-curve points, AUBC, budget history, bandit logs, and population snapshots. The finalization step flushes pending offspring into the managed population before final HV is recorded. This flow makes the final result dependent on all valid generated work, not only on completed generations.
+
+\section{Budget Accounting and Call Semantics}
+
+The project uses call-based budget accounting. A budget unit corresponds to an LLM call made for generation or clustering. This abstraction is simpler than token-level or monetary accounting, but it has two advantages for the current thesis. First, it is directly observable from the code path: every charged action passes through the budget tracker. Second, it is stable across tasks, which makes the task--budget matrix easier to compare.
+
+The budget tracker enforces two properties. The first is monotonic consumption: once a call is charged, the consumed budget cannot decrease. The second is affordability checking: an action should not be taken if the remaining budget cannot pay for it. The finalized method uses this not only as a safety mechanism but also as part of the algorithm. Near the end of a run, the implementation avoids spending the last available unit on clustering if doing so would leave no budget for generating a heuristic. This design choice reflects the principle that a clustering call has value only if it can guide at least one subsequent generation call.
+
+Call-based budget accounting does not capture every practical cost. It ignores prompt length, completion length, API latency, and evaluator runtime. The repository does not provide these measurements for the result set. Nevertheless, call budget is an appropriate first-order abstraction for comparing scheduling policies because it measures the scarce generative action that the proposed method controls.
+
+\section{Experiment Configuration}
+
+The main experimental matrix is defined in \sourcefile{mpage\_bmab/experiments/configs.py}. The default task set is \texttt{bi\_tsp}, \texttt{tri\_tsp}, \texttt{bi\_cvrp}, and \texttt{bi\_kp}. The default budgets are $B \in \{25,50,100,200\}$, and the default seeds are 2025, 2026, 2027, 2028, and 2029.
+
+The function \texttt{pop\_size\_for} selects the managed population size according to budget. For the two-objective tasks, the population sizes are 4, 6, 8, and 10 for budgets 25, 50, 100, and 200, respectively. For Tri-TSP, the configuration adds two extra individuals, yielding population sizes 6, 8, 10, and 12. This policy is also documented in \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+
+The default bandit parameters are $c_{\mathrm{op}}=1.0$, $c_{\mathrm{cluster}}=1.0$, $\gamma_{\mathrm{budget}}=0.5$, prior count $1$, and prior reward $0.5$. The default reward weights are $w_q=1.0$, $w_d=0.3$, and $w_r=0.2$, with invalid-code penalty $1.0$ and rank window $50$. Page--Hinkley uses $\delta=0.005$ and threshold $0.5$. These values are exposed or documented through \sourcefile{mpage\_bmab/main.py}, \sourcefile{mpage\_bmab/reward.py}, \sourcefile{mpage\_bmab/bandit.py}, and \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+
+The configuration intentionally keeps population size coupled to budget. At small budgets, a large population would consume most of the budget during initialization and leave too few later decisions for the bandit to learn. At large budgets, a larger population can preserve more heuristic diversity and provide richer parent material. Tri-TSP receives a slightly larger population because the inner problem has three objectives and therefore tends to require more diversity to represent useful trade-offs.
+
+\section{Experiment Suites and Run Scripts}
+
+The experiment harness under \sourcefile{mpage\_bmab/experiments/} separates suite definition, execution, aggregation, and comparison.
+
+\sourcefile{experiments/run.py} enumerates cells of the form \texttt{(ablation, task, budget, seed)}, creates output directories, and dispatches each cell to either \sourcefile{mpage\_bmab/main.py} or \sourcefile{mpage\_bmab/mpage\_orig.py}. It skips completed cells unless \texttt{--force} is specified. \sourcefile{experiments/aggregate.py} scans result directories and creates aggregate CSV summaries. \sourcefile{experiments/compare.py} performs paired comparisons against a selected baseline for a selected metric.
+
+Several shell launchers are provided for common workflows. \sourcefile{experiments/run\_full.sh} launches the standard full BMAB ablation grid and then aggregates and compares results. \sourcefile{experiments/run\_mpage\_compare.sh} launches the MPaGE-orig versus BMAB comparison. \sourcefile{experiments/run\_hv\_final\_full.sh} launches the reward-mode comparison among \texttt{full}, \texttt{dense\_reward}, and \texttt{hybrid\_reward}, then runs aggregation and comparisons for both \texttt{hv\_final} and AUBC.
+
+The result set analyzed in Chapter~5 combines the complete \texttt{mpage\_compare\_full} matrix with the complete reward-mode matrix. It therefore covers five setups: \texttt{full}, \texttt{dense\_reward}, \texttt{hybrid\_reward}, \texttt{mpage\_orig}, and the archival \texttt{full\_old} result set. Other component ablations, such as \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}, are available in the codebase but are not analyzed as complete matrices in Chapter~5.
+
+\section{Generated Artifacts}
+
+Each run writes a structured set of artifacts that makes post-hoc analysis possible. The most important artifacts are:
+
+\begin{itemize}
+  \item \code{samples/}: generated heuristic samples, including code and available scores.
+  \item \code{population/}: final and intermediate heuristic-population records.
+  \item \code{budget\_curve.json}: a sequence of points containing consumed budget, outer hypervolume, and Pareto population size.
+  \item \code{budget\_history.json}: the budget-consumption history.
+  \item \code{bandit\_log.json}: selected operators, selected cluster arms, rewards, and related bandit diagnostics.
+  \item \code{aubc.json}: the final AUBC value computed from the budget curve.
+  \item \code{run\_log.txt}: execution logs for the run.
+\end{itemize}
+
+The numerical summaries used in Chapter~5 are materialized in thesis-local table files under \sourcefile{mpage\_bmab/thesis/tables/}. This makes the reported values self-contained in the thesis while preserving compatibility with the experiment aggregation scripts when new runs are added.
+
+The artifact structure also supports anomaly inspection. For example, if a cell has positive final HV but zero AUBC, the corresponding \code{budget\_curve.json} and \code{aubc.json} files can be checked directly. This was used during the dense-reward Bi-CVRP $B=25$, seed-2029 rerun discussed in Chapter~5. The thesis therefore treats generated artifacts not only as outputs but as audit records that make it possible to validate the aggregation pipeline.
+
+Another important artifact is the saved sample set. Sample files make it possible to inspect the generated code and verify whether a run produced valid heuristics, null-score candidates, or repeated patterns. The current analysis does not perform qualitative code motif analysis, but the presence of these artifacts would support such an extension. This is especially relevant for future work on explaining why particular prompt families or semantic clusters become productive.
+
+\section{Visualization and Analysis Code}
+
+The figures used in Chapter~5 are generated from result CSV and JSON files. The five-setup overview is produced by \sourcefile{mpage\_bmab/experiments/analyze\_all\_setups\_overview.py}, which creates AUBC plots, final-HV plots, budget curves, valid-yield charts, invalid/null diagnostics, pairwise win matrices, and trade-off figures. The rerun-specific Bi-CVRP diagnostic figures are produced by \sourcefile{mpage\_bmab/experiments/analyze\_rerun\_cell\_update.py}. The thesis includes local copies of the generated figures under \sourcefile{mpage\_bmab/thesis/figures/}.
+
+This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be rerun to update the numerical summaries and figures without changing the methodological exposition.
+
+The visualization pipeline uses several levels of aggregation. Per-run artifacts are first converted into row-level summaries containing task, budget, seed, setup, AUBC, final HV, valid count, and diagnostic rates. These rows are then aggregated into task--budget cells. Normalized scores are computed within each cell so that tasks with very different absolute hypervolume scales can be compared fairly. Finally, the analysis scripts generate overview plots, pairwise win matrices, and budget-curve figures. This sequence is important because it prevents large-scale tasks such as Tri-TSP from dominating cross-task conclusions simply because their absolute outer-HV values are larger.
+
+The thesis includes figure copies rather than linking directly to the experiment output directory. This is a practical LaTeX decision: it makes the thesis project self-contained and avoids broken figure paths if experiment folders are archived or moved. The original result files remain the source of truth for numerical regeneration, while the thesis-local copies provide a stable compiled document.
+
+\section{Reproducibility Considerations}
+
+The codebase provides several mechanisms for reproducibility: fixed benchmark-instance generation, explicit experiment seeds, deterministic suite definitions, per-run output directories, logged budget curves, and saved generated samples. These mechanisms make it possible to inspect what happened in each run and to recompute aggregate statistics from stored artifacts.
+
+However, exact bit-level reproducibility is not guaranteed. The system depends on an external LLM API, and the repository does not provide a complete snapshot of the model backend, sampling behavior, or service-side changes over time. The generated code can also be stochastic, because heuristics may call \texttt{random} or \texttt{numpy.random}. Therefore, the thesis interprets the reported results as reproducible under the stored artifacts and code paths, while recognizing that re-running the same experiment at a later date may produce slightly different generated heuristics.
+
+\section{Implementation Caveats}
+
+Three implementation caveats are important when interpreting the results. First, \texttt{mpage\_orig} and BMAB do not record budget history with identical granularity. BMAB records detailed budget events, whereas the MPaGE wrapper records a more aggregated history. Therefore, the number of budget-history rows should not be compared as if they were identical event types.
+
+Second, BMAB stores only accepted or scored heuristic samples in several output locations, while MPaGE-orig can retain samples with null scores. Consequently, invalid/null-score rate is a diagnostic indicator rather than a perfectly symmetric storage metric. The analysis in Chapter~5 accounts for this by using both stored samples and budget-history-derived counts.
+
+Third, the runtime timeouts in some benchmark configuration files are not always identical to the timeout values used directly in the Python evaluator classes. When there is such a discrepancy, the thesis prioritizes the evaluator source code because it is the executed path used by the current implementation.

@@ -1,0 +1,42 @@
+[
+  {
+    "budget_consumed": 13.0,
+    "hv": 14167.405427006192,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 20.0,
+    "hv": 14167.405427006192,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 27.0,
+    "hv": 14167.405427006192,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 34.0,
+    "hv": 14167.405427006192,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 41.0,
+    "hv": 14182.819632686218,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 48.0,
+    "hv": 14182.819632686218,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 50.0,
+    "hv": 14182.819632686218,
+    "pareto_size": 6
+  },
+  {
+    "budget_consumed": 50.0,
+    "hv": 14367.419851876424,
+    "pareto_size": 6
+  }
+]

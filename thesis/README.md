@@ -1,8 +1,10 @@
-# Luận văn LaTeX
+# LaTeX Thesis
 
-Dự án LaTeX này được tạo từ nội dung mã nguồn, tài liệu và kết quả thực nghiệm trong kho `MPaGE`.
+This LaTeX project contains the graduation thesis generated from the source
+code, documentation, figures, tables, and experimental evidence available in
+the `MPaGE` repository.
 
-Biên dịch bằng XeLaTeX:
+Compile with XeLaTeX:
 
 ```bash
 cd thesis
@@ -12,7 +14,9 @@ xelatex main.tex
 xelatex main.tex
 ```
 
-Các hình trong `figures/` được sao chép từ `figure/` và `mpage_bmab/experiments/results/images/`.
+Figures in `figures/` are the thesis-local copies used by `main.tex`.
 
-Trong VSCode, LaTeX Workshop nên dùng recipe `xelatex -> bibtex -> xelatex x2`.
-Nếu VSCode báo `spawn latexmk ENOENT` hoặc `spawn xelatex ENOENT`, máy chưa cài TeX distribution hoặc VSCode chưa thấy đường dẫn `/Library/TeX/texbin`.
+In VSCode, LaTeX Workshop should use the recipe
+`xelatex -> bibtex -> xelatex x2`. If VSCode reports
+`spawn latexmk ENOENT` or `spawn xelatex ENOENT`, the TeX distribution is not
+installed or VSCode cannot find `/Library/TeX/texbin`.

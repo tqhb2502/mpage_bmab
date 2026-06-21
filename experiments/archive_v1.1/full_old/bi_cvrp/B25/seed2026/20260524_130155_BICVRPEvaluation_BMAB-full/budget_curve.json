@@ -1,0 +1,17 @@
+[
+  {
+    "budget_consumed": 16.0,
+    "hv": 18373.625807074834,
+    "pareto_size": 4
+  },
+  {
+    "budget_consumed": 21.0,
+    "hv": 18373.625807074834,
+    "pareto_size": 4
+  },
+  {
+    "budget_consumed": 25.0,
+    "hv": 18373.625807074834,
+    "pareto_size": 4
+  }
+]

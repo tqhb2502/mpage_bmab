@@ -1,0 +1,306 @@
+[2026-05-24 01:50:18] profile.py(179) : ==================================LLM Parameters===============================
+[2026-05-24 01:50:18] profile.py(180) : LLM: HttpsApiOpenAI
+[2026-05-24 01:50:18] profile.py(183) : do_auto_trim: True
+[2026-05-24 01:50:18] profile.py(183) : debug_mode: False
+[2026-05-24 01:50:18] profile.py(183) : _model: gpt-4o-mini
+[2026-05-24 01:50:18] profile.py(183) : _client: <openai.OpenAI object at 0x10a2078e0>
+[2026-05-24 01:50:18] profile.py(185) : ==================================Problem Parameters===============================
+[2026-05-24 01:50:18] profile.py(187) : Problem: BITSPEvaluation
+[2026-05-24 01:50:18] profile.py(190) : task_description: You are solving a Bi-objective Travelling Salesman Problem (bi-TSP), where each node has two different 2D coordinates: (x1, y1) and (x2, y2), representing its position in two objective spaces. The goal is to find a tour visiting each node exactly once and returning to the starting node, while minimizing two objectives simultaneously: the total tour length in each coordinate space. Given an archive of solutions, where each solution is a numpy array representing a TSP tour, and its corresponding objective is a tuple of two values (cost in each space), design a heuristic function named 'select_neighbor' that selects one solution from the archive and apply a novel or hybrid local search operator to generate a neighbor solution from it.  Must always ensure that the generated neighbor solution remains feasible, i.e., the solution must represent a valid TSP tour: it visits each node exactly once, ensuring no node is skipped or revisited.Please perform an intelligent random selection from among the solutions that show promising potential for further local improvement. Using a creative local search strategy that you design yourself, avoid 2-opt, go beyond standard approaches to design a method that yields higher-quality solutions across multiple objectives. The function should return the new neighbor solution.
+[2026-05-24 01:50:18] profile.py(190) : use_numba_accelerate: False
+[2026-05-24 01:50:18] profile.py(190) : use_protected_div: False
+[2026-05-24 01:50:18] profile.py(190) : protected_div_delta: 1e-05
+[2026-05-24 01:50:18] profile.py(190) : random_seed: None
+[2026-05-24 01:50:18] profile.py(190) : timeout_seconds: 60
+[2026-05-24 01:50:18] profile.py(190) : exec_code: True
+[2026-05-24 01:50:18] profile.py(190) : safe_evaluate: True
+[2026-05-24 01:50:18] profile.py(190) : daemon_eval_process: False
+[2026-05-24 01:50:18] profile.py(190) : n_instance: 4
+[2026-05-24 01:50:18] profile.py(190) : problem_size: 20
+[2026-05-24 01:50:18] profile.py(190) : ref_point: [20. 20.]
+[2026-05-24 01:50:18] profile.py(192) : ==================================Method Parameters===============================
+[2026-05-24 01:50:18] profile.py(194) : Method: BMABLLM
+[2026-05-24 01:50:18] profile.py(197) : _budget: BudgetTracker(mode=call, remaining=200.00/200.00, steps=0)
+[2026-05-24 01:50:18] profile.py(197) : _cluster_sampler: <mpage_bmab._llm4ad.method.LLMPFG.sampler.EoHSampler object at 0x10a31f5b0>
+[2026-05-24 01:50:18] profile.py(197) : _cluster_mgr: <mpage_bmab.cluster_manager.ClusterManager object at 0x10a31f5e0>
+[2026-05-24 01:50:18] profile.py(197) : _operator_bandit: <mpage_bmab.bandit.OperatorBandit object at 0x10a31f580>
+[2026-05-24 01:50:18] profile.py(197) : _cluster_bandit: <mpage_bmab.bandit.ClusterBandit object at 0x10a31f100>
+[2026-05-24 01:50:18] profile.py(197) : _reward: <mpage_bmab.reward.RewardComputer object at 0x10a3baf40>
+[2026-05-24 01:50:18] profile.py(197) : _pop_size: 10
+[2026-05-24 01:50:18] profile.py(197) : _selection_num: 2
+[2026-05-24 01:50:18] profile.py(197) : _max_generations: None
+[2026-05-24 01:50:18] profile.py(197) : _use_e1: True
+[2026-05-24 01:50:18] profile.py(197) : _use_e2: True
+[2026-05-24 01:50:18] profile.py(197) : _use_m1: True
+[2026-05-24 01:50:18] profile.py(197) : _use_m2: True
+[2026-05-24 01:50:18] profile.py(197) : _review: False
+[2026-05-24 01:50:18] profile.py(197) : _init_target_successes: 10
+[2026-05-24 01:50:18] profile.py(197) : _init_max_calls: 50
+[2026-05-24 01:50:18] profile.py(197) : _gen_call_cost: 1.0
+[2026-05-24 01:50:18] profile.py(197) : _init_call_cost: 1.0
+[2026-05-24 01:50:18] profile.py(197) : _review_call_cost: 1.0
+[2026-05-24 01:50:18] profile.py(197) : _ref_point: [20. 60.]
+[2026-05-24 01:50:18] profile.py(197) : _debug: False
+[2026-05-24 01:50:18] profile.py(197) : _disable_cluster_bandit: False
+[2026-05-24 01:50:18] profile.py(197) : _disable_operator_bandit: False
+[2026-05-24 01:50:18] profile.py(197) : _rr_idx: 0
+[2026-05-24 01:50:18] profile.py(199) : ==================================End of Parameters===============================
+[2026-05-24 01:50:27] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:50:42] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:50:48] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:50:57] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:51:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:51:22] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:51:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:51:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:51:53] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:00] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:08] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:15] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:38] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:52:55] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:10] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:17] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:26] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:34] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:42] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:49] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:53:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:02] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:04] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:11] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:18] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:27] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:34] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:48] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:54:55] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:02] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:12] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:17] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:19] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:27] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:50] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:55:59] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:07] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:15] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:29] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:34] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:41] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:42] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:56:58] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:05] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:10] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:18] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:25] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:31] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:41] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:49] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:50] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:57:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:58:02] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:58:10] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:58:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:58:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:58:36] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:59:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.475757 seconds
+[2026-05-24 01:59:15] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:59:22] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:59:29] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:59:37] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 01:59:39] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:00:09] _base_client.py(1111) : Retrying request to /chat/completions in 0.488209 seconds
+[2026-05-24 02:00:16] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:00:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:00:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:00:38] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:00:44] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:00:54] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:02] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:12] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:20] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:31] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:32] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:48] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:01:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:04] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:15] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:29] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:39] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:54] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:02:58] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:03:05] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:03:13] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:03:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:03:29] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:03:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:03:57] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:12] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:20] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:27] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:28] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:37] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:44] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:04:53] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:02] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:14] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:31] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:37] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:47] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:05:57] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:06:05] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:06:14] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:06:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:06:28] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:06:47] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:06:53] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:10] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:16] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:32] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:42] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:07:58] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:08] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:20] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:27] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:36] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:44] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:51] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:08:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:09:00] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:09:07] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:09:18] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:09:26] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:09:36] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:09:46] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-05-24 02:10:54] _base_client.py(1111) : Retrying request to /chat/completions in 0.428054 seconds
+[2026-05-24 02:10:55] _base_client.py(1111) : Retrying request to /chat/completions in 0.781494 seconds
+[2026-05-24 02:10:56] _base_client.py(1111) : Retrying request to /chat/completions in 0.477588 seconds
+[2026-05-24 02:10:56] _base_client.py(1111) : Retrying request to /chat/completions in 0.833900 seconds
+[2026-05-24 02:10:57] _base_client.py(1111) : Retrying request to /chat/completions in 0.453780 seconds
+[2026-05-24 02:10:58] _base_client.py(1111) : Retrying request to /chat/completions in 0.860340 seconds
+[2026-05-24 02:10:59] _base_client.py(1111) : Retrying request to /chat/completions in 0.443111 seconds
+[2026-05-24 02:10:59] _base_client.py(1111) : Retrying request to /chat/completions in 0.912853 seconds
+[2026-05-24 02:11:00] _base_client.py(1111) : Retrying request to /chat/completions in 0.386713 seconds
+[2026-05-24 02:11:00] _base_client.py(1111) : Retrying request to /chat/completions in 0.936500 seconds
+[2026-05-24 02:11:01] _base_client.py(1111) : Retrying request to /chat/completions in 0.469023 seconds
+[2026-05-24 02:11:02] _base_client.py(1111) : Retrying request to /chat/completions in 0.878605 seconds
+[2026-05-24 02:11:03] _base_client.py(1111) : Retrying request to /chat/completions in 0.376577 seconds
+[2026-05-24 02:11:03] _base_client.py(1111) : Retrying request to /chat/completions in 0.759089 seconds
+[2026-05-24 02:11:04] _base_client.py(1111) : Retrying request to /chat/completions in 0.392572 seconds
+[2026-05-24 02:11:04] _base_client.py(1111) : Retrying request to /chat/completions in 0.895039 seconds
+[2026-05-24 02:11:05] _base_client.py(1111) : Retrying request to /chat/completions in 0.477274 seconds
+[2026-05-24 02:11:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.808978 seconds
+[2026-05-24 02:11:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.475474 seconds
+[2026-05-24 02:11:07] _base_client.py(1111) : Retrying request to /chat/completions in 0.780115 seconds
+[2026-05-24 02:11:08] _base_client.py(1111) : Retrying request to /chat/completions in 0.480283 seconds
+[2026-05-24 02:11:08] _base_client.py(1111) : Retrying request to /chat/completions in 0.836403 seconds
+[2026-05-24 02:11:09] _base_client.py(1111) : Retrying request to /chat/completions in 0.397101 seconds
+[2026-05-24 02:11:09] _base_client.py(1111) : Retrying request to /chat/completions in 0.974142 seconds
+[2026-05-24 02:11:10] _base_client.py(1111) : Retrying request to /chat/completions in 0.464908 seconds
+[2026-05-24 02:11:11] _base_client.py(1111) : Retrying request to /chat/completions in 0.904773 seconds
+[2026-05-24 02:11:12] _base_client.py(1111) : Retrying request to /chat/completions in 0.377859 seconds
+[2026-05-24 02:11:12] _base_client.py(1111) : Retrying request to /chat/completions in 0.790099 seconds
+[2026-05-24 02:11:13] _base_client.py(1111) : Retrying request to /chat/completions in 0.417077 seconds
+[2026-05-24 02:11:13] _base_client.py(1111) : Retrying request to /chat/completions in 0.836316 seconds
+[2026-05-24 02:11:14] _base_client.py(1111) : Retrying request to /chat/completions in 0.454205 seconds
+[2026-05-24 02:11:15] _base_client.py(1111) : Retrying request to /chat/completions in 0.946157 seconds
+[2026-05-24 02:11:16] _base_client.py(1111) : Retrying request to /chat/completions in 0.428111 seconds
+[2026-05-24 02:11:16] _base_client.py(1111) : Retrying request to /chat/completions in 0.855244 seconds
+[2026-05-24 02:11:17] _base_client.py(1111) : Retrying request to /chat/completions in 0.478333 seconds
+[2026-05-24 02:11:18] _base_client.py(1111) : Retrying request to /chat/completions in 0.824841 seconds
+[2026-05-24 02:11:18] _base_client.py(1111) : Retrying request to /chat/completions in 0.432927 seconds
+[2026-05-24 02:11:19] _base_client.py(1111) : Retrying request to /chat/completions in 0.886032 seconds
+[2026-05-24 02:11:20] _base_client.py(1111) : Retrying request to /chat/completions in 0.472402 seconds
+[2026-05-24 02:11:20] _base_client.py(1111) : Retrying request to /chat/completions in 0.873574 seconds
+[2026-05-24 02:11:21] _base_client.py(1111) : Retrying request to /chat/completions in 0.382979 seconds
+[2026-05-24 02:11:21] _base_client.py(1111) : Retrying request to /chat/completions in 0.997102 seconds
+[2026-05-24 02:11:22] _base_client.py(1111) : Retrying request to /chat/completions in 0.397344 seconds
+[2026-05-24 02:11:23] _base_client.py(1111) : Retrying request to /chat/completions in 0.876294 seconds
+[2026-05-24 02:11:24] _base_client.py(1111) : Retrying request to /chat/completions in 0.451639 seconds
+[2026-05-24 02:11:24] _base_client.py(1111) : Retrying request to /chat/completions in 0.893144 seconds
+[2026-05-24 02:11:25] _base_client.py(1111) : Retrying request to /chat/completions in 0.484682 seconds
+[2026-05-24 02:11:26] _base_client.py(1111) : Retrying request to /chat/completions in 0.809782 seconds
+[2026-05-24 02:11:26] _base_client.py(1111) : Retrying request to /chat/completions in 0.411326 seconds
+[2026-05-24 02:11:27] _base_client.py(1111) : Retrying request to /chat/completions in 0.941856 seconds
+[2026-05-24 02:11:28] _base_client.py(1111) : Retrying request to /chat/completions in 0.480518 seconds
+[2026-05-24 02:11:28] _base_client.py(1111) : Retrying request to /chat/completions in 0.969769 seconds
+[2026-05-24 02:11:29] _base_client.py(1111) : Retrying request to /chat/completions in 0.442807 seconds
+[2026-05-24 02:11:30] _base_client.py(1111) : Retrying request to /chat/completions in 0.819508 seconds
+[2026-05-24 02:11:31] _base_client.py(1111) : Retrying request to /chat/completions in 0.431542 seconds
+[2026-05-24 02:11:31] _base_client.py(1111) : Retrying request to /chat/completions in 0.890443 seconds
+[2026-05-24 02:11:32] _base_client.py(1111) : Retrying request to /chat/completions in 0.471726 seconds
+[2026-05-24 02:11:32] _base_client.py(1111) : Retrying request to /chat/completions in 0.963091 seconds
+[2026-05-24 02:11:33] _base_client.py(1111) : Retrying request to /chat/completions in 0.425889 seconds
+[2026-05-24 02:11:34] _base_client.py(1111) : Retrying request to /chat/completions in 0.997424 seconds
+[2026-05-24 02:11:35] _base_client.py(1111) : Retrying request to /chat/completions in 0.470324 seconds
+[2026-05-24 02:11:35] _base_client.py(1111) : Retrying request to /chat/completions in 0.791567 seconds
+[2026-05-24 02:11:36] _base_client.py(1111) : Retrying request to /chat/completions in 0.483131 seconds
+[2026-05-24 02:11:37] _base_client.py(1111) : Retrying request to /chat/completions in 0.917988 seconds
+[2026-05-24 02:11:38] _base_client.py(1111) : Retrying request to /chat/completions in 0.483018 seconds
+[2026-05-24 02:11:38] _base_client.py(1111) : Retrying request to /chat/completions in 0.755228 seconds
+[2026-05-24 02:11:39] _base_client.py(1111) : Retrying request to /chat/completions in 0.453257 seconds
+[2026-05-24 02:11:39] _base_client.py(1111) : Retrying request to /chat/completions in 0.810404 seconds
+[2026-05-24 02:11:40] _base_client.py(1111) : Retrying request to /chat/completions in 0.393618 seconds
+[2026-05-24 02:11:41] _base_client.py(1111) : Retrying request to /chat/completions in 0.855258 seconds
+[2026-05-24 02:11:41] _base_client.py(1111) : Retrying request to /chat/completions in 0.478033 seconds
+[2026-05-24 02:11:42] _base_client.py(1111) : Retrying request to /chat/completions in 0.879036 seconds
+[2026-05-24 02:11:43] _base_client.py(1111) : Retrying request to /chat/completions in 0.407899 seconds
+[2026-05-24 02:11:43] _base_client.py(1111) : Retrying request to /chat/completions in 0.940138 seconds
+[2026-05-24 02:11:44] _base_client.py(1111) : Retrying request to /chat/completions in 0.443425 seconds
+[2026-05-24 02:11:45] _base_client.py(1111) : Retrying request to /chat/completions in 0.897062 seconds
+[2026-05-24 02:11:46] _base_client.py(1111) : Retrying request to /chat/completions in 0.419667 seconds
+[2026-05-24 02:11:46] _base_client.py(1111) : Retrying request to /chat/completions in 0.831536 seconds
+[2026-05-24 02:11:47] _base_client.py(1111) : Retrying request to /chat/completions in 0.458468 seconds
+[2026-05-24 02:11:47] _base_client.py(1111) : Retrying request to /chat/completions in 0.819191 seconds
+[2026-05-24 02:11:48] _base_client.py(1111) : Retrying request to /chat/completions in 0.474013 seconds
+[2026-05-24 02:11:49] _base_client.py(1111) : Retrying request to /chat/completions in 0.771989 seconds
+[2026-05-24 02:11:49] _base_client.py(1111) : Retrying request to /chat/completions in 0.457314 seconds
+[2026-05-24 02:11:50] _base_client.py(1111) : Retrying request to /chat/completions in 0.950341 seconds
+[2026-05-24 02:11:51] _base_client.py(1111) : Retrying request to /chat/completions in 0.492660 seconds
+[2026-05-24 02:11:51] _base_client.py(1111) : Retrying request to /chat/completions in 0.777789 seconds
+[2026-05-24 02:11:52] _base_client.py(1111) : Retrying request to /chat/completions in 0.473330 seconds
+[2026-05-24 02:11:53] _base_client.py(1111) : Retrying request to /chat/completions in 0.899766 seconds
+[2026-05-24 02:11:54] _base_client.py(1111) : Retrying request to /chat/completions in 0.479966 seconds
+[2026-05-24 02:11:54] _base_client.py(1111) : Retrying request to /chat/completions in 0.911076 seconds
+[2026-05-24 02:11:55] _base_client.py(1111) : Retrying request to /chat/completions in 0.489474 seconds
+[2026-05-24 02:11:55] _base_client.py(1111) : Retrying request to /chat/completions in 0.784548 seconds
+[2026-05-24 02:11:56] _base_client.py(1111) : Retrying request to /chat/completions in 0.487757 seconds
+[2026-05-24 02:11:57] _base_client.py(1111) : Retrying request to /chat/completions in 0.957936 seconds
+[2026-05-24 02:11:58] _base_client.py(1111) : Retrying request to /chat/completions in 0.385756 seconds
+[2026-05-24 02:11:58] _base_client.py(1111) : Retrying request to /chat/completions in 0.755194 seconds
+[2026-05-24 02:11:59] _base_client.py(1111) : Retrying request to /chat/completions in 0.454455 seconds
+[2026-05-24 02:11:59] _base_client.py(1111) : Retrying request to /chat/completions in 0.756154 seconds
+[2026-05-24 02:12:00] _base_client.py(1111) : Retrying request to /chat/completions in 0.403771 seconds
+[2026-05-24 02:12:01] _base_client.py(1111) : Retrying request to /chat/completions in 0.975845 seconds
+[2026-05-24 02:12:02] _base_client.py(1111) : Retrying request to /chat/completions in 0.432965 seconds
+[2026-05-24 02:12:02] _base_client.py(1111) : Retrying request to /chat/completions in 0.954101 seconds
+[2026-05-24 02:12:03] _base_client.py(1111) : Retrying request to /chat/completions in 0.466955 seconds
+[2026-05-24 02:12:03] _base_client.py(1111) : Retrying request to /chat/completions in 0.864869 seconds
+[2026-05-24 02:12:04] _base_client.py(1111) : Retrying request to /chat/completions in 0.426011 seconds
+[2026-05-24 02:12:05] _base_client.py(1111) : Retrying request to /chat/completions in 0.788970 seconds
+[2026-05-24 02:12:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.453953 seconds
+[2026-05-24 02:12:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.784912 seconds
+[2026-05-24 02:12:07] _base_client.py(1111) : Retrying request to /chat/completions in 0.441695 seconds
+[2026-05-24 02:12:07] _base_client.py(1111) : Retrying request to /chat/completions in 0.977267 seconds
+[2026-05-24 02:12:08] _base_client.py(1111) : Retrying request to /chat/completions in 0.466738 seconds
+[2026-05-24 02:12:09] _base_client.py(1111) : Retrying request to /chat/completions in 0.776500 seconds
+[2026-05-24 02:12:10] _base_client.py(1111) : Retrying request to /chat/completions in 0.497761 seconds
+[2026-05-24 02:12:10] _base_client.py(1111) : Retrying request to /chat/completions in 0.855897 seconds

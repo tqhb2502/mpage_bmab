@@ -1,0 +1,74 @@
+[2026-06-20 14:46:15] profile.py(179) : ==================================LLM Parameters===============================
+[2026-06-20 14:46:15] profile.py(180) : LLM: HttpsApiOpenAI
+[2026-06-20 14:46:15] profile.py(183) : do_auto_trim: True
+[2026-06-20 14:46:15] profile.py(183) : debug_mode: False
+[2026-06-20 14:46:15] profile.py(183) : _model: gpt-4o-mini
+[2026-06-20 14:46:15] profile.py(183) : _client: <openai.OpenAI object at 0x109c97fa0>
+[2026-06-20 14:46:15] profile.py(185) : ==================================Problem Parameters===============================
+[2026-06-20 14:46:15] profile.py(187) : Problem: BIKPEvaluation
+[2026-06-20 14:46:15] profile.py(190) : task_description: You are solving a Bi-objective Knapsack Problem (BI-KP), where each item has a weight and two profit values: value1 and value2. The goal is to select a subset of items such that the total weight does not exceed a given capacity, while simultaneously maximizing the total value in both objective spaces. Given an archive of non-dominated solutions, where each solution is a binary numpy array indicating item inclusion (1) or exclusion (0), and its corresponding objective is a tuple of two values (total value1, total value2), design a heuristic function named 'select_neighbor' that selects one solution from the archive and apply a novel or hybrid local search operator to generate a neighbor solution from it. Must always ensure that the generated neighbor solution remains feasible, i.e., the total weight must not exceed the knapsack capacity Please perform an intelligent random selection from among the solutions that show promising potential for further local improvement. Using a creative local search strategy that you design yourself, avoid 2-opt, go beyond standard approaches to design a method that yields higher-quality solutions across multiple objectives. The function should return the new neighbor solution.
+[2026-06-20 14:46:15] profile.py(190) : use_numba_accelerate: False
+[2026-06-20 14:46:15] profile.py(190) : use_protected_div: False
+[2026-06-20 14:46:15] profile.py(190) : protected_div_delta: 1e-05
+[2026-06-20 14:46:15] profile.py(190) : random_seed: None
+[2026-06-20 14:46:15] profile.py(190) : timeout_seconds: 90
+[2026-06-20 14:46:15] profile.py(190) : exec_code: True
+[2026-06-20 14:46:15] profile.py(190) : safe_evaluate: True
+[2026-06-20 14:46:15] profile.py(190) : daemon_eval_process: False
+[2026-06-20 14:46:15] profile.py(190) : n_instance: 8
+[2026-06-20 14:46:15] profile.py(190) : problem_size: 200
+[2026-06-20 14:46:15] profile.py(190) : cap: 25
+[2026-06-20 14:46:15] profile.py(190) : ref_point: [-30 -30]
+[2026-06-20 14:46:15] profile.py(192) : ==================================Method Parameters===============================
+[2026-06-20 14:46:15] profile.py(194) : Method: BMABLLM
+[2026-06-20 14:46:15] profile.py(197) : _budget: BudgetTracker(mode=call, remaining=25.00/25.00, steps=0)
+[2026-06-20 14:46:15] profile.py(197) : _cluster_sampler: <mpage_bmab._llm4ad.method.LLMPFG.sampler.EoHSampler object at 0x109dae430>
+[2026-06-20 14:46:15] profile.py(197) : _cluster_mgr: <mpage_bmab.cluster_manager.ClusterManager object at 0x109daebb0>
+[2026-06-20 14:46:15] profile.py(197) : _operator_bandit: <mpage_bmab.bandit.OperatorBandit object at 0x109daebe0>
+[2026-06-20 14:46:15] profile.py(197) : _cluster_bandit: <mpage_bmab.bandit.ClusterBandit object at 0x109daeb50>
+[2026-06-20 14:46:15] profile.py(197) : _reward: <mpage_bmab.reward.RewardComputer object at 0x109defe20>
+[2026-06-20 14:46:15] profile.py(197) : _pop_size: 4
+[2026-06-20 14:46:15] profile.py(197) : _selection_num: 2
+[2026-06-20 14:46:15] profile.py(197) : _max_generations: None
+[2026-06-20 14:46:15] profile.py(197) : _use_e1: True
+[2026-06-20 14:46:15] profile.py(197) : _use_e2: True
+[2026-06-20 14:46:15] profile.py(197) : _use_m1: True
+[2026-06-20 14:46:15] profile.py(197) : _use_m2: True
+[2026-06-20 14:46:15] profile.py(197) : _review: False
+[2026-06-20 14:46:15] profile.py(197) : _init_target_successes: 4
+[2026-06-20 14:46:15] profile.py(197) : _init_max_calls: 25
+[2026-06-20 14:46:15] profile.py(197) : _gen_call_cost: 1.0
+[2026-06-20 14:46:15] profile.py(197) : _cluster_call_cost: 1.0
+[2026-06-20 14:46:15] profile.py(197) : _init_call_cost: 1.0
+[2026-06-20 14:46:15] profile.py(197) : _review_call_cost: 1.0
+[2026-06-20 14:46:15] profile.py(197) : _ref_point: [ 0. 60.]
+[2026-06-20 14:46:15] profile.py(197) : _debug: False
+[2026-06-20 14:46:15] profile.py(197) : _disable_cluster_bandit: False
+[2026-06-20 14:46:15] profile.py(197) : _disable_operator_bandit: False
+[2026-06-20 14:46:15] profile.py(197) : _rr_idx: 0
+[2026-06-20 14:46:15] profile.py(199) : ==================================End of Parameters===============================
+[2026-06-20 14:46:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:48:00] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:48:07] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:48:14] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:48:26] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:48:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:48:48] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:49:06] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:49:16] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:49:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:49:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:50:14] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:50:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:50:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:50:33] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:50:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:50:49] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:13] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:14] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:28] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:37] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:49] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:58] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:51:59] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-20 14:52:09] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

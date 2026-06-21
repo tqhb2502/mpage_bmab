@@ -59,7 +59,7 @@ where $A$ is the current archive of non-dominated solutions maintained by the in
   \label{eq:heuristic-score}
 \end{equation}
 
-Equation~(3.3) should be read as the interface between heuristic design and the inner solver. The LLM does not directly output a TSP tour, CVRP route, or knapsack solution. Instead, it outputs a heuristic program $h$. During evaluation, the inner SEMO-style solver repeatedly calls $h$ with its current archive $A$ and expects one candidate solution $x'$. The quality of $h$ is therefore determined indirectly by the Pareto archive that the inner solver obtains after running with that heuristic.
+Equation~\ref{eq:heuristic-score} should be read as the interface between heuristic design and the inner solver. The LLM does not directly output a TSP tour, CVRP route, or knapsack solution. Instead, it outputs a heuristic program $h$. During evaluation, the inner SEMO-style solver repeatedly calls $h$ with its current archive $A$ and expects one candidate solution $x'$. The quality of $h$ is therefore determined indirectly by the Pareto archive that the inner solver obtains after running with that heuristic.
 
 Here $HV_{\text{inner}}(h)$ is the hypervolume achieved by the solutions produced when $h$ is used inside the benchmark solver, and $T(h)$ is the measured runtime. More concretely, if the inner run using $h$ returns a non-dominated solution archive $A_h$, then $HV_{\text{inner}}(h)$ is computed from the objective vectors $\{f(x):x\in A_h\}$ using the task-specific reference point. This is the \emph{inner hypervolume}: it measures how good one generated heuristic is at solving the underlying combinatorial optimization task.
 
@@ -427,7 +427,7 @@ The diversity increment is $\Delta D = D(F\cup\{s\})-D(F)$. Only positive increm
   \mathrm{Rank}(s)
   =
   \frac{1}{|F|}
-  \left|\{u \in F : \exists j,\; s_j < u_j\}\right|,
+  \left|\{u \in F : \exists j,\; s_j < u_j\}\right|.
 \end{equation}
 
 In this equation, $s$ and $u$ are heuristic scores of the form $E(h)=(-HV_{\text{inner}}(h),T(h))$. The first coordinate measures negated inner hypervolume, and the second coordinate measures runtime. Since both coordinates are minimized in the outer heuristic population, a smaller coordinate value indicates either higher inner solution quality or lower execution time. The rank term therefore rewards a candidate that improves at least one objective relative to existing population members, even when it does not immediately increase HV.

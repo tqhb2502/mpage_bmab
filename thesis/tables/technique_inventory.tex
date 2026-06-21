@@ -1,22 +1,26 @@
-\begin{longtable}{p{0.22\linewidth}p{0.18\linewidth}p{0.50\linewidth}}
-\caption{Kiểm kê kỹ thuật Generative AI và học máy xuất hiện trong dự án.}
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{0.24\linewidth}
+  >{\raggedright\arraybackslash}p{0.14\linewidth}
+  >{\raggedright\arraybackslash}p{0.52\linewidth}
+}
+\caption{Inventory of generative AI and machine learning techniques in the project.}
 \label{tab:technique-inventory}\\
 \toprule
-Kỹ thuật & Trạng thái & Bằng chứng trong kho mã nguồn \\
+Technique & Status & Evidence in the repository \\
 \midrule
 \endfirsthead
 \toprule
-Kỹ thuật & Trạng thái & Bằng chứng trong kho mã nguồn \\
+Technique & Status & Evidence in the repository \\
 \midrule
 \endhead
-Mô hình ngôn ngữ lớn & Có & \sourcefile{README.md}, \sourcefile{mpage\_bmab/README.md}, \sourcefile{mpage\_bmab/main.py}, \sourcefile{mpage\_bmab/cluster\_manager.py}. \\
-Prompt engineering & Có & Các mẫu prompt I1, E1, E2, M1, M2 và prompt phân cụm trong \sourcefile{llm4ad/method/LLMPFG/prompt.py}. \\
-Bandit / học tăng cường nhẹ & Có & UCB1, Budgeted UCB và Page--Hinkley trong \sourcefile{mpage\_bmab/bandit.py}. \\
-Đánh giá tự động code sinh bởi LLM & Có & \sourcefile{llm4ad/base/evaluate.py}, các evaluator trong \sourcefile{llm4ad/task/optimization/}. \\
-RAG & Không thấy & Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. \\
-Fine-tuning, PEFT, LoRA & Không thấy & Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. \\
-Diffusion model, GAN & Không thấy & Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. \\
-Knowledge distillation & Không thấy & Không tìm thấy thông tin trong mã nguồn hoặc tài liệu của dự án. \\
-Multi-agent system & Không thấy & Hệ thống có vòng lặp LLM--tiến hóa và hai bandit, nhưng không tìm thấy bằng chứng về nhiều agent tự trị. \\
+Large language models & Present & \sourcefile{README.md}, \sourcefile{mpage\_bmab/README.md}, \sourcefile{mpage\_bmab/main.py}, \sourcefile{mpage\_bmab/cluster\_manager.py}. \\
+Prompt engineering & Present & I1, E1, E2, M1, M2 generation prompts and the semantic-clustering prompt in \sourcefile{llm4ad/method/LLMPFG/prompt.py}. \\
+Bandits / lightweight reinforcement learning & Present & UCB1, Budgeted UCB, and Page--Hinkley logic in \sourcefile{mpage\_bmab/bandit.py}. \\
+Execution-based evaluation of LLM-generated code & Present & \sourcefile{llm4ad/base/evaluate.py} and the evaluators under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/}. \\
+RAG & Not found & No information was found in the project source code or documentation. \\
+Fine-tuning, PEFT, LoRA & Not found & No information was found in the project source code or documentation. \\
+Diffusion models, GANs & Not found & No information was found in the project source code or documentation. \\
+Knowledge distillation & Not found & No information was found in the project source code or documentation. \\
+Multi-agent system & Not found & The system contains an LLM--evolution loop and two bandit controllers, but no evidence was found for multiple autonomous agents. \\
 \bottomrule
 \end{longtable}

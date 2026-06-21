@@ -1,0 +1,327 @@
+[
+  {
+    "generation": 0,
+    "operator": {
+      "mutate": {
+        "n": 5,
+        "mean_reward": -0.26,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.26
+      },
+      "crossover": {
+        "n": 7,
+        "mean_reward": -0.06547128100531285,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.06547128100531285
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 2,
+        "mean_reward": -0.125,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.125
+      },
+      "0_crossover": {
+        "n": 3,
+        "mean_reward": -0.4166666666666667,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.4166666666666667
+      },
+      "1_mutate": {
+        "n": 2,
+        "mean_reward": -0.5,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5
+      },
+      "1_crossover": {
+        "n": 3,
+        "mean_reward": -0.6666666666666666,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.6666666666666666
+      }
+    }
+  },
+  {
+    "generation": 1,
+    "operator": {
+      "mutate": {
+        "n": 9,
+        "mean_reward": -0.5888888888888889,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5888888888888889
+      },
+      "crossover": {
+        "n": 13,
+        "mean_reward": -0.49679222823363,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.49679222823363
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 3,
+        "mean_reward": -0.42474656643827596,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.42474656643827596
+      },
+      "0_crossover": {
+        "n": 3,
+        "mean_reward": -0.40858676689505735,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.40858676689505735
+      },
+      "1_mutate": {
+        "n": 2,
+        "mean_reward": -0.387119849657414,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.387119849657414
+      },
+      "1_crossover": {
+        "n": 3,
+        "mean_reward": -0.575253433561724,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.575253433561724
+      },
+      "2_mutate": {
+        "n": 2,
+        "mean_reward": -0.20245958442051892,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.20245958442051892
+      },
+      "2_crossover": {
+        "n": 3,
+        "mean_reward": -0.4521465900704606,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.4521465900704606
+      }
+    }
+  },
+  {
+    "generation": 2,
+    "operator": {
+      "mutate": {
+        "n": 14,
+        "mean_reward": -0.7357142857142858,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.7357142857142858
+      },
+      "crossover": {
+        "n": 18,
+        "mean_reward": -0.6365721648353995,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.6365721648353995
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 3,
+        "mean_reward": -0.5871679841835385,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5871679841835385
+      },
+      "0_crossover": {
+        "n": 3,
+        "mean_reward": -0.5794986824831282,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5794986824831282
+      },
+      "1_mutate": {
+        "n": 4,
+        "mean_reward": -0.5653759881376539,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5653759881376539
+      },
+      "1_crossover": {
+        "n": 4,
+        "mean_reward": -0.5596240118623461,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5596240118623461
+      }
+    }
+  },
+  {
+    "generation": 3,
+    "operator": {
+      "mutate": {
+        "n": 18,
+        "mean_reward": -0.7944444444444445,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.7944444444444445
+      },
+      "crossover": {
+        "n": 24,
+        "mean_reward": -0.7274291236265497,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.7274291236265497
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 3,
+        "mean_reward": -0.4207942080682245,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.4207942080682245
+      },
+      "0_crossover": {
+        "n": 4,
+        "mean_reward": -0.5594043439488317,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5594043439488317
+      },
+      "1_mutate": {
+        "n": 3,
+        "mean_reward": -0.5874608747348912,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5874608747348912
+      },
+      "1_crossover": {
+        "n": 4,
+        "mean_reward": -0.6844043439488317,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.6844043439488317
+      }
+    }
+  },
+  {
+    "generation": 4,
+    "operator": {
+      "mutate": {
+        "n": 23,
+        "mean_reward": -0.8391304347826087,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.8391304347826087
+      },
+      "crossover": {
+        "n": 29,
+        "mean_reward": -0.7744241023116273,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.7744241023116273
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 4,
+        "mean_reward": -0.5645934453529886,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5645934453529886
+      },
+      "0_crossover": {
+        "n": 4,
+        "mean_reward": -0.5604065546470114,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5604065546470114
+      },
+      "1_mutate": {
+        "n": 3,
+        "mean_reward": -0.5861245938039849,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5861245938039849
+      },
+      "1_crossover": {
+        "n": 3,
+        "mean_reward": -0.5805420728626818,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5805420728626818
+      }
+    }
+  },
+  {
+    "generation": 5,
+    "operator": {
+      "mutate": {
+        "n": 28,
+        "mean_reward": -0.8678571428571429,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.8678571428571429
+      },
+      "crossover": {
+        "n": 34,
+        "mean_reward": -0.8075970284422703,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.8075970284422703
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 4,
+        "mean_reward": -0.5645213676653116,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5645213676653116
+      },
+      "0_crossover": {
+        "n": 4,
+        "mean_reward": -0.5604786323346884,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5604786323346884
+      },
+      "1_mutate": {
+        "n": 3,
+        "mean_reward": -0.5860284902204155,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5860284902204155
+      },
+      "1_crossover": {
+        "n": 3,
+        "mean_reward": -0.5806381764462513,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5806381764462513
+      }
+    }
+  },
+  {
+    "generation": 6,
+    "operator": {
+      "mutate": {
+        "n": 29,
+        "mean_reward": -0.8724137931034484,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.8724137931034484
+      },
+      "crossover": {
+        "n": 35,
+        "mean_reward": -0.8130942562010626,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.8130942562010626
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 2,
+        "mean_reward": -0.12876511786967454,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.12876511786967454
+      },
+      "0_crossover": {
+        "n": 2,
+        "mean_reward": -0.12123488213032546,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.12123488213032546
+      },
+      "1_mutate": {
+        "n": 1,
+        "mean_reward": 0.24399613351983915,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.24399613351983915
+      },
+      "1_crossover": {
+        "n": 1,
+        "mean_reward": 0.2590566049985373,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.2590566049985373
+      },
+      "2_mutate": {
+        "n": 1,
+        "mean_reward": 0.24246976426065092,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.24246976426065092
+      },
+      "2_crossover": {
+        "n": 1,
+        "mean_reward": 0.2575302357393491,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.2575302357393491
+      }
+    }
+  }
+]

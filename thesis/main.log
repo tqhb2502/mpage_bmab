@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  13 JUN 2026 02:28
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  21 JUN 2026 19:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -138,14 +138,18 @@ on input line 2111.
 \bbl@readstream=\read2
 \bbl@dirlevel=\count295
 
-(/usr/local/texlive/2026/texmf-dist/tex/generic/babel/locale/vi/babel-vietnames
-e.tex)
-Package babel Info: Importing font and identification data for vietnamese
-(babel)             from babel-vi.ini. Reported on input line 4330.
-
-(/usr/local/texlive/2026/texmf-dist/tex/generic/babel-vietnamese/vietnamese.ldf
-Language: vietnamese 
-Package babel Info: Making " an active character on input line 147.
+(/usr/local/texlive/2026/texmf-dist/tex/generic/babel/locale/en/babel-english.t
+ex)
+Package babel Info: Importing font and identification data for english
+(babel)             from babel-en.ini. Reported on input line 4330.
+ (/usr/local/texlive/2026/texmf-dist/tex/generic/babel-english/english.ldf
+Language: english 2017/06/06 v3.3r English support from the babel system
+Package babel Info: Hyphen rules for 'canadian' set to \l@english
+(babel)             (\language0). Reported on input line 102.
+Package babel Info: Hyphen rules for 'australian' set to \l@ukenglish
+(babel)             (\language22). Reported on input line 105.
+Package babel Info: Hyphen rules for 'newzealand' set to \l@ukenglish
+(babel)             (\language22). Reported on input line 108.
 )) (/usr/local/texlive/2026/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2026/03/07 v6.0 Page Geometry
 
@@ -994,10 +998,7 @@ shapes.geometric.code.tex
 File: pgflibraryshapes.geometric.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 ))
 Package hyperref Info: Option `colorlinks' set `true' on input line 39.
- (./main.aux
-Package babel Info: 'vietnamese' activates 'vietnamese' shorthands.
-(babel)             Reported on input line 8.
- (./chapters/chapter1.aux)
+ (./main.aux (./chapters/chapter1.aux)
 (./chapters/chapter2.aux) (./chapters/chapter3.aux) (./chapters/chapter4.aux)
 (./chapters/chapter5.aux) (./chapters/chapter6.aux))
 \openout1 = `main.aux'.
@@ -1159,7 +1160,7 @@ ethod preserves MPaGE’s
  []
 
 
-Underfull \hbox (badness 6001) in paragraph at lines 7--7
+Underfull \hbox (badness 3954) in paragraph at lines 7--7
  \TU/TimesNewRoman(0)/m/n/12 prompt, evaluation, semantic clustering, and popul
 ation-management 
  []
@@ -1180,93 +1181,51 @@ ation-management
 \openout2 = `chapters/chapter1.aux'.
 
  (./chapters/chapter1.tex
-Chương 1.
+Chapter 1.
 [1
 
 
 
-] [2] [3]) [4]
+] [2] [3] [4] [5]
+Underfull \hbox (badness 1210) in paragraph at lines 76--77
+[]\TU/TimesNewRoman(0)/m/n/12 The repository does not provide evidence of LLM f
+ine-tuning, LoRA, PEFT,
+ []
+
+
+Underfull \hbox (badness 2582) in paragraph at lines 76--77
+\TU/TimesNewRoman(0)/m/n/12 retrieval-augmented generation, diffusion models, G
+ANs, knowledge distillation, or
+ []
+
+) [6] [7]
 \openout2 = `chapters/chapter2.aux'.
 
  (./chapters/chapter2.tex
-Chương 2.
-[5
+Chapter 2.
+[8
 
 
 
 
-] [6]
+] [9] [10] [11] [12]
 File: figures/mpage_overview.png Graphic file (type bmp)
 <figures/mpage_overview.png>
 File: figures/mpage_selection.png Graphic file (type bmp)
 <figures/mpage_selection.png>
- [7] [8] (./tables/technique_inventory.tex
-Underfull \hbox (badness 1237) in paragraph at lines 13--14
-[]|\TU/TimesNewRoman(0)/m/n/12 Các mẫu prompt I1, E1, E2, M1, M2 và
+ [13]
+Underfull \hbox (badness 1478) in paragraph at lines 130--130
+[]\TU/TimesNewRoman(0)/b/n/17.28 Validity, Null Scores, and Program-Search Fail
+ure
  []
 
-
-Underfull \hbox (badness 3058) in paragraph at lines 14--14
-[]|\TU/TimesNewRoman(0)/m/n/12 Bandit / học tăng
- []
-
-
-Underfull \hbox (badness 2351) in paragraph at lines 15--15
-[]|\TU/TimesNewRoman(0)/m/n/12 Đánh giá tự động
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 15--16
-[]|\TU/Menlo(0)/m/n/10.95 l l m 4 a d / b a s e / e v a l u a t e . p y\TU/Time
-sNewRoman(0)/m/n/12 , các
- []
-
-
-Underfull \hbox (badness 4792) in paragraph at lines 15--16
-\TU/TimesNewRoman(0)/m/n/12 evaluator trong \TU/Menlo(0)/m/n/10.95 l l m 4 a d 
-/ t a s k / o p t i m i
- []
-
-
-Underfull \hbox (badness 2318) in paragraph at lines 17--17
-[]|\TU/TimesNewRoman(0)/m/n/12 Fine-tuning, PEFT,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 18--18
-[]|\TU/TimesNewRoman(0)/m/n/12 Diffusion model,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 19--19
-[]|\TU/TimesNewRoman(0)/m/n/12 Knowledge
- []
-
-
-ignored: Infinite glue shrinkage found in box being split [9])) [10]
+[14] [15] [16] [17] (./tables/technique_inventory.tex [18])) [19] [20]
 \openout2 = `chapters/chapter3.aux'.
 
- (./chapters/chapter3.tex
-Chương 3.
 
-Underfull \hbox (badness 2818) in paragraph at lines 9--10
-[]\TU/TimesNewRoman(0)/m/n/12 The original MPaGE paper formulates automatic heu
-ristic design for multi-
- []
-
-
-Underfull \hbox (badness 3138) in paragraph at lines 11--12
-\TU/TimesNewRoman(0)/m/n/12 predetermined manner. Each generation repeatedly se
-lects elites with PFG, groups
- []
-
-
-Underfull \hbox (badness 2707) in paragraph at lines 11--12
-\TU/TimesNewRoman(0)/m/n/12 promising heuristics into semantic clusters, applie
-s mutation or crossover prompts,
- []
-
-[11
+(./chapters/chapter3.tex
+Chapter 3.
+[21
 
 
 
@@ -1277,140 +1236,145 @@ Underfull \hbox (badness 3514) in paragraph at lines 13--14
 -generation mechanisms
  []
 
-[12]
-Underfull \hbox (badness 1838) in paragraph at lines 66--67
-\TU/TimesNewRoman(0)/m/n/12 code is written as a minimization procedure. Thus, 
-a heuristic with a larger inner
+[22] [23] [24] [25] [26] [27] [28] [29] [30] [31]
+Underfull \hbox (badness 1571) in paragraph at lines 457--458
+\TU/TimesNewRoman(0)/m/n/12 The original MPaGE strategy uses intra-cluster muta
+tion and inter-cluster crossover.
  []
 
-[13]
-Underfull \hbox (badness 1043) in paragraph at lines 84--85
-\TU/TimesNewRoman(0)/m/n/12 population contains useful trade-offs between inner
- solution quality and runtime, for
- []
-
-
-Underfull \hbox (badness 2261) in paragraph at lines 136--137
-[]|\TU/TimesNewRoman(0)/m/n/12 Hard budget tracker. It stores total, remaining,
- and
- []
-
-
-Underfull \hbox (badness 2285) in paragraph at lines 137--138
-\TU/TimesNewRoman(0)/m/n/12 per-generation cluster UCB, and Page–Hinkley drift
- []
-
-[14] [15] [16]
-Underfull \hbox (badness 1817) in paragraph at lines 214--215
-[]\TU/TimesNewRoman(0)/m/n/12 If the system cannot afford an action, the action
- is not issued. The current
- []
-
-[17] [18] [19] [20] [21] [22]
-Underfull \hbox (badness 1917) in paragraph at lines 471--472
-\TU/TimesNewRoman(0)/m/n/12 Algorithm [][]3.1[][] gives the high-level workflow
- implemented by \TU/Menlo(0)/m/n/10.95 B M A B L L M . r u n\TU/TimesNewRoman(0
-)/m/n/12 . The
- []
-
+[32]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 473.
-[23] [24] [25])
-Underfull \hbox (badness 2326) in paragraph at lines 577--101
-[]\TU/TimesNewRoman(0)/m/n/12 These variants are important because they separat
-e the contribution of each
- []
-
-[26]
+ [33] [34] [35]) [36]
 \openout2 = `chapters/chapter4.aux'.
 
  (./chapters/chapter4.tex
-Chương 4.
-[27
+Chapter 4.
+[37
 
 
 
 
-] [28] [29]) [30]
+] [38] [39] [40] [41] [42] [43] [44]) [45]
 \openout2 = `chapters/chapter5.aux'.
 
  (./chapters/chapter5.tex
-Chương 5.
-[31
-
-
-
-
-] (./tables/aubc_results.tex
-ignored: Infinite glue shrinkage found in box being split [3
-2])
-File: figures/aubc_mean_by_budget.png Graphic file (type bmp)
-<figures/aubc_mean_by_budget.png>
-File: figures/aubc_delta_percent_heatmap.png Graphic file (type bmp)
-<figures/aubc_delta_percent_heatmap.png>
- [33]
-File: figures/budget_curves_B25.png Graphic file (type bmp)
-<figures/budget_curves_B25.png>
-File: figures/budget_curves_B50.png Graphic file (type bmp)
-<figures/budget_curves_B50.png>
-File: figures/budget_curves_B100.png Graphic file (type bmp)
-<figures/budget_curves_B100.png>
-File: figures/budget_curves_B200.png Graphic file (type bmp)
-<figures/budget_curves_B200.png>
- [34] (./tables/hv_results.tex
-[35])
-File: figures/hv_final_mean_by_budget.png Graphic file (type bmp)
-<figures/hv_final_mean_by_budget.png>
- [36]
-File: figures/hv_final_delta_percent_heatmap.png Graphic file (type bmp)
-<figures/hv_final_delta_percent_heatmap.png>
- [37] (./tables/validity_results.tex)
-File: figures/valid_yield_by_budget.png Graphic file (type bmp)
-<figures/valid_yield_by_budget.png>
- [38]
-File: figures/valid_yield_delta_percent_heatmap.png Graphic file (type bmp)
-<figures/valid_yield_delta_percent_heatmap.png>
-File: figures/invalid_null_rate_by_budget.png Graphic file (type bmp)
-<figures/invalid_null_rate_by_budget.png>
- [39] [40]
-File: figures/paired_aubc_delta_boxplot.png Graphic file (type bmp)
-<figures/paired_aubc_delta_boxplot.png>
- [41]) [42]
-\openout2 = `chapters/chapter6.aux'.
-
-
-(./chapters/chapter6.tex
-Chương 6.
-[43
-
-
-
-
-] [44]) [45] (./main.bbl
-Underfull \hbox (badness 2503) in paragraph at lines 61--64
-[]\TU/TimesNewRoman(0)/m/n/12 C. M. Fonseca, L. Paquete, and M. López-Ibáñez, “
-An improved dimension-
- []
-
+Chapter 5.
 [46
 
 
 
-]) [47] (./main.aux (./chapters/chapter1.aux) (./chapters/chapter2.aux)
-(./chapters/chapter3.aux) (./chapters/chapter4.aux) (./chapters/chapter5.aux)
-(./chapters/chapter6.aux))
+
+] (./tables/experiment_setups.tex
+Underfull \hbox (badness 1442) in paragraph at lines 12--13
+[]|\TU/TimesNewRoman(0)/m/n/12 Uses the two-level bandit scheduler,
+ []
+
+
+Underfull \hbox (badness 1939) in paragraph at lines 12--13
+\TU/TimesNewRoman(0)/m/n/12 Page–Hinkley drift handling, budget
+ []
+
+
+Underfull \hbox (badness 2875) in paragraph at lines 13--13
+[]|\TU/Menlo(0)/m/n/12 d e n s e _ r e w a
+ []
+
+
+Underfull \hbox (badness 2875) in paragraph at lines 14--14
+[]|\TU/Menlo(0)/m/n/12 h y b r i d _ r e w
+ []
+
+
+Underfull \hbox (badness 5832) in paragraph at lines 14--15
+[]|\TU/TimesNewRoman(0)/m/n/12 Keeps the finalized implementation
+ []
+
+
+Underfull \hbox (badness 1389) in paragraph at lines 15--16
+[]|\TU/TimesNewRoman(0)/m/n/12 Runs the original MPaGE workflow
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 16--16
+[]|\TU/TimesNewRoman(0)/m/n/12 Archival comparison
+ []
+
+
+Underfull \hbox (badness 1205) in paragraph at lines 16--17
+\TU/TimesNewRoman(0)/m/n/12 for historical comparison. It is not
+ []
+
+) [47] [48] (./tables/all_overall_scores.tex) [49]
+File: figures/all_overall_normalized_scores.png Graphic file (type bmp)
+<figures/all_overall_normalized_scores.png>
+ [50]
+(./tables/task_level_scores.tex) [51] [52] (./tables/all_pairwise_wins.tex)
+[53]
+File: figures/all_aubc_pairwise_cell_wins.png Graphic file (type bmp)
+<figures/all_aubc_pairwise_cell_wins.png>
+File: figures/all_hv_final_pairwise_cell_wins.png Graphic file (type bmp)
+<figures/all_hv_final_pairwise_cell_wins.png>
+File: figures/all_aubc_mean_by_budget.png Graphic file (type bmp)
+<figures/all_aubc_mean_by_budget.png>
+ [54] [55]
+File: figures/all_budget_curves_B25.png Graphic file (type bmp)
+<figures/all_budget_curves_B25.png>
+File: figures/all_budget_curves_B50.png Graphic file (type bmp)
+<figures/all_budget_curves_B50.png>
+File: figures/all_budget_curves_B100.png Graphic file (type bmp)
+<figures/all_budget_curves_B100.png>
+File: figures/all_budget_curves_B200.png Graphic file (type bmp)
+<figures/all_budget_curves_B200.png>
+ [56] [57]
+File: figures/all_budget_curves_bmab_zoom_B100.png Graphic file (type bmp)
+<figures/all_budget_curves_bmab_zoom_B100.png>
+File: figures/all_hv_final_mean_by_budget.png Graphic file (type bmp)
+<figures/all_hv_final_mean_by_budget.png>
+ [58]
+File: figures/all_aubc_vs_final_hv_tradeoff.png Graphic file (type bmp)
+<figures/all_aubc_vs_final_hv_tradeoff.png>
+ [59] [60] [61]
+File: figures/all_valid_yield_mean_by_budget.png Graphic file (type bmp)
+<figures/all_valid_yield_mean_by_budget.png>
+File: figures/all_invalid_null_proxy_rate_mean_by_budget.png Graphic file (type
+ bmp)
+<figures/all_invalid_null_proxy_rate_mean_by_budget.png>
+ [62] [63]
+(./tables/rerun_dense_reward_bi_cvrp_B25.tex)
+File: figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png Graphic file 
+(type bmp)
+<figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png>
+ [64] [65]) [66]
+\openout2 = `chapters/chapter6.aux'.
+
+
+(./chapters/chapter6.tex
+Chapter 6.
+[67
+
+
+
+
+] [68] [69] [70]) [71] (./main.bbl [72
+
+
+
+]) [73] (./main.aux
+(./chapters/chapter1.aux) (./chapters/chapter2.aux) (./chapters/chapter3.aux)
+(./chapters/chapter4.aux) (./chapters/chapter5.aux) (./chapters/chapter6.aux))
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 39035 strings out of 468168
- 928554 string characters out of 5432815
- 1666455 words of memory out of 5000000
- 67064 multiletter control sequences out of 15000+600000
+ 39029 strings out of 468168
+ 930124 string characters out of 5432815
+ 1665797 words of memory out of 5000000
+ 67051 multiletter control sequences out of 15000+600000
  634634 words of font info for 110 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,11n,94p,942b,1779s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,11n,94p,1003b,1778s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (54 pages).
+Output written on main.pdf (80 pages).

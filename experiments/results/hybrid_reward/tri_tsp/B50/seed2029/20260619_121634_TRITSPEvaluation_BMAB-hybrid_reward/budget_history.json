@@ -1,0 +1,302 @@
+[
+  {
+    "step": 1,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 49.0
+  },
+  {
+    "step": 2,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 48.0
+  },
+  {
+    "step": 3,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 47.0
+  },
+  {
+    "step": 4,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 46.0
+  },
+  {
+    "step": 5,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 45.0
+  },
+  {
+    "step": 6,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 44.0
+  },
+  {
+    "step": 7,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 43.0
+  },
+  {
+    "step": 8,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 42.0
+  },
+  {
+    "step": 9,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 41.0
+  },
+  {
+    "step": 10,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 40.0
+  },
+  {
+    "step": 11,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 39.0
+  },
+  {
+    "step": 12,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 38.0
+  },
+  {
+    "step": 13,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 37.0
+  },
+  {
+    "step": 14,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 36.0
+  },
+  {
+    "step": 15,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 35.0
+  },
+  {
+    "step": 16,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 34.0
+  },
+  {
+    "step": 17,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 33.0
+  },
+  {
+    "step": 18,
+    "label": "init",
+    "cost": 1.0,
+    "remaining": 32.0
+  },
+  {
+    "step": 19,
+    "label": "cluster",
+    "cost": 1.0,
+    "remaining": 31.0
+  },
+  {
+    "step": 20,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 30.0
+  },
+  {
+    "step": 21,
+    "label": "crossover#0",
+    "cost": 1.0,
+    "remaining": 29.0
+  },
+  {
+    "step": 22,
+    "label": "mutate#2",
+    "cost": 1.0,
+    "remaining": 28.0
+  },
+  {
+    "step": 23,
+    "label": "crossover#2",
+    "cost": 1.0,
+    "remaining": 27.0
+  },
+  {
+    "step": 24,
+    "label": "mutate#1",
+    "cost": 1.0,
+    "remaining": 26.0
+  },
+  {
+    "step": 25,
+    "label": "crossover#1",
+    "cost": 1.0,
+    "remaining": 25.0
+  },
+  {
+    "step": 26,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 24.0
+  },
+  {
+    "step": 27,
+    "label": "crossover#0",
+    "cost": 1.0,
+    "remaining": 23.0
+  },
+  {
+    "step": 28,
+    "label": "cluster",
+    "cost": 1.0,
+    "remaining": 22.0
+  },
+  {
+    "step": 29,
+    "label": "crossover#0",
+    "cost": 1.0,
+    "remaining": 21.0
+  },
+  {
+    "step": 30,
+    "label": "crossover#3",
+    "cost": 1.0,
+    "remaining": 20.0
+  },
+  {
+    "step": 31,
+    "label": "crossover#2",
+    "cost": 1.0,
+    "remaining": 19.0
+  },
+  {
+    "step": 32,
+    "label": "crossover#1",
+    "cost": 1.0,
+    "remaining": 18.0
+  },
+  {
+    "step": 33,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 17.0
+  },
+  {
+    "step": 34,
+    "label": "crossover#2",
+    "cost": 1.0,
+    "remaining": 16.0
+  },
+  {
+    "step": 35,
+    "label": "crossover#2",
+    "cost": 1.0,
+    "remaining": 15.0
+  },
+  {
+    "step": 36,
+    "label": "mutate#3",
+    "cost": 1.0,
+    "remaining": 14.0
+  },
+  {
+    "step": 37,
+    "label": "cluster",
+    "cost": 1.0,
+    "remaining": 13.0
+  },
+  {
+    "step": 38,
+    "label": "crossover#0",
+    "cost": 1.0,
+    "remaining": 12.0
+  },
+  {
+    "step": 39,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 11.0
+  },
+  {
+    "step": 40,
+    "label": "crossover#1",
+    "cost": 1.0,
+    "remaining": 10.0
+  },
+  {
+    "step": 41,
+    "label": "mutate#1",
+    "cost": 1.0,
+    "remaining": 9.0
+  },
+  {
+    "step": 42,
+    "label": "mutate#1",
+    "cost": 1.0,
+    "remaining": 8.0
+  },
+  {
+    "step": 43,
+    "label": "mutate#1",
+    "cost": 1.0,
+    "remaining": 7.0
+  },
+  {
+    "step": 44,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 6.0
+  },
+  {
+    "step": 45,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 5.0
+  },
+  {
+    "step": 46,
+    "label": "cluster",
+    "cost": 1.0,
+    "remaining": 4.0
+  },
+  {
+    "step": 47,
+    "label": "crossover#0",
+    "cost": 1.0,
+    "remaining": 3.0
+  },
+  {
+    "step": 48,
+    "label": "mutate#0",
+    "cost": 1.0,
+    "remaining": 2.0
+  },
+  {
+    "step": 49,
+    "label": "crossover#2",
+    "cost": 1.0,
+    "remaining": 1.0
+  },
+  {
+    "step": 50,
+    "label": "mutate#2",
+    "cost": 1.0,
+    "remaining": 0.0
+  }
+]

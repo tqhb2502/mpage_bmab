@@ -6,7 +6,7 @@
 \setmainfont{Times New Roman}
 \setsansfont{Helvetica}
 \setmonofont{Menlo}
-\usepackage[vietnamese]{babel}
+\usepackage[english]{babel}
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -65,30 +65,30 @@
 
 \begin{titlepage}
   \centering
-  {\Large TRƯỜNG ĐẠI HỌC\par}
+  {\Large UNIVERSITY\par}
   \vspace{0.5cm}
-  {\large KHOA CÔNG NGHỆ THÔNG TIN\par}
+  {\large FACULTY OF INFORMATION TECHNOLOGY\par}
   \vspace{2.2cm}
-  {\Large\bfseries LUẬN VĂN TỐT NGHIỆP ĐẠI HỌC\par}
+  {\Large\bfseries BACHELOR'S GRADUATION THESIS\par}
   \vspace{1.2cm}
-  {\huge\bfseries Tối ưu ngân sách lời gọi mô hình ngôn ngữ lớn cho thiết kế heuristic đa mục tiêu dựa trên MPaGE\par}
+  {\huge\bfseries Budget-Aware Large Language Model Calls for MPaGE-Based Multi-Objective Heuristic Design\par}
   \vspace{1.0cm}
-  {\Large Dự án: \texttt{mpage\_bmab}\par}
+  {\Large Project: \texttt{mpage\_bmab}\par}
   \vfill
   \begin{tabular}{rl}
-    Ngành: & Khoa học máy tính \\
-    Hướng nghiên cứu: & Generative AI và tối ưu tổ hợp đa mục tiêu \\
-    Công cụ biên soạn: & XeLaTeX
+    Major: & Computer Science \\
+    Research area: & Generative AI and multi-objective combinatorial optimization \\
+    Typesetting system: & XeLaTeX
   \end{tabular}
   \vfill
   {\large \today\par}
 \end{titlepage}
 
 \pagenumbering{roman}
-\chapter*{Tóm tắt}
-Dự án \texttt{mpage\_bmab} nghiên cứu cách sử dụng ngân sách lời gọi mô hình ngôn ngữ lớn một cách hiệu quả hơn trong bài toán tự động thiết kế heuristic cho tối ưu tổ hợp đa mục tiêu. Nền tảng của dự án là MPaGE, một phương pháp kết hợp mô hình ngôn ngữ lớn, tiến hóa đơn điệu đa mục tiêu, lưới Pareto và phân cụm ngữ nghĩa để sinh các hàm heuristic. Phần mở rộng của dự án thay thế lịch lựa chọn cố định bằng một cơ chế bandit hai tầng có ràng buộc ngân sách: tầng thứ nhất chọn toán tử sinh heuristic, tầng thứ hai chọn cụm ngữ nghĩa trong từng thế hệ. Dự án cũng bổ sung theo dõi ngân sách, phát hiện trôi phân phối bằng Page--Hinkley, hàm thưởng có chặn, căn chỉnh tín hiệu thưởng với HV cuối của quần thể được quản lý và chỉ số diện tích dưới đường cong ngân sách AUBC.
+\chapter*{Abstract}
+The \texttt{mpage\_bmab} project studies how a finite budget of large language model (LLM) calls can be allocated more effectively in automatic heuristic design for multi-objective combinatorial optimization. The project builds on MPaGE, a framework that combines LLM-based program generation, SEMO-style multi-objective evolution, Pareto Front Grid selection, and semantic clustering of generated heuristics. The extension developed in this project replaces the largely fixed scheduling policy with a two-level budgeted multi-armed bandit controller: the first level selects the variation operator, and the second level selects the semantic cluster to exploit in the current generation. The implementation also introduces explicit budget accounting, Page--Hinkley drift detection, bounded reward computation, reward alignment with final managed-population hypervolume, and the area under the budget curve (AUBC) as a budget-efficiency metric.
 
-Luận văn này tổng hợp cơ sở lý thuyết, kiến trúc hệ thống, chi tiết triển khai và phân tích thực nghiệm từ mã nguồn và tài liệu trong kho dự án. Bộ kết quả hiện tại gồm 160 lượt chạy trên bốn bài toán, bốn mức ngân sách và năm seed, so sánh cấu hình đầy đủ của \texttt{mpage\_bmab} với biến thể \texttt{mpage\_orig} được bọc lại để dùng cùng ngân sách. Kết quả cho thấy \texttt{mpage\_bmab} cải thiện AUBC trung bình trong 15/16 tổ hợp bài toán--ngân sách và thắng 71/80 cặp chạy theo seed; tuy nhiên HV cuối cùng chỉ cải thiện trong 10/16 tổ hợp, do đó đóng góp chính của bộ kết quả này nên được hiểu là hiệu quả sử dụng ngân sách trong quá trình tìm kiếm, không phải ưu thế tuyệt đối ở trạng thái cuối. Với năm seed, kiểm định Wilcoxon hai phía không đạt mức ý nghĩa 0.05, nên các kết luận được trình bày theo hướng bằng chứng thực nghiệm và ý nghĩa thực tiễn thay vì khẳng định ý nghĩa thống kê mạnh.
+This thesis synthesizes the theoretical background, system architecture, implementation details, and experimental evidence available in the project repository. The current result set contains 400 runs over five setups, four benchmark problem families, four LLM-call budgets, and five random seeds. The analyzed setups include the official finalized \texttt{full} method, two reward-mode variants (\texttt{dense\_reward} and \texttt{hybrid\_reward}), the budget-wrapped \texttt{mpage\_orig} baseline, and an archival \texttt{full\_old} result set. The empirical evidence indicates that the BMAB-style methods substantially improve AUBC over MPaGE-orig, while the official \texttt{full} method provides the strongest final-HV ranking and \texttt{hybrid\_reward} provides the strongest valid-yield behavior. Because each task--budget cell contains five seeds, the thesis interprets the findings as practical empirical evidence rather than as strong statistical proof.
 
 \tableofcontents
 \listoffigures

@@ -1,0 +1,40 @@
+\begin{table}[H]
+\centering
+\caption[Overall five-setup comparison]{Overall normalized scores and mean ranks across the 16 task--budget cells. Scores are normalized within each task--budget cell, where 100 denotes the best setup in that cell. Lower mean rank is better.}
+\label{tab:all-overall-scores}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{subtable}{\linewidth}
+\centering
+\caption{Performance-oriented metrics}
+\begin{tabular}{lrrrrr}
+\toprule
+Setup & AUBC sc. & AUBC rk. & Final-HV sc. & Final-HV rk. & Perf. sc. \\
+\midrule
+Current full & 95.6 & 2.38 & 97.6 & 2.06 & 96.6 \\
+Previous full & 93.3 & 2.69 & 91.9 & 3.50 & 92.6 \\
+MPaGE-orig & 75.7 & 4.88 & 91.2 & 3.81 & 83.5 \\
+Dense reward & 94.9 & 2.44 & 96.1 & 2.81 & 95.5 \\
+Hybrid reward & 95.7 & 2.63 & 97.6 & 2.81 & 96.6 \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+
+\vspace{0.5em}
+
+\begin{subtable}{0.65\linewidth}
+\centering
+\caption{Validity diagnostic}
+\begin{tabular}{lrr}
+\toprule
+Setup & Valid sc. & Valid rk. \\
+\midrule
+Current full & 90.1 & 2.94 \\
+Previous full & 88.5 & 3.03 \\
+MPaGE-orig & 83.5 & 3.81 \\
+Dense reward & 90.1 & 3.22 \\
+Hybrid reward & 93.7 & 2.00 \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}
