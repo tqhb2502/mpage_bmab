@@ -101,7 +101,7 @@ The experiment harness under \sourcefile{mpage\_bmab/experiments/} separates sui
 
 Several shell launchers are provided for common workflows. \sourcefile{experiments/run\_full.sh} launches the standard full BMAB ablation grid and then aggregates and compares results. \sourcefile{experiments/run\_mpage\_compare.sh} launches the MPaGE-orig versus BMAB comparison. \sourcefile{experiments/run\_hv\_final\_full.sh} launches the reward-mode comparison among \texttt{full}, \texttt{dense\_reward}, and \texttt{hybrid\_reward}, then runs aggregation and comparisons for both \texttt{hv\_final} and AUBC.
 
-The result set analyzed in Chapter~5 combines the complete \texttt{mpage\_compare\_full} matrix with the complete reward-mode matrix. It therefore covers five setups: \texttt{full}, \texttt{dense\_reward}, \texttt{hybrid\_reward}, \texttt{mpage\_orig}, and the archival \texttt{full\_old} result set. Other component ablations, such as \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}, are available in the codebase but are not analyzed as complete matrices in Chapter~5.
+The result set analyzed in Chapter~5 combines the complete MPaGE comparison matrix with the complete reward-mode matrix. It therefore covers four thesis-facing setups: Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. Other component ablations, such as \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}, are available in the codebase but are not analyzed as complete matrices in Chapter~5.
 
 \section{Generated Artifacts}
 
@@ -125,7 +125,7 @@ Another important artifact is the saved sample set. Sample files make it possibl
 
 \section{Visualization and Analysis Code}
 
-The figures used in Chapter~5 are generated from result CSV and JSON files. The five-setup overview is produced by \sourcefile{mpage\_bmab/experiments/analyze\_all\_setups\_overview.py}, which creates AUBC plots, final-HV plots, budget curves, valid-yield charts, invalid/null diagnostics, pairwise win matrices, and trade-off figures. The rerun-specific Bi-CVRP diagnostic figures are produced by \sourcefile{mpage\_bmab/experiments/analyze\_rerun\_cell\_update.py}. The thesis includes local copies of the generated figures under \sourcefile{mpage\_bmab/thesis/figures/}.
+The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated four-setup overview is produced by \sourcefile{mpage\_bmab/experiments/analyze\_all\_setups\_overview.py}, which creates AUBC plots, final-HV plots, budget curves, valid-yield charts, invalid/null diagnostics, pairwise win matrices, and trade-off figures. The rerun-specific Bi-CVRP diagnostic figures are produced by \sourcefile{mpage\_bmab/experiments/analyze\_rerun\_cell\_update.py}. The thesis includes local copies of the generated figures under \sourcefile{mpage\_bmab/thesis/figures/}.
 
 This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be rerun to update the numerical summaries and figures without changing the methodological exposition.
 

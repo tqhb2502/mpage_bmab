@@ -1,4 +1,4 @@
-"""Generate balanced tables and figures for all five experiment setups.
+"""Generate balanced tables and figures for the final experiment overview.
 
 The script reads run artifacts directly from the experiment result tree and
 does not depend on a pre-existing summary.csv. It writes only tables and
@@ -39,7 +39,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 from mpage_bmab.experiments.aggregate import aggregate  # noqa: E402
 
 
-METHODS = ["full", "full_old", "mpage_orig", "dense_reward", "hybrid_reward"]
+METHODS = ["full", "mpage_orig", "dense_reward", "hybrid_reward"]
 TASKS = ["bi_tsp", "tri_tsp", "bi_cvrp", "bi_kp"]
 BUDGETS = [25, 50, 100, 200]
 METRICS = [
@@ -72,8 +72,7 @@ TASK_LABELS = {
 }
 
 METHOD_LABELS = {
-    "full": "Current full",
-    "full_old": "Previous full",
+    "full": "Final-HV reward",
     "mpage_orig": "MPaGE-orig",
     "dense_reward": "Dense reward",
     "hybrid_reward": "Hybrid reward",
@@ -95,7 +94,6 @@ METRIC_SHORT = {
 
 COLORS = {
     "full": "#2474A6",
-    "full_old": "#8C6BB1",
     "mpage_orig": "#D55E00",
     "dense_reward": "#6C757D",
     "hybrid_reward": "#2CA25F",
@@ -103,7 +101,6 @@ COLORS = {
 
 MARKERS = {
     "full": "o",
-    "full_old": "s",
     "mpage_orig": "^",
     "dense_reward": "D",
     "hybrid_reward": "P",
@@ -557,7 +554,7 @@ def plot_metric_lines(cell_means: list[dict], metric: str, out: Path) -> None:
         ax.set_ylabel(METRIC_LABELS[metric])
         ax.set_xticks(BUDGETS)
     handles, labels = axes[0, 0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=5, frameon=False,
+    fig.legend(handles, labels, loc="upper center", ncol=len(METHODS), frameon=False,
                bbox_to_anchor=(0.5, 1.045))
     fig.suptitle(f"Mean {METRIC_LABELS[metric]} by Task and Budget", y=1.10)
     fig.savefig(out, bbox_inches="tight")
@@ -706,7 +703,7 @@ def plot_budget_curves(rows: list[dict], budget: int, out: Path) -> None:
         ax.set_ylabel("Outer HV")
         ax.set_xlim(0, 1)
     handles, labels = axes[0, 0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=5, frameon=False,
+    fig.legend(handles, labels, loc="upper center", ncol=len(METHODS), frameon=False,
                bbox_to_anchor=(0.5, 1.045))
     fig.suptitle(f"Mean Budget Curves Across All Setups at B={budget}", y=1.10)
     fig.savefig(out, bbox_inches="tight")
@@ -714,7 +711,7 @@ def plot_budget_curves(rows: list[dict], budget: int, out: Path) -> None:
 
 
 def plot_bmab_zoom_budget_curves(rows: list[dict], budget: int, out: Path) -> None:
-    methods = ["full", "full_old", "dense_reward", "hybrid_reward"]
+    methods = ["full", "dense_reward", "hybrid_reward"]
     fig, axes = plt.subplots(2, 2, figsize=(11.5, 7.2), constrained_layout=True)
     for ax, task in zip(axes.ravel(), TASKS):
         task_values: list[float] = []
@@ -731,9 +728,9 @@ def plot_bmab_zoom_budget_curves(rows: list[dict], budget: int, out: Path) -> No
         ax.set_ylabel("Outer HV")
         ax.set_xlim(0, 1)
     handles, labels = axes[0, 0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=4, frameon=False,
+    fig.legend(handles, labels, loc="upper center", ncol=len(methods), frameon=False,
                bbox_to_anchor=(0.5, 1.045))
-    fig.suptitle(f"Zoomed BMAB-Style Budget Curves at B={budget}", y=1.10)
+    fig.suptitle(f"Zoomed Reward-Mode Budget Curves at B={budget}", y=1.10)
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
 
@@ -846,16 +843,16 @@ def write_latex_tables(out_dir: Path, overall: list[dict], dashboard: list[dict]
     for metric in ["aubc", "hv_final"]:
         rows = [r for r in cell_matrices if r["metric"] == metric]
         lines = [
-            "\\begin{tabular}{lrrrrr}",
-            "\\toprule",
-            "Row setup & Current full & Previous full & MPaGE-orig & Dense reward & Hybrid reward \\\\",
-            "\\midrule",
-        ]
+        "\\begin{tabular}{lrrrr}",
+        "\\toprule",
+        "Row setup & Final-HV reward & MPaGE-orig & Dense reward & Hybrid reward \\\\",
+        "\\midrule",
+    ]
         for method in METHODS:
             row = next(r for r in rows if r["row_method"] == method)
             lines.append(
                 f"{METHOD_LABELS[method]} & "
-                f"{row['full']} & {row['full_old']} & {row['mpage_orig']} & "
+                f"{row['full']} & {row['mpage_orig']} & "
                 f"{row['dense_reward']} & {row['hybrid_reward']} \\\\"
             )
         lines += ["\\bottomrule", "\\end{tabular}"]
@@ -953,7 +950,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--results_root",
         default=str(_PKG_ROOT / "experiments" / "results"),
-        help="Experiment results root containing all five setup folders.",
+        help="Experiment results root containing the setup folders.",
     )
     parser.add_argument(
         "--out_dir",

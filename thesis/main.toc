@@ -66,7 +66,7 @@
 \contentsline {section}{\numberline {5.1}Experimental Questions}{46}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Experimental Setups}{46}{section.5.2}%
 \contentsline {section}{\numberline {5.3}Evaluation Metrics}{48}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Overall Five-Setup Results}{49}{section.5.4}%
+\contentsline {section}{\numberline {5.4}Overall Four-Setup Results}{49}{section.5.4}%
 \contentsline {section}{\numberline {5.5}Task-Level Patterns}{51}{section.5.5}%
 \contentsline {section}{\numberline {5.6}Pairwise Cell-Level Comparison}{53}{section.5.6}%
 \contentsline {section}{\numberline {5.7}AUBC Analysis}{54}{section.5.7}%
@@ -76,7 +76,7 @@
 \contentsline {section}{\numberline {5.11}Validity Diagnostics}{62}{section.5.11}%
 \contentsline {section}{\numberline {5.12}Rerun Cell and Result Consistency}{63}{section.5.12}%
 \contentsline {section}{\numberline {5.13}Limitations of the Evidence}{65}{section.5.13}%
-\contentsline {section}{\numberline {5.14}Experimental Conclusion}{66}{section.5.14}%
+\contentsline {section}{\numberline {5.14}Experimental Conclusion}{65}{section.5.14}%
 \contentsline {chapter}{\numberline {6}Conclusion and Future Work}{67}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Summary}{67}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Main Contributions}{67}{section.6.2}%

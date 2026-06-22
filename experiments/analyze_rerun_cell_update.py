@@ -2,7 +2,8 @@
 
 This script is intentionally narrow: it documents the experiment cell that was
 rerun after the old seed2029 result produced AUBC=0. It reads the current
-result tree and writes only tables/figures, with no narrative report.
+result tree and writes only tables/figures into the consolidated final overview,
+with no narrative report.
 
 Run from the repository root:
 
@@ -367,7 +368,7 @@ def main(argv: list[str] | None = None) -> int:
             _PKG_ROOT
             / "experiments"
             / "results"
-            / "rerun_dense_reward_bi_cvrp_B25_seed2029"
+            / "all_setups_overview"
         ),
     )
     args = parser.parse_args(argv)

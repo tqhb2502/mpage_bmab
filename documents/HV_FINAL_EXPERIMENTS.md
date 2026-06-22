@@ -4,16 +4,19 @@ This file lists the experiments to run after the final-HV fixes.
 
 ## Terminology
 
-The method names in this file refer to the **current fixed implementation**:
+The method names in this file refer to the **current finalized implementation**:
 
-- `full`: fixed BMAB method with `reward_mode='final_hv'`. The quality part
-  of the bandit reward is the normalized HV gain after applying the same
-  managed-population cap used at the end of the run.
-- `dense_reward`: fixed BMAB method with `reward_mode='dense'`. The quality
+- `full` (**Final-HV reward**): finalized BMAB method with
+  `reward_mode='final_hv'`. The quality part of the bandit reward is the
+  normalized HV gain after applying the same managed-population cap used at the
+  end of the run.
+- `dense_reward` (**Dense reward**): finalized BMAB method with
+  `reward_mode='dense'`. The quality
   part of the bandit reward is the legacy immediate-HVI signal.
-- `hybrid_reward`: fixed BMAB method with `reward_mode='hybrid'`. The quality
-  part is `0.5 * immediate_HVI_norm + 0.5 * final_managed_HV_norm`.
-- `no_budget_anneal`: fixed BMAB method with budget-annealed cluster
+- `hybrid_reward` (**Hybrid reward**): finalized BMAB method with
+  `reward_mode='hybrid'`. The quality part is
+  `0.5 * immediate_HVI_norm + 0.5 * final_managed_HV_norm`.
+- `no_budget_anneal`: finalized BMAB method with budget-annealed cluster
   exploration disabled. This is optional; skip it if you do not want this
   ablation.
 - `mpage_orig`: the original MPaGE wrapper under the same budget accounting.
@@ -26,7 +29,8 @@ quality signal back to immediate HVI.
 
 ## What Changed
 
-The `full` method now includes the final-HV fixes:
+The `full` method, reported as **Final-HV reward** in the thesis, includes the
+final-HV fixes:
 
 - actual generated child score is used for bandit reward;
 - pending valid offspring are flushed into the final managed population;
@@ -88,10 +92,10 @@ python -m mpage_bmab.experiments.run \
 
 This compares:
 
-- `full`: fixed final-HV-oriented BMAB;
-- `dense_reward`: fixed BMAB with legacy immediate-HVI reward;
-- `hybrid_reward`: fixed BMAB with half immediate-HVI, half final-population HV;
-- `no_budget_anneal`: optional fixed-method ablation without budget exploration annealing;
+- `full`: Final-HV reward;
+- `dense_reward`: Dense reward with immediate-HVI feedback;
+- `hybrid_reward`: Hybrid reward with half immediate-HVI, half final-population HV;
+- `no_budget_anneal`: optional Final-HV reward ablation without budget exploration annealing;
 - `mpage_orig`: original MPaGE wrapper under the same budget.
 
 If `mpage_orig` has already been run with the same tasks, budgets, seeds,

@@ -18,6 +18,8 @@ Suite presets are provided for common workflows:
   Full coverage; only run after you've validated the pipeline.
 * **hvfix_smoke / hv_final_priority / hv_final_full** — follow-up suites for
   the final-HV fixes and reward-mode ablations.
+* **all_variants_full** — every runnable BMAB variant, component ablation,
+  and MPaGE baseline across the full task/budget/seed matrix.
 
 You can compose your own suite with command-line flags to ``run.py``.
 """
@@ -35,7 +37,7 @@ from typing import Dict, List, NamedTuple
 # Useful when you want a self-contained "MPaGE-budget" baseline without
 # leaving the standalone project to run the parent llm4ad/eoh.py.
 ABLATIONS: List[str] = [
-    'full',          # the proposed system (operator + cluster bandit + PH + diversity)
+    'full',          # Final-HV reward: proposed system (operator + cluster bandit + PH + diversity)
     'no_ph',         # ablate Page-Hinkley drift detection
     'no_diversity',  # ablate ΔCDI term in the reward
     'op_only',       # ablate the cluster-level bandit
@@ -45,13 +47,16 @@ ABLATIONS: List[str] = [
 
 ALL_ABLATIONS: List[str] = [
     'full', 'dense_reward', 'hybrid_reward', 'no_budget_anneal',
-    'no_ph', 'no_diversity', 'op_only',
-    'cluster_only', 'mpage_budget',
+    'no_ph', 'no_diversity', 'op_only', 'cluster_only',
+    # 'mpage_orig',
     # `mpage_orig` dispatches to mpage_bmab.mpage_orig (the actual MPaGE class
     # capped at B sample calls) instead of mpage_bmab.main. The runner picks
     # the right entry-point automatically.
-    'mpage_orig',
 ]
+
+# All runnable methods in the current harness. This intentionally excludes
+# `full_old`, which is an archival result tree rather than a runnable preset.
+ALL_VARIANTS_AND_ABLATIONS: List[str] = list(ALL_ABLATIONS)
 
 # Ablations that run through ``mpage_bmab.mpage_orig`` instead of the standard
 # ``mpage_bmab.main`` entry point. These exist so we can compare BMAB-LLM
@@ -185,10 +190,21 @@ SUITES: Dict[str, Suite] = {
         budgets=BUDGETS,
         seeds=SEEDS,
         description='Full reward-mode comparison for the finalized BMAB '
-                    'implementation: full/final_hv, dense_reward/dense, and '
-                    'hybrid_reward/hybrid across all tasks, budgets, and seeds '
+                    'implementation: Final-HV reward (full/final_hv), Dense '
+                    'reward (dense_reward/dense), and Hybrid reward '
+                    '(hybrid_reward/hybrid) across all tasks, budgets, and seeds '
                     '(3 × 4 × 4 × 5 = 240 runs). Add no_budget_anneal or '
                     'mpage_orig manually if needed.',
+    ),
+    'all_variants_full': Suite(
+        name='all_variants_full',
+        ablations=ALL_VARIANTS_AND_ABLATIONS,
+        tasks=TASKS,
+        budgets=BUDGETS,
+        seeds=SEEDS,
+        description='Full matrix for every runnable method: full, reward-mode '
+                    'variants, component ablations, mpage_budget, and '
+                    'mpage_orig (10 × 4 × 4 × 5 = 800 runs). Very expensive.',
     ),
     'all_methods': Suite(
         name='all_methods',

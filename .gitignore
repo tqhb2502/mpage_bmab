@@ -13,5 +13,6 @@ __pycache__/
 experiments/archive_v1.0/
 experiments/archive_v1.1/full/
 experiments/archive_v1.1/mpage_orig/
+experiments/results/no_budget_anneal/
 
 .DS_Store

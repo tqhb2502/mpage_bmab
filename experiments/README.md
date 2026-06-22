@@ -17,6 +17,7 @@ experiments/
 ├── run_budget50.sh   ← 80 runs (all tasks, B=50, 5 seeds)
 ├── run_full.sh       ← 320 runs (full sweep)
 ├── run_hv_final_full.sh ← 240 runs (reward-mode comparison)
+├── run_all_variants_full.sh ← 800 runs (all runnable variants and ablations)
 └── results/          ← per-run output directories + CSVs (gitignored)
 ```
 
@@ -61,6 +62,7 @@ contains `mpage_bmab/`).
 | `hvfix_smoke` | 4 | ≈ 100 | cheap sanity check for the final-HV fixes |
 | `hv_final_priority` | 225 | ≈ 13,125 | focused final-HV sweep including reward ablations and `mpage_orig` |
 | `hv_final_full` | 240 by default | ≈ 22,500 | full reward-mode comparison for `full`/`final_hv`, `dense_reward`/`dense`, and `hybrid_reward`/`hybrid`; optional ablations can be added manually |
+| `all_variants_full` | 800 | ≈ 75,000 | full matrix for every runnable method: `full`, reward variants, component ablations, `mpage_budget`, and `mpage_orig` |
 
 The "total LLM calls" column is approximate: each cell consumes its
 `--budget` plus a small overhead for the cluster-LLM calls (already

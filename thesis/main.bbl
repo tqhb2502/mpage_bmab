@@ -38,19 +38,9 @@ Q.~Zhang and H.~Li, ``Moea/d: A multiobjective evolutionary algorithm based on
 
 \bibitem{laumanns2004semo}
 M.~Laumanns, L.~Thiele, and E.~Zitzler, ``Running time analysis of
-  multiobjective evolutionary algorithms on pseudo-boolean functions,'' vol.~8,
-  no.~2, pp. 170--182, 2004.
-
-\bibitem{fialho2008adaptive}
-{\'A}.~Fialho, L.~Da~Costa, M.~Schoenauer, and M.~Sebag, ``Extreme value based
-  adaptive operator selection,'' in \emph{Parallel Problem Solving from
-  Nature}, 2008, pp. 175--184.
-
-\bibitem{romera2024funsearch}
-B.~Romera-Paredes, M.~Barekatain, A.~Novikov, M.~Balog, M.~P. Kumar, E.~Dupont,
-  F.~J.~R. Ruiz, J.~S. Ellenberg, P.~Wang, O.~Fawzi, P.~Kohli, and A.~Fawzi,
-  ``Mathematical discoveries from program search with large language models,''
-  \emph{Nature}, vol. 625, pp. 468--475, 2024.
+  multiobjective evolutionary algorithms on pseudo-boolean functions,''
+  \emph{IEEE Transactions on Evolutionary Computation}, vol.~8, no.~2, pp.
+  170--182, 2004.
 
 \bibitem{zitzler1999multiobjective}
 E.~Zitzler and L.~Thiele, ``Multiobjective evolutionary algorithms: A
@@ -65,6 +55,17 @@ C.~M. Fonseca, L.~Paquete, and M.~L{\'o}pez-Ib{\'a}{\~n}ez, ``An improved
 \bibitem{blank2020pymoo}
 J.~Blank and K.~Deb, ``pymoo: Multi-objective optimization in python,''
   \emph{IEEE Access}, vol.~8, pp. 89\,497--89\,509, 2020.
+
+\bibitem{romera2024funsearch}
+B.~Romera-Paredes, M.~Barekatain, A.~Novikov, M.~Balog, M.~P. Kumar, E.~Dupont,
+  F.~J.~R. Ruiz, J.~S. Ellenberg, P.~Wang, O.~Fawzi, P.~Kohli, and A.~Fawzi,
+  ``Mathematical discoveries from program search with large language models,''
+  \emph{Nature}, vol. 625, pp. 468--475, 2024.
+
+\bibitem{fialho2008adaptive}
+{\'A}.~Fialho, L.~Da~Costa, M.~Schoenauer, and M.~Sebag, ``Extreme value based
+  adaptive operator selection,'' in \emph{Parallel Problem Solving from
+  Nature}, 2008, pp. 175--184.
 
 \bibitem{auer2002ucb}
 P.~Auer, N.~Cesa-Bianchi, and P.~Fischer, ``Finite-time analysis of the

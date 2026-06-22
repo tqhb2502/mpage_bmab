@@ -1,5 +1,5 @@
 \begin{longtable}{p{0.18\linewidth}p{0.28\linewidth}p{0.43\linewidth}}
-\caption[Experimental setup definitions]{Experimental setups analyzed in the current result directory.}
+\caption[Experimental setup definitions]{Experimental setups analyzed in the final comparison.}
 \label{tab:experiment-setups}\\
 \toprule
 Setup & Purpose & Configuration \\
@@ -9,10 +9,9 @@ Setup & Purpose & Configuration \\
 Setup & Purpose & Configuration \\
 \midrule
 \endhead
-\texttt{full} & Official finalized BMAB method & Uses the two-level bandit scheduler, Page--Hinkley drift handling, budget annealing, diversity/rank reward terms, pending-offspring flushing, and \texttt{reward\_mode=final\_hv}. \\
-\texttt{dense\_reward} & Reward-mode ablation & Keeps the finalized implementation but changes only the main quality signal to the legacy immediate hypervolume-improvement reward, i.e., \texttt{reward\_mode=dense}. \\
-\texttt{hybrid\_reward} & Reward-mode ablation & Keeps the finalized implementation but uses a half dense and half final-population HV quality signal, i.e., \texttt{reward\_mode=hybrid}. \\
-\texttt{mpage\_orig} & Original MPaGE baseline & Runs the original MPaGE workflow through the project wrapper so that budget curves, AUBC, and final-HV artifacts can be collected in the same result tree. \\
-\texttt{full\_old} & Archival comparison point & Previous full-version result set retained for historical comparison. It is not treated as the official proposed method. \\
+Final-HV reward & Official finalized BMAB method & Implementation setup identifier \texttt{full}. Uses the two-level bandit scheduler, Page--Hinkley drift handling, budget annealing, diversity/rank reward terms, pending-offspring flushing, and \texttt{reward\_mode=final\_hv}. \\
+Dense reward & Reward-mode ablation & Keeps the finalized implementation but changes only the main quality signal to immediate hypervolume-improvement feedback, i.e., \texttt{reward\_mode=dense}. \\
+Hybrid reward & Reward-mode ablation & Keeps the finalized implementation but uses a half dense and half final-population HV quality signal, i.e., \texttt{reward\_mode=hybrid}. \\
+MPaGE-orig & Original MPaGE baseline & Runs the original MPaGE workflow through the project wrapper so that budget curves, AUBC, and final-HV artifacts can be collected under the same measurement protocol. \\
 \bottomrule
 \end{longtable}

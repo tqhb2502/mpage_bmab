@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  21 JUN 2026 19:07
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  22 JUN 2026 23:43
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1260,14 +1260,14 @@ Chapter 4.
 
  (./chapters/chapter5.tex
 Chapter 5.
-[46
+(./tables/experiment_setups.tex
+Underfull \hbox (badness 10000) in paragraph at lines 12--12
+[]|\TU/TimesNewRoman(0)/m/n/12 Final-HV
+ []
 
 
-
-
-] (./tables/experiment_setups.tex
 Underfull \hbox (badness 1442) in paragraph at lines 12--13
-[]|\TU/TimesNewRoman(0)/m/n/12 Uses the two-level bandit scheduler,
+\TU/TimesNewRoman(0)/m/n/12 Uses the two-level bandit scheduler,
  []
 
 
@@ -1276,13 +1276,8 @@ Underfull \hbox (badness 1939) in paragraph at lines 12--13
  []
 
 
-Underfull \hbox (badness 2875) in paragraph at lines 13--13
-[]|\TU/Menlo(0)/m/n/12 d e n s e _ r e w a
- []
-
-
-Underfull \hbox (badness 2875) in paragraph at lines 14--14
-[]|\TU/Menlo(0)/m/n/12 h y b r i d _ r e w
+Underfull \hbox (badness 1231) in paragraph at lines 13--14
+\TU/TimesNewRoman(0)/m/n/12 immediate hypervolume-improvement
  []
 
 
@@ -1295,17 +1290,12 @@ Underfull \hbox (badness 1389) in paragraph at lines 15--16
 []|\TU/TimesNewRoman(0)/m/n/12 Runs the original MPaGE workflow
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 16--16
-[]|\TU/TimesNewRoman(0)/m/n/12 Archival comparison
- []
+[46
 
 
-Underfull \hbox (badness 1205) in paragraph at lines 16--17
-\TU/TimesNewRoman(0)/m/n/12 for historical comparison. It is not
- []
 
-) [47] [48] (./tables/all_overall_scores.tex) [49]
+
+]) [47] [48] (./tables/all_overall_scores.tex) [49]
 File: figures/all_overall_normalized_scores.png Graphic file (type bmp)
 <figures/all_overall_normalized_scores.png>
  [50]
@@ -1340,8 +1330,8 @@ File: figures/all_valid_yield_mean_by_budget.png Graphic file (type bmp)
 File: figures/all_invalid_null_proxy_rate_mean_by_budget.png Graphic file (type
  bmp)
 <figures/all_invalid_null_proxy_rate_mean_by_budget.png>
- [62] [63]
-(./tables/rerun_dense_reward_bi_cvrp_B25.tex)
+ [62]
+(./tables/rerun_dense_reward_bi_cvrp_B25.tex [63])
 File: figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png Graphic file 
 (type bmp)
 <figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png>
@@ -1375,6 +1365,6 @@ Here is how much of TeX's memory you used:
  67051 multiletter control sequences out of 15000+600000
  634634 words of font info for 110 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,11n,94p,1003b,1778s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,11n,94p,982b,1778s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.pdf (80 pages).
+Output written on main.xdv (80 pages, 1648760 bytes).
