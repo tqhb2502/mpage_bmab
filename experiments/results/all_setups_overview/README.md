@@ -19,7 +19,4 @@ The overview is regenerated with:
 ```bash
 MPLCONFIGDIR=/private/tmp/mpl mpage_bmab/.venv/bin/python \
     mpage_bmab/experiments/analyze_all_setups_overview.py
-
-MPLCONFIGDIR=/private/tmp/mpl mpage_bmab/.venv/bin/python \
-    mpage_bmab/experiments/analyze_rerun_cell_update.py
 ```

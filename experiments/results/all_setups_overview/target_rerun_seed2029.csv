@@ -1,2 +1,0 @@
-ablation,task,budget,seed,aubc,consumed_budget,total_budget,hv_final,pareto_size,n_calls,run_dir,sample_count,valid_count,null_score_count,recorded_null_rate,valid_yield_per_100_calls,generation_attempts,non_generation_calls,unregistered_generation_count,invalid_null_proxy_rate
-dense_reward,bi_cvrp,25,2029,12725.907407334587,25.0,25.0,16315.265906839215,4,25,/Users/huyvan/Downloads/GenAIThesis/week7+8+9/MPaGE/mpage_bmab/experiments/results/dense_reward/bi_cvrp/B25/seed2029/20260621_010409_BICVRPEvaluation_BMAB-dense_reward,4,4,0,0.0,16.0,22,3,18,0.8181818181818182

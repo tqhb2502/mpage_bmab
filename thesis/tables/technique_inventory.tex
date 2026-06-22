@@ -6,17 +6,17 @@
 \caption{Inventory of generative AI and machine learning techniques in the project.}
 \label{tab:technique-inventory}\\
 \toprule
-Technique & Status & Evidence in the repository \\
+Technique & Status & Evidence in the project \\
 \midrule
 \endfirsthead
 \toprule
-Technique & Status & Evidence in the repository \\
+Technique & Status & Evidence in the project \\
 \midrule
 \endhead
-Large language models & Present & \sourcefile{README.md}, \sourcefile{mpage\_bmab/README.md}, \sourcefile{mpage\_bmab/main.py}, \sourcefile{mpage\_bmab/cluster\_manager.py}. \\
-Prompt engineering & Present & I1, E1, E2, M1, M2 generation prompts and the semantic-clustering prompt in \sourcefile{llm4ad/method/LLMPFG/prompt.py}. \\
-Bandits / lightweight reinforcement learning & Present & UCB1, Budgeted UCB, and Page--Hinkley logic in \sourcefile{mpage\_bmab/bandit.py}. \\
-Execution-based evaluation of LLM-generated code & Present & \sourcefile{llm4ad/base/evaluate.py} and the evaluators under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/}. \\
+Large language models & Present & The generator and semantic clusterer are external LLM calls controlled by the BMAB workflow. \\
+Prompt engineering & Present & The project uses initialization, mutation, crossover, and semantic-clustering prompt families inherited from MPaGE. \\
+Bandits / lightweight reinforcement learning & Present & The scheduler implements UCB-style operator selection, budget-aware cluster selection, and Page--Hinkley drift handling. \\
+Execution-based evaluation of LLM-generated code & Present & Generated Python heuristics are executed by task evaluators, and failures can produce null scores. \\
 RAG & Not found & No information was found in the project source code or documentation. \\
 Fine-tuning, PEFT, LoRA & Not found & No information was found in the project source code or documentation. \\
 Diffusion models, GANs & Not found & No information was found in the project source code or documentation. \\

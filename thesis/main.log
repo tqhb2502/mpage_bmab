@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  22 JUN 2026 23:43
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  23 JUN 2026 00:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1198,34 +1198,36 @@ Underfull \hbox (badness 2582) in paragraph at lines 76--77
 ANs, knowledge distillation, or
  []
 
-) [6] [7]
+) [6]
 \openout2 = `chapters/chapter2.aux'.
 
  (./chapters/chapter2.tex
 Chapter 2.
-[8
+[7
 
 
 
 
-] [9] [10] [11] [12]
+] [8] [9] [10] [11]
 File: figures/mpage_overview.png Graphic file (type bmp)
 <figures/mpage_overview.png>
 File: figures/mpage_selection.png Graphic file (type bmp)
 <figures/mpage_selection.png>
- [13]
+ [12]
 Underfull \hbox (badness 1478) in paragraph at lines 130--130
 []\TU/TimesNewRoman(0)/b/n/17.28 Validity, Null Scores, and Program-Search Fail
 ure
  []
 
-[14] [15] [16] [17] (./tables/technique_inventory.tex [18])) [19] [20]
+[13] [14] [15] [16] (./tables/technique_inventory.tex
+ignored: Infinite glue shrinkage fo
+und in box being split [17])) [18]
 \openout2 = `chapters/chapter3.aux'.
 
 
 (./chapters/chapter3.tex
 Chapter 3.
-[21
+[19
 
 
 
@@ -1236,26 +1238,33 @@ Underfull \hbox (badness 3514) in paragraph at lines 13--14
 -generation mechanisms
  []
 
-[22] [23] [24] [25] [26] [27] [28] [29] [30] [31]
+[20] [21] [22] [23] [24] [25] [26] [27] [28] [29]
 Underfull \hbox (badness 1571) in paragraph at lines 457--458
 \TU/TimesNewRoman(0)/m/n/12 The original MPaGE strategy uses intra-cluster muta
 tion and inter-cluster crossover.
  []
 
-[32]
+[30]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 473.
- [33] [34] [35]) [36]
+ [31] [32] [33]) [34]
 \openout2 = `chapters/chapter4.aux'.
 
  (./chapters/chapter4.tex
 Chapter 4.
-[37
+[35
 
 
 
 
-] [38] [39] [40] [41] [42] [43] [44]) [45]
+] [36] [37]
+Underfull \hbox (badness 2913) in paragraph at lines 64--65
+\OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^@\OML/cmm/m/it/12 HV[]; runtime\OT1/cmr/m/n
+/12 )$\TU/TimesNewRoman(0)/m/n/12 . Accordingly, the outer reference point for 
+Tri-TSP is two-
+ []
+
+[38] [39] [40] [41] [42]) [43]
 \openout2 = `chapters/chapter5.aux'.
 
  (./chapters/chapter5.tex
@@ -1290,24 +1299,25 @@ Underfull \hbox (badness 1389) in paragraph at lines 15--16
 []|\TU/TimesNewRoman(0)/m/n/12 Runs the original MPaGE workflow
  []
 
-[46
+[44
 
 
 
 
-]) [47] [48] (./tables/all_overall_scores.tex) [49]
+]) [45] [46] (./tables/all_overall_scores.tex)
 File: figures/all_overall_normalized_scores.png Graphic file (type bmp)
 <figures/all_overall_normalized_scores.png>
- [50]
-(./tables/task_level_scores.tex) [51] [52] (./tables/all_pairwise_wins.tex)
-[53]
+ [47] [48]
+(./tables/task_level_scores.tex) [49] (./tables/all_pairwise_wins.tex) [50]
 File: figures/all_aubc_pairwise_cell_wins.png Graphic file (type bmp)
 <figures/all_aubc_pairwise_cell_wins.png>
 File: figures/all_hv_final_pairwise_cell_wins.png Graphic file (type bmp)
 <figures/all_hv_final_pairwise_cell_wins.png>
+
+[51]
 File: figures/all_aubc_mean_by_budget.png Graphic file (type bmp)
 <figures/all_aubc_mean_by_budget.png>
- [54] [55]
+ [52] [53]
 File: figures/all_budget_curves_B25.png Graphic file (type bmp)
 <figures/all_budget_curves_B25.png>
 File: figures/all_budget_curves_B50.png Graphic file (type bmp)
@@ -1316,41 +1326,36 @@ File: figures/all_budget_curves_B100.png Graphic file (type bmp)
 <figures/all_budget_curves_B100.png>
 File: figures/all_budget_curves_B200.png Graphic file (type bmp)
 <figures/all_budget_curves_B200.png>
- [56] [57]
+ [54] [55]
 File: figures/all_budget_curves_bmab_zoom_B100.png Graphic file (type bmp)
 <figures/all_budget_curves_bmab_zoom_B100.png>
 File: figures/all_hv_final_mean_by_budget.png Graphic file (type bmp)
 <figures/all_hv_final_mean_by_budget.png>
- [58]
+ [56]
 File: figures/all_aubc_vs_final_hv_tradeoff.png Graphic file (type bmp)
 <figures/all_aubc_vs_final_hv_tradeoff.png>
- [59] [60] [61]
+ [57] [58] [59]
 File: figures/all_valid_yield_mean_by_budget.png Graphic file (type bmp)
 <figures/all_valid_yield_mean_by_budget.png>
 File: figures/all_invalid_null_proxy_rate_mean_by_budget.png Graphic file (type
  bmp)
 <figures/all_invalid_null_proxy_rate_mean_by_budget.png>
- [62]
-(./tables/rerun_dense_reward_bi_cvrp_B25.tex [63])
-File: figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png Graphic file 
-(type bmp)
-<figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png>
- [64] [65]) [66]
+ [60] [61] [62]) [63]
 \openout2 = `chapters/chapter6.aux'.
 
 
 (./chapters/chapter6.tex
 Chapter 6.
-[67
+[64
 
 
 
 
-] [68] [69] [70]) [71] (./main.bbl [72
+] [65] [66] [67]) [68] (./main.bbl [69
 
 
 
-]) [73] (./main.aux
+]) [70] (./main.aux
 (./chapters/chapter1.aux) (./chapters/chapter2.aux) (./chapters/chapter3.aux)
 (./chapters/chapter4.aux) (./chapters/chapter5.aux) (./chapters/chapter6.aux))
  ***********
@@ -1359,12 +1364,12 @@ L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 39029 strings out of 468168
- 930124 string characters out of 5432815
- 1665797 words of memory out of 5000000
- 67051 multiletter control sequences out of 15000+600000
+ 39005 strings out of 468168
+ 929008 string characters out of 5432815
+ 1665795 words of memory out of 5000000
+ 67031 multiletter control sequences out of 15000+600000
  634634 words of font info for 110 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,11n,94p,982b,1778s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,11n,94p,982b,1779s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.xdv (80 pages, 1648760 bytes).
+Output written on main.xdv (77 pages, 1591144 bytes).

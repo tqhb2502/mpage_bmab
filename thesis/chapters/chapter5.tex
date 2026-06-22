@@ -30,11 +30,11 @@ The unit of comparison is the task--budget cell. For each setup, a cell aggregat
 
 The primary metric is AUBC, the area under the outer hypervolume-vs-budget curve. It measures how effectively a setup converts consumed LLM-call budget into heuristic-population quality throughout a run. A method can be useful under a strict budget even if its final hypervolume is only slightly different, because reaching a strong population earlier provides more value when calls are expensive or a run may be stopped early.
 
-The secondary metric is \code{hv\_final}. In \sourcefile{mpage\_bmab/experiments/aggregate.py}, this value is extracted from the final \code{hv} entry in \code{budget\_curve.json}. It measures the terminal outer hypervolume of the managed heuristic population. It should not be confused with the inner solution-level hypervolume computed by each benchmark evaluator.
+The secondary metric is \code{hv\_final}. In the aggregation pipeline, this value is extracted from the final \code{hv} entry in the budget-curve artifact. It measures the terminal outer hypervolume of the managed heuristic population. It should not be confused with the inner solution-level hypervolume computed by each benchmark evaluator.
 
 The chapter also reports valid heuristic yield per 100 calls and invalid/null-score rate. These are diagnostic metrics rather than direct optimization objectives. They are useful because LLM-generated code may fail to parse, return infeasible outputs, time out, or receive a null score. However, the invalid/null diagnostic is not perfectly symmetric across all setups: BMAB-style runs mainly store valid or scored samples, whereas \texttt{mpage\_orig} can retain null-score samples differently. Therefore, validity diagnostics are interpreted cautiously and separately from the primary performance metrics.
 
-For budget-curve figures, the horizontal axis is normalized as \code{budget\_consumed/total\_budget}. The plotted curves use the same initial anchor as \sourcefile{mpage\_bmab/profiler.py}: the curve begins at $(0,0)$ before the first recorded hypervolume value. This convention makes the plotted budget curves consistent with the AUBC calculation.
+For budget-curve figures, the horizontal axis is normalized as \code{budget\_consumed/total\_budget}. The plotted curves use the same initial anchor as the AUBC profiler: the curve begins at $(0,0)$ before the first recorded hypervolume value. This convention makes the plotted budget curves consistent with the AUBC calculation.
 
 The normalized scores in this chapter are computed within each task--budget cell. If a setup has value $v_{m,c}$ for metric $m$ in cell $c$, and the best value in that cell is $v^{\star}_{m,c}$, the normalized score is a percentage relative to the cell best. This transformation is especially important for AUBC and HV because absolute values differ greatly across tasks. Without cell normalization, high-magnitude tasks would dominate the overall average even if the relative performance pattern were similar.
 
@@ -152,7 +152,7 @@ Some curves become nearly flat after an early rise. This should not be interpret
 
 The shape of a budget curve contains more information than the final point. A steep initial rise means that initialization and early generations found useful heuristics quickly. A long flat segment means that calls were spent without changing the managed population's outer HV. A late jump means that the method eventually discovered a useful heuristic but only after a period of low return. Since AUBC integrates all of these behaviors, it rewards early and sustained improvement rather than only endpoint quality.
 
-This interpretation also explains why the y-value at normalized budget $1$ in a budget-curve plot should be read carefully. The curve endpoint corresponds to the mean final outer HV only when the curve is aggregated and plotted using the same per-run final points and the same task--budget grouping as the final-HV summary. Differences can appear when curves are averaged over interpolated budget positions, anchored at $(0,0)$, or plotted with task-level grouping that differs from the final-HV bar chart. In this thesis, the generated overview figures were regenerated after the rerun correction so that the reported AUBC, final HV, and budget curves use the same current result artifacts.
+This interpretation also explains why the y-value at normalized budget $1$ in a budget-curve plot should be read carefully. The curve endpoint corresponds to the mean final outer HV only when the curve is aggregated and plotted using the same per-run final points and the same task--budget grouping as the final-HV summary. Differences can appear when curves are averaged over interpolated budget positions, anchored at $(0,0)$, or plotted with task-level grouping that differs from the final-HV bar chart. In this thesis, the reported AUBC, final HV, and budget curves are generated from the same consolidated result artifacts.
 
 \begin{figure}[H]
   \centering
@@ -227,24 +227,7 @@ The validity diagnostics help avoid a simplistic interpretation of the results. 
 
 The invalid/null diagnostic also reveals a measurement limitation. Because the result formats differ between BMAB-style runs and MPaGE-orig, the normalized invalid/null score cannot be used as a fair standalone ranking across all four setups. This is why the thesis focuses on AUBC and final HV for performance claims. Validity metrics are still useful internally: they can identify cells where an unexpectedly weak AUBC value may be caused by too few valid offspring rather than by poor selection among valid offspring.
 
-\section{Rerun Cell and Result Consistency}
-
-During result inspection, the Dense reward Bi-CVRP $B=25$, seed-2029 cell was rerun because the previous artifact had positive final HV but AUBC equal to zero. The updated artifact used in the consolidated overview produces AUBC 12725.91, final HV 16315.27, and four valid heuristics. Table~\ref{tab:rerun-dense-bicvrp-b25} shows the resulting per-seed values for that cell.
-
-\input{tables/rerun_dense_reward_bi_cvrp_B25}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.80\linewidth]{rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png}
-  \caption{Dense-reward Bi-CVRP $B=25$ per-seed AUBC and final HV after rerunning seed 2029.}
-  \label{fig:rerun-dense-bicvrp}
-\end{figure}
-
-The rerun removes the zero-AUBC anomaly and makes seed 2029 consistent with the other dense-reward Bi-CVRP $B=25$ seeds. The consolidated overview and thesis tables were regenerated after this rerun, so the reported dense-reward means in this chapter use the corrected artifact.
-
-This rerun is a useful example of why budget-curve artifacts are necessary. A final-HV value alone would not reveal whether the trajectory was recorded correctly. A positive final HV with zero AUBC is suspicious because AUBC should integrate the same curve whose final point supplies final HV. By inspecting and regenerating the affected cell, the analysis ensures that the aggregated dense-reward results do not contain a known inconsistency.
-
-\section{Limitations of the Evidence}
+\section*{Limitations of the Evidence}
 
 The result matrix is complete for the four setups analyzed here, but each task--budget cell still contains only five seeds. This is sufficient for observing broad empirical trends, but it is not sufficient for strong statistical claims. The consolidated overview provides normalized scores, ranks, and pairwise win matrices; it does not provide a complete all-pairs inferential test suite for every method pair and metric. Therefore, this chapter emphasizes practical effect patterns rather than formal statistical significance.
 
@@ -258,7 +241,7 @@ Another limitation is that the experiment matrix compares reward modes but does 
 
 The analysis also remains quantitative rather than qualitative. It does not inspect the generated heuristic code to identify recurring algorithmic motifs. Such an analysis could reveal whether BMAB scheduling discovers genuinely different heuristic families or mainly reallocates budget among similar local variants. The saved samples make this possible, but it is outside the present scope.
 
-\section{Experimental Conclusion}
+\section*{Chapter Summary}
 
 The current result artifacts support three main findings. First, the BMAB-style methods are substantially stronger than MPaGE-orig in AUBC. This indicates that budget-aware scheduling and the finalized implementation improve how quickly useful heuristic populations are obtained. Second, Final-HV reward is the strongest default when AUBC and final HV are considered together: it is effectively tied with Hybrid reward in overall performance score and has the best final-HV rank. Third, the reward-mode comparison reveals a meaningful trade-off. Dense and hybrid rewards provide strong early feedback and valid-yield behavior, while the final-HV reward gives the most reliable terminal population quality.
 

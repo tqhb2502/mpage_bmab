@@ -485,13 +485,6 @@ INPUT ./figures/all_valid_yield_mean_by_budget.png
 INPUT ./figures/all_valid_yield_mean_by_budget.png
 INPUT ./figures/all_invalid_null_proxy_rate_mean_by_budget.png
 INPUT ./figures/all_invalid_null_proxy_rate_mean_by_budget.png
-INPUT ./tables/rerun_dense_reward_bi_cvrp_B25.tex
-INPUT ./tables/rerun_dense_reward_bi_cvrp_B25.tex
-INPUT ./tables/rerun_dense_reward_bi_cvrp_B25.tex
-INPUT ./tables/rerun_dense_reward_bi_cvrp_B25.tex
-INPUT tables/rerun_dense_reward_bi_cvrp_B25.tex
-INPUT ./figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png
-INPUT ./figures/rerun_dense_reward_bi_cvrp_B25_per_seed_aubc_hv.png
 INPUT ./chapters/chapter6.tex
 INPUT ./chapters/chapter6.tex
 OUTPUT chapters/chapter6.aux

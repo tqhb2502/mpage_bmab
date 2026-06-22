@@ -14,7 +14,7 @@ where $\mathcal{X}$ is a discrete feasible set and $m$ is the number of objectiv
 
 The four benchmark families in the project instantiate this general setting. Bi-TSP and Tri-TSP evaluate tours under two or three distance objectives. Bi-CVRP evaluates route sets under distance-related objectives while enforcing vehicle-capacity constraints. Bi-KP evaluates binary item-selection vectors under two value objectives and a capacity constraint. In all cases, the inner solver maintains an archive of non-dominated candidate solutions and updates it when a generated heuristic proposes a feasible and non-dominated neighbor.
 
-An important distinction in this project is that the LLM-generated program is not itself a final solution to the combinatorial problem. The generated code implements a function such as \texttt{select\_neighbor}, which acts as a neighborhood operator inside an evaluator. The evaluator repeatedly calls this operator, updates an archive, and then computes the hypervolume of the resulting archive. This pattern appears in the project-local evaluator files under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/}.
+An important distinction in this project is that the LLM-generated program is not itself a final solution to the combinatorial problem. The generated code implements a function such as \texttt{select\_neighbor}, which acts as a neighborhood operator inside an evaluator. The evaluator repeatedly calls this operator, updates an archive, and then computes the hypervolume of the resulting archive. This pattern is used consistently by the benchmark evaluators analyzed in this thesis.
 
 \section{Benchmark Problem Families}
 
@@ -83,33 +83,33 @@ The project uses hypervolume at two different levels. The \emph{inner hypervolum
 
 This distinction is essential when interpreting the experimental results. The figures and tables in Chapter~5 report heuristic-population hypervolume and AUBC under the \texttt{mpage\_bmab} harness. They should not be confused with the task-level solution hypervolume tables reported in the original MPaGE paper.
 
-The two hypervolume levels have different reference points because they live in different spaces. For an inner Bi-TSP archive, the points are tour-cost vectors. For an inner Tri-TSP archive, the points are three-dimensional tour-cost vectors. For the outer population, however, every heuristic is represented by a two-dimensional score vector $(-HV_{\mathrm{inner}}, runtime)$, even when the inner task is tri-objective. Thus, the outer hypervolume reference point is a bound in heuristic-score space, not in solution-objective space. The project documentation \sourcefile{mpage\_bmab/documents/HV\_TWO\_LEVELS.md} emphasizes this distinction because confusing the two spaces can lead to incorrect AUBC computation and misleading comparisons.
+The two hypervolume levels have different reference points because they live in different spaces. For an inner Bi-TSP archive, the points are tour-cost vectors. For an inner Tri-TSP archive, the points are three-dimensional tour-cost vectors. For the outer population, however, every heuristic is represented by a two-dimensional score vector $(-HV_{\mathrm{inner}}, runtime)$, even when the inner task is tri-objective. Thus, the outer hypervolume reference point is a bound in heuristic-score space, not in solution-objective space. This distinction is important because confusing the two spaces can lead to incorrect AUBC computation and misleading comparisons.
 
 The outer hypervolume is also sensitive to the range of the first score component. For tasks where inner hypervolume values are large, such as Tri-TSP, the dominated extent along the negated-inner-HV axis can be much larger than in Bi-TSP. Consequently, absolute outer-HV values should not be compared directly across tasks. The thesis therefore uses within-cell normalized scores and ranks when summarizing performance across task families. Absolute values remain meaningful within a task--budget cell, where all methods are evaluated under the same task, budget, reference point, and aggregation convention.
 
-In the implementation, hypervolume computation is centralized in \sourcefile{mpage\_bmab/reward.py}. When \texttt{pymoo} is available, the project uses \texttt{pymoo.indicators.hv.HV} \cite{blank2020pymoo}; otherwise, it falls back to an internal two-dimensional implementation for supported cases.
+In the implementation, hypervolume computation is centralized in the reward module. When \texttt{pymoo} is available, the project uses \texttt{pymoo.indicators.hv.HV} \cite{blank2020pymoo}; otherwise, it falls back to an internal two-dimensional implementation for supported cases.
 
 \section{MPaGE}
 
 MPaGE, Pareto-Grid-Guided Large Language Models, is the direct methodological baseline for this project \cite{ha2026mpage}. It frames heuristic design as an LLM-guided program search problem for multi-objective combinatorial optimization. Its workflow combines generated Python heuristics, execution-based evaluation, population management, Pareto Front Grid selection, and semantic clustering.
 
-The first key component is a SEMO-style heuristic population. Each generated heuristic is evaluated and inserted into a population according to multi-objective criteria. The population favors non-dominated heuristics and uses diversity mechanisms to avoid collapsing to a narrow set of similar programs. The population code inherited from MPaGE is available under \sourcefile{llm4ad/method/LLMPFG/population.py}.
+The first key component is a SEMO-style heuristic population. Each generated heuristic is evaluated and inserted into a population according to multi-objective criteria. The population favors non-dominated heuristics and uses diversity mechanisms to avoid collapsing to a narrow set of similar programs. This population-management design is inherited from the original MPaGE framework.
 
-The second key component is Pareto Front Grid (PFG) selection. PFG discretizes the heuristic objective space and selects representatives from different grid regions. This mechanism is designed to preserve useful variation along the heuristic Pareto front. The parameters \texttt{pfg\_gk}, \texttt{pfg\_sigma}, and \texttt{pfg\_epsilon} are documented in \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md} and retained in the BMAB implementation.
+The second key component is Pareto Front Grid (PFG) selection. PFG discretizes the heuristic objective space and selects representatives from different grid regions. This mechanism is designed to preserve useful variation along the heuristic Pareto front. The parameters \texttt{pfg\_gk}, \texttt{pfg\_sigma}, and \texttt{pfg\_epsilon} are retained in the BMAB implementation.
 
-The third key component is LLM-based semantic clustering. Rather than grouping heuristics only by numerical score, MPaGE asks an LLM to cluster heuristic descriptions or code by algorithmic similarity. Mutation is then applied within a semantic cluster, while crossover can combine heuristics across clusters. The relevant prompt families are defined in \sourcefile{llm4ad/method/LLMPFG/prompt.py}.
+The third key component is LLM-based semantic clustering. Rather than grouping heuristics only by numerical score, MPaGE asks an LLM to cluster heuristic descriptions or code by algorithmic similarity. Mutation is then applied within a semantic cluster, while crossover can combine heuristics across clusters. The implementation retains the original MPaGE prompt families for initialization, mutation, crossover, and clustering.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\linewidth]{mpage_overview.png}
-  \caption{Overview of the MPaGE framework. Source figure: \sourcefile{figure/Overview.png}.}
+  \caption{Overview of the MPaGE framework, adapted from the original project materials.}
   \label{fig:mpage-overview}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.86\linewidth]{mpage_selection.png}
-  \caption{Pareto Front Grid selection in MPaGE. Source figure: \sourcefile{figure/Selection.png}.}
+  \caption{Pareto Front Grid selection in MPaGE, adapted from the original project materials.}
   \label{fig:mpage-selection}
 \end{figure}
 
@@ -139,7 +139,7 @@ Validity matters differently from final quality. A method that produces many val
 
 Adaptive operator selection studies how an evolutionary algorithm can choose among variation operators based on their observed usefulness during the run. Early work shows that reward-based operator control can improve search by allocating more trials to operators that produce valuable offspring \cite{fialho2008adaptive}. This idea is directly relevant to LLM-based heuristic design because mutation and crossover prompts do not have uniform value across all stages of the search.
 
-The difference is the cost model. In a conventional evolutionary algorithm, applying a mutation operator may be computationally cheap. In this project, applying a mutation or crossover prompt consumes an LLM call. As a result, operator selection is not merely a performance-tuning mechanism; it is a budget-allocation policy. This observation motivates the operator-level UCB component in \sourcefile{mpage\_bmab/bandit.py}.
+The difference is the cost model. In a conventional evolutionary algorithm, applying a mutation operator may be computationally cheap. In this project, applying a mutation or crossover prompt consumes an LLM call. As a result, operator selection is not merely a performance-tuning mechanism; it is a budget-allocation policy. This observation motivates the operator-level UCB component of the proposed scheduler.
 
 A second difference is semantic locality. A mutation prompt is usually expected to exploit a single parent by changing or improving its algorithmic idea. A crossover prompt combines two parents and may explore a larger region of program space. Neither operator is uniformly preferable. Mutation can be effective when a cluster already contains strong heuristics whose local variants are likely to remain valid. Crossover can be useful when the current population contains complementary ideas in different semantic clusters. The operator controller therefore has to learn from the observed reward stream rather than relying on a fixed schedule.
 
@@ -167,7 +167,7 @@ In the thesis setting, an arm pull corresponds to spending at least one LLM call
 
 Budgeted bandits extend the standard bandit setting by assigning costs to actions and requiring the policy to operate under a finite resource constraint \cite{ding2013budgeted}. This is a natural model for LLM-based search, where each call to the generator or clusterer consumes budget. A method that ignores cost may obtain high reward only by using many calls inefficiently, which is undesirable in practical settings.
 
-The implementation in \sourcefile{mpage\_bmab/budget.py} exposes this constraint through a hard \texttt{BudgetTracker}. The bandit implementation in \sourcefile{mpage\_bmab/bandit.py} uses reward-per-cost at the operator level and a budget-aware exploration term at the cluster level. This is not claimed to be an optimal solution to all budgeted bandit formulations. Rather, it is a pragmatic scheduling mechanism that is compatible with the MPaGE loop and with the project objective of improving hypervolume progress per LLM call.
+The implementation exposes this constraint through a hard \texttt{BudgetTracker}. The bandit scheduler uses reward-per-cost at the operator level and a budget-aware exploration term at the cluster level. This is not claimed to be an optimal solution to all budgeted bandit formulations. Rather, it is a pragmatic scheduling mechanism that is compatible with the MPaGE loop and with the project objective of improving hypervolume progress per LLM call.
 
 Formally, if action $a_t$ at decision time $t$ produces reward $r_t$ and consumes cost $c_t$, the budgeted objective can be written as
 
@@ -191,7 +191,7 @@ The remaining-budget term in the cluster bandit has a practical interpretation. 
 
 The reward distribution in heuristic design is non-stationary. A semantic cluster may initially contain promising parents, but after repeated exploitation its marginal value can decrease. Conversely, a previously weak cluster may become useful after the population changes. Standard UCB estimates can become overconfident when the reward distribution changes.
 
-Page--Hinkley is an online change-detection test for shifts in the mean of a sequential signal \cite{page1954continuous}. In \sourcefile{mpage\_bmab/bandit.py}, \texttt{PageHinkleyState} tracks a running mean and a cumulative deviation statistic. When the gap between the historical maximum and the current cumulative statistic exceeds a threshold, the corresponding cluster arm is treated as stale and its statistics are reset. The default parameters, $\delta=0.005$ and threshold $0.5$, are documented in \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+Page--Hinkley is an online change-detection test for shifts in the mean of a sequential signal \cite{page1954continuous}. In the proposed scheduler, \texttt{PageHinkleyState} tracks a running mean and a cumulative deviation statistic. When the gap between the historical maximum and the current cumulative statistic exceeds a threshold, the corresponding cluster arm is treated as stale and its statistics are reset. The default parameters used in the experiments are $\delta=0.005$ and threshold $0.5$.
 
 \section{AUBC: Area Under the Budget Curve}
 
@@ -204,7 +204,7 @@ For a budget-constrained search method, the final value alone does not capture h
   \int_{0}^{B} HV(b)\,db,
 \end{equation}
 
-where $HV(b)$ is the outer heuristic-population hypervolume after consuming budget $b$. The profiler implementation in \sourcefile{mpage\_bmab/profiler.py} records budget-HV points, anchors the curve at $(0,0)$, and extends the last observed value to the total budget when necessary. The metric is documented in \sourcefile{mpage\_bmab/documents/METRICS\_AUBC\_HV.md}.
+where $HV(b)$ is the outer heuristic-population hypervolume after consuming budget $b$. The profiler records budget-HV points, anchors the curve at $(0,0)$, and extends the last observed value to the total budget when necessary. This is the metric formulation used for all AUBC values reported in Chapter~5.
 
 AUBC is particularly appropriate for this project because the goal is not only to find a strong final heuristic population, but also to spend LLM calls productively throughout the run. A method with higher AUBC can be preferable even when its final hypervolume is similar, especially in interactive or cost-sensitive settings where early stopping is possible.
 

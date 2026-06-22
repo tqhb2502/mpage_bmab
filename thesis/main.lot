@@ -1,16 +1,15 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Inventory of generative AI and machine learning techniques in the project.}}{19}{table.2.1}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Inventory of generative AI and machine learning techniques in the project.}}{17}{table.2.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Main methodological modules in the implementation.}}{25}{table.caption.8}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Default budget costs in the current implementation.}}{27}{table.caption.9}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Main method variants relevant to the proposed method.}}{36}{table.caption.10}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces Main methodological modules in the implementation.}}{23}{table.caption.8}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Default budget costs in the current implementation.}}{25}{table.caption.9}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Main method variants relevant to the proposed method.}}{34}{table.caption.10}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Experimental setup definitions}}{47}{table.5.1}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Overall four-setup comparison}}{50}{table.caption.11}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Task-level normalized scores}}{52}{table.caption.13}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Pairwise task--budget wins}}{53}{table.caption.14}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Dense-reward Bi-CVRP B25 rerun check}}{64}{table.caption.23}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Experimental setup definitions}}{45}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Overall four-setup comparison}}{47}{table.caption.11}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Task-level normalized scores}}{49}{table.caption.13}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Pairwise task--budget wins}}{51}{table.caption.14}%
 \addvspace {10\p@ }

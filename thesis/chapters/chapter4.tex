@@ -2,44 +2,44 @@
 
 \section{Repository Organization}
 
-The repository contains two closely related codebases. The first is the original MPaGE source tree, located mainly under \sourcefile{llm4ad/}, together with the original entry points and documentation. The second is the extended project under \sourcefile{mpage\_bmab/}, which implements the budget-aware BMAB controller, experiment harness, analysis documents, result files, and the thesis source.
+The repository contains two closely related codebases. The first is the original MPaGE implementation, including its entry points, task evaluators, and documentation. The second is the extended \texttt{mpage\_bmab} project, which implements the budget-aware BMAB controller, experiment harness, analysis artifacts, result files, and the thesis source.
 
-The main implementation modules in \sourcefile{mpage\_bmab/} are the following:
+The main implementation modules of the extended project are the following:
 
 \begin{itemize}
-  \item \sourcefile{bmab\_llm.py}: the main BMAB orchestration loop. It performs initialization, PFG selection, semantic clustering, bandit-based operator and cluster selection, offspring generation, reward computation, population update, and final artifact writing.
-  \item \sourcefile{bandit.py}: the implementation of the operator-level UCB controller, cluster-level budgeted UCB controller, and Page--Hinkley drift detector.
-  \item \sourcefile{budget.py}: the hard LLM-call budget tracker. It records consumed and remaining budget and rejects unaffordable actions.
-  \item \sourcefile{cluster\_manager.py}: the wrapper around LLM-based semantic clustering. It charges cluster calls, validates cluster partitions, computes cluster priors, and provides fallback behavior.
-  \item \sourcefile{reward.py}: the reward computation module, including hypervolume, immediate HVI, managed final-HV gain, diversity gain, rank smoothing, and invalid-code penalties.
-  \item \sourcefile{profiler.py}: the logging and measurement module that records budget curves, AUBC, bandit logs, budget history, and population-level artifacts.
-  \item \sourcefile{mpage\_orig.py}: the wrapper that runs the original MPaGE baseline under the same budget-accounting and output conventions used by BMAB.
-  \item \sourcefile{experiments/}: the experiment harness, including suite definitions, run scripts, aggregation, comparison, metric recomputation, diagnostics, and figure-generation code.
+  \item \code{bmab\_llm.py}: the main BMAB orchestration loop. It performs initialization, PFG selection, semantic clustering, bandit-based operator and cluster selection, offspring generation, reward computation, population update, and final artifact writing.
+  \item \code{bandit.py}: the implementation of the operator-level UCB controller, cluster-level budgeted UCB controller, and Page--Hinkley drift detector.
+  \item \code{budget.py}: the hard LLM-call budget tracker. It records consumed and remaining budget and rejects unaffordable actions.
+  \item \code{cluster\_manager.py}: the wrapper around LLM-based semantic clustering. It charges cluster calls, validates cluster partitions, computes cluster priors, and provides fallback behavior.
+  \item \code{reward.py}: the reward computation module, including hypervolume, immediate HVI, managed final-HV gain, diversity gain, rank smoothing, and invalid-code penalties.
+  \item \code{profiler.py}: the logging and measurement module that records budget curves, AUBC, bandit logs, budget history, and population-level artifacts.
+  \item \code{mpage\_orig.py}: the wrapper that runs the original MPaGE baseline under the same budget-accounting and output conventions used by BMAB.
+  \item Experiment harness: suite definitions, run scripts, aggregation, comparison, metric recomputation, diagnostics, and figure-generation code.
 \end{itemize}
 
-This organization separates methodological logic from experiment execution. The core algorithm is implemented in \sourcefile{bmab\_llm.py}, while the repeatable experimental matrix is controlled by \sourcefile{experiments/configs.py} and \sourcefile{experiments/run.py}.
+This organization separates methodological logic from experiment execution. The core algorithm is implemented in the BMAB orchestration module, while the repeatable experimental matrix is controlled by the experiment configuration and runner.
 
 The separation is important for thesis reproducibility. Methodological claims in Chapter~3 are tied to the algorithm modules, while empirical claims in Chapter~5 are tied to the experiment and analysis modules. This avoids mixing two different concerns: changing the scheduler should happen in the core BMAB implementation, whereas changing which tasks, budgets, or seeds are run should happen in the experiment harness. The current repository mostly follows this separation, which makes it possible to regenerate result tables without rewriting the method itself.
 
 \section{Software Environment}
 
-The root \sourcefile{requirements.txt} and \sourcefile{mpage\_bmab/requirements.txt} list the main Python dependencies. The important libraries include \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm}, and an OpenAI-compatible client. The command-line interface in \sourcefile{mpage\_bmab/main.py} uses \texttt{gpt-4o-mini} as the default generator and clusterer model unless overridden by CLI arguments. API credentials are read from local secret files; their contents are not part of the thesis and are not required for interpreting the algorithmic design.
+The dependency specification files list the main Python libraries, including \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm}, and an OpenAI-compatible client. The command-line interface uses \texttt{gpt-4o-mini} as the default generator and clusterer model unless overridden by CLI arguments. API credentials are read from local secret files; their contents are not part of the thesis and are not required for interpreting the algorithmic design.
 
 The available repository materials do not specify the exact hardware, GPU, operating system version, API latency, token cost, or monetary cost per call used to produce the reported result set. No information was found in the project source code or documentation for these environment details. For this reason, the thesis treats budget primarily as the number of charged LLM calls rather than as wall-clock cost or monetary cost.
 
 \section{Benchmark Evaluators and Task Preparation}
 
-The current BMAB implementation imports task evaluators from the project-local vendored tree \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/}. Each task defines both a template for the generated heuristic function and an evaluator that executes the generated function inside an archive-based inner search procedure.
+The current BMAB implementation imports project-local task evaluators. Each task defines both a template for the generated heuristic function and an evaluator that executes the generated function inside an archive-based inner search procedure.
 
-Bi-TSP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/bi\_tsp\_semo/}. The evaluator uses four fixed instances, problem size 20, a timeout of 60 seconds, an initial archive of 100 random tours, and 2,000 heuristic calls per instance.
+The Bi-TSP evaluator uses four fixed instances, problem size 20, a timeout of 60 seconds, an initial archive of 100 random tours, and 2,000 heuristic calls per instance.
 
-Tri-TSP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/tri\_tsp\_semo/}. The evaluator uses 20 fixed instances, problem size 20, a timeout of 90 seconds, an initial archive of 100 random tours, and 20,000 heuristic calls per instance.
+The Tri-TSP evaluator uses 20 fixed instances, problem size 20, a timeout of 90 seconds, an initial archive of 100 random tours, and 20,000 heuristic calls per instance.
 
-Bi-CVRP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/bi\_cvrp/}. The evaluator uses eight fixed instances, problem size 100, capacity 50 for this size range, a timeout of 90 seconds, 10 initial route sets, and 6,000 heuristic calls per instance.
+The Bi-CVRP evaluator uses eight fixed instances, problem size 100, capacity 50 for this size range, a timeout of 90 seconds, 10 initial route sets, and 6,000 heuristic calls per instance.
 
-Bi-KP is implemented under \sourcefile{mpage\_bmab/\_llm4ad/task/optimization/bi\_kp/}. The evaluator uses eight fixed instances, problem size 200, capacity 25 for this size range, a timeout of 90 seconds, 20 initial feasible item selections, and 8,000 heuristic calls per instance.
+The Bi-KP evaluator uses eight fixed instances, problem size 200, capacity 25 for this size range, a timeout of 90 seconds, 20 initial feasible item selections, and 8,000 heuristic calls per instance.
 
-The \code{get\_instance.py} files in these task directories set the NumPy random seed to 2025 before generating benchmark instances. Therefore, the problem instances are fixed under the current code. The experiment seeds 2025--2029 mainly affect the outer heuristic-generation and selection process rather than creating new benchmark instance sets.
+The task instance-generation files set the NumPy random seed to 2025 before generating benchmark instances. Therefore, the problem instances are fixed under the current code. The experiment seeds 2025--2029 mainly affect the outer heuristic-generation and selection process rather than creating new benchmark instance sets.
 
 \section{Score and Population Data Model}
 
@@ -61,11 +61,11 @@ Each generated heuristic is represented as Python code containing a task-specifi
 
 The project uses the same conceptual evaluation interface across all benchmark families. For each fixed problem instance, the evaluator creates an initial archive, repeatedly calls the generated \texttt{select\_neighbor} heuristic, inserts feasible and non-dominated candidates, removes dominated archive members, and computes the inner hypervolume of the final archive. The heuristic score used by the outer BMAB population is then averaged over the task instances.
 
-Tri-TSP illustrates the two-level nature of the evaluation. Although the inner task has three distance objectives, the outer heuristic score remains two-dimensional: $(-HV_{\text{inner}}, runtime)$. This convention is reflected in \sourcefile{mpage\_bmab/main.py}, where the outer reference point for Tri-TSP is two-dimensional, \texttt{(20.0, 60.0)}.
+Tri-TSP illustrates the two-level nature of the evaluation. Although the inner task has three distance objectives, the outer heuristic score remains two-dimensional: $(-HV_{\text{inner}}, runtime)$. Accordingly, the outer reference point for Tri-TSP is two-dimensional, \texttt{(20.0, 60.0)}.
 
 \section{Execution Flow of a BMAB Run}
 
-A single BMAB run proceeds through a fixed sequence of stages. First, the command-line entry point in \sourcefile{mpage\_bmab/main.py} resolves the task evaluator, population size, budget, seed, model names, and reward-mode settings. It then constructs the budget tracker, profiler, population manager, cluster manager, bandit controllers, and reward computer.
+A single BMAB run proceeds through a fixed sequence of stages. First, the command-line entry point resolves the task evaluator, population size, budget, seed, model names, and reward-mode settings. It then constructs the budget tracker, profiler, population manager, cluster manager, bandit controllers, and reward computer.
 
 Second, the method performs an initialization phase. Initial heuristic programs are generated and evaluated until the initial population is available or the budget is exhausted. These initial candidates provide the first set of scores from which PFG selection and semantic clustering can operate. Initialization is therefore not only a warm-up step; it determines the early structure of the outer search space.
 
@@ -85,21 +85,21 @@ Call-based budget accounting does not capture every practical cost. It ignores p
 
 \section{Experiment Configuration}
 
-The main experimental matrix is defined in \sourcefile{mpage\_bmab/experiments/configs.py}. The default task set is \texttt{bi\_tsp}, \texttt{tri\_tsp}, \texttt{bi\_cvrp}, and \texttt{bi\_kp}. The default budgets are $B \in \{25,50,100,200\}$, and the default seeds are 2025, 2026, 2027, 2028, and 2029.
+The main experimental matrix defines the default task set as \texttt{bi\_tsp}, \texttt{tri\_tsp}, \texttt{bi\_cvrp}, and \texttt{bi\_kp}. The default budgets are $B \in \{25,50,100,200\}$, and the default seeds are 2025, 2026, 2027, 2028, and 2029.
 
-The function \texttt{pop\_size\_for} selects the managed population size according to budget. For the two-objective tasks, the population sizes are 4, 6, 8, and 10 for budgets 25, 50, 100, and 200, respectively. For Tri-TSP, the configuration adds two extra individuals, yielding population sizes 6, 8, 10, and 12. This policy is also documented in \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+The function \texttt{pop\_size\_for} selects the managed population size according to budget. For the two-objective tasks, the population sizes are 4, 6, 8, and 10 for budgets 25, 50, 100, and 200, respectively. For Tri-TSP, the configuration adds two extra individuals, yielding population sizes 6, 8, 10, and 12.
 
-The default bandit parameters are $c_{\mathrm{op}}=1.0$, $c_{\mathrm{cluster}}=1.0$, $\gamma_{\mathrm{budget}}=0.5$, prior count $1$, and prior reward $0.5$. The default reward weights are $w_q=1.0$, $w_d=0.3$, and $w_r=0.2$, with invalid-code penalty $1.0$ and rank window $50$. Page--Hinkley uses $\delta=0.005$ and threshold $0.5$. These values are exposed or documented through \sourcefile{mpage\_bmab/main.py}, \sourcefile{mpage\_bmab/reward.py}, \sourcefile{mpage\_bmab/bandit.py}, and \sourcefile{mpage\_bmab/documents/HYPERPARAMETERS.md}.
+The default bandit parameters are $c_{\mathrm{op}}=1.0$, $c_{\mathrm{cluster}}=1.0$, $\gamma_{\mathrm{budget}}=0.5$, prior count $1$, and prior reward $0.5$. The default reward weights are $w_q=1.0$, $w_d=0.3$, and $w_r=0.2$, with invalid-code penalty $1.0$ and rank window $50$. Page--Hinkley uses $\delta=0.005$ and threshold $0.5$. These values are exposed through the command-line configuration and the corresponding scheduler and reward modules.
 
 The configuration intentionally keeps population size coupled to budget. At small budgets, a large population would consume most of the budget during initialization and leave too few later decisions for the bandit to learn. At large budgets, a larger population can preserve more heuristic diversity and provide richer parent material. Tri-TSP receives a slightly larger population because the inner problem has three objectives and therefore tends to require more diversity to represent useful trade-offs.
 
 \section{Experiment Suites and Run Scripts}
 
-The experiment harness under \sourcefile{mpage\_bmab/experiments/} separates suite definition, execution, aggregation, and comparison.
+The experiment harness separates suite definition, execution, aggregation, and comparison.
 
-\sourcefile{experiments/run.py} enumerates cells of the form \texttt{(ablation, task, budget, seed)}, creates output directories, and dispatches each cell to either \sourcefile{mpage\_bmab/main.py} or \sourcefile{mpage\_bmab/mpage\_orig.py}. It skips completed cells unless \texttt{--force} is specified. \sourcefile{experiments/aggregate.py} scans result directories and creates aggregate CSV summaries. \sourcefile{experiments/compare.py} performs paired comparisons against a selected baseline for a selected metric.
+The experiment runner enumerates cells of the form \texttt{(ablation, task, budget, seed)}, creates output directories, and dispatches each cell to either the proposed BMAB entry point or the MPaGE-orig wrapper. It skips completed cells unless \texttt{--force} is specified. The aggregation code scans result directories and creates aggregate CSV summaries, while the comparison code performs paired comparisons against a selected baseline for a selected metric.
 
-Several shell launchers are provided for common workflows. \sourcefile{experiments/run\_full.sh} launches the standard full BMAB ablation grid and then aggregates and compares results. \sourcefile{experiments/run\_mpage\_compare.sh} launches the MPaGE-orig versus BMAB comparison. \sourcefile{experiments/run\_hv\_final\_full.sh} launches the reward-mode comparison among \texttt{full}, \texttt{dense\_reward}, and \texttt{hybrid\_reward}, then runs aggregation and comparisons for both \texttt{hv\_final} and AUBC.
+Several shell launchers are provided for common workflows. One launches the standard BMAB ablation grid, one launches the MPaGE-orig versus BMAB comparison, and one launches the reward-mode comparison among \texttt{full}, \texttt{dense\_reward}, and \texttt{hybrid\_reward} before running aggregation and comparisons for both \texttt{hv\_final} and AUBC.
 
 The result set analyzed in Chapter~5 combines the complete MPaGE comparison matrix with the complete reward-mode matrix. It therefore covers four thesis-facing setups: Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. Other component ablations, such as \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}, are available in the codebase but are not analyzed as complete matrices in Chapter~5.
 
@@ -117,17 +117,17 @@ Each run writes a structured set of artifacts that makes post-hoc analysis possi
   \item \code{run\_log.txt}: execution logs for the run.
 \end{itemize}
 
-The numerical summaries used in Chapter~5 are materialized in thesis-local table files under \sourcefile{mpage\_bmab/thesis/tables/}. This makes the reported values self-contained in the thesis while preserving compatibility with the experiment aggregation scripts when new runs are added.
+The numerical summaries used in Chapter~5 are materialized in thesis-local table files. This makes the reported values self-contained in the thesis while preserving compatibility with the experiment aggregation scripts when new runs are added.
 
-The artifact structure also supports anomaly inspection. For example, if a cell has positive final HV but zero AUBC, the corresponding \code{budget\_curve.json} and \code{aubc.json} files can be checked directly. This was used during the dense-reward Bi-CVRP $B=25$, seed-2029 rerun discussed in Chapter~5. The thesis therefore treats generated artifacts not only as outputs but as audit records that make it possible to validate the aggregation pipeline.
+The artifact structure also supports anomaly inspection. For example, if a cell has positive final HV but zero AUBC, the corresponding \code{budget\_curve.json} and \code{aubc.json} files can be checked directly. The thesis therefore treats generated artifacts not only as outputs but as audit records that make it possible to validate the aggregation pipeline.
 
 Another important artifact is the saved sample set. Sample files make it possible to inspect the generated code and verify whether a run produced valid heuristics, null-score candidates, or repeated patterns. The current analysis does not perform qualitative code motif analysis, but the presence of these artifacts would support such an extension. This is especially relevant for future work on explaining why particular prompt families or semantic clusters become productive.
 
 \section{Visualization and Analysis Code}
 
-The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated four-setup overview is produced by \sourcefile{mpage\_bmab/experiments/analyze\_all\_setups\_overview.py}, which creates AUBC plots, final-HV plots, budget curves, valid-yield charts, invalid/null diagnostics, pairwise win matrices, and trade-off figures. The rerun-specific Bi-CVRP diagnostic figures are produced by \sourcefile{mpage\_bmab/experiments/analyze\_rerun\_cell\_update.py}. The thesis includes local copies of the generated figures under \sourcefile{mpage\_bmab/thesis/figures/}.
+The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated four-setup overview script creates AUBC plots, final-HV plots, budget curves, valid-yield charts, invalid/null diagnostics, pairwise win matrices, and trade-off figures. The thesis includes local copies of the generated figures so that the compiled document is self-contained.
 
-This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be rerun to update the numerical summaries and figures without changing the methodological exposition.
+This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be executed again to update the numerical summaries and figures without changing the methodological exposition.
 
 The visualization pipeline uses several levels of aggregation. Per-run artifacts are first converted into row-level summaries containing task, budget, seed, setup, AUBC, final HV, valid count, and diagnostic rates. These rows are then aggregated into task--budget cells. Normalized scores are computed within each cell so that tasks with very different absolute hypervolume scales can be compared fairly. Finally, the analysis scripts generate overview plots, pairwise win matrices, and budget-curve figures. This sequence is important because it prevents large-scale tasks such as Tri-TSP from dominating cross-task conclusions simply because their absolute outer-HV values are larger.
 
