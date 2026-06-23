@@ -4,13 +4,13 @@
 
 \section{Research Motivation and Design Rationale}
 
-The proposed method, denoted \bmab{}, is designed as a budget-aware extension of the original \mpage{} framework. The central observation behind the project is that LLM-driven heuristic design is not only an optimization problem over generated programs, but also a resource-allocation problem. Each heuristic-generation, clustering, or optional reflection step consumes an LLM call, and therefore consumes time, money, and limited experimental budget. A method that produces high-quality heuristics only after many unproductive calls is less useful than a method that converts early calls into a strong heuristic Pareto front.
+The proposed method, denoted \bmab{}, is designed as a budget-aware extension of the original \mpage{} framework. The central observation behind this thesis is that LLM-driven heuristic design is not only an optimization problem over generated programs, but also a resource-allocation problem. Each heuristic-generation, clustering, or optional reflection step consumes an LLM call, and therefore consumes time, money, and limited experimental budget. A method that produces high-quality heuristics only after many unproductive calls is less useful than a method that converts early calls into a strong heuristic Pareto front.
 
 The original \mpage{} paper formulates automatic heuristic design for multi-objective combinatorial optimization problems (MOCOPs) as a Language Multi-Criteria Heuristic Design problem. It combines three important ingredients: a SEMO-style heuristic population, Pareto-Front-Grid (PFG) elite selection, and LLM-based semantic clustering of heuristic code \cite{ha2026mpage,laumanns2004semo}. This design is well motivated because it searches for a population of heuristics that trade off solution quality and runtime, rather than a single best heuristic. It also recognizes that code-level diversity is not equivalent to semantic diversity: two heuristics may be syntactically different but implement nearly identical search logic.
 
 However, the baseline \mpage{} workflow allocates generation effort in a mostly predetermined manner. Each generation repeatedly selects elites with PFG, groups promising heuristics into semantic clusters, applies mutation or crossover prompts, evaluates the generated program, and updates the population. This loop is effective for maintaining semantic and objective-space diversity, but it does not explicitly learn which operator or which semantic region is producing the most useful heuristics under the current budget. The stopping condition is also naturally expressed in terms of iterations or sample counts, whereas practical LLM-based search is constrained by a finite number of API calls. Under a strict budget $B$, the system should therefore learn where to spend the remaining LLM calls instead of treating all operators and clusters as equally promising.
 
-\bmab{} therefore keeps the productive heuristic-generation mechanisms of \mpage{} and replaces only the scheduling layer. In particular, the project preserves the original task templates, prompt taxonomy, secure evaluator, PFG-based population management, and LLM semantic clustering implementation. The new contribution is a two-level budgeted multi-armed bandit controller that decides which variation operator and which semantic cluster should receive each LLM call. This design follows a conservative research principle: the comparison against \mpage{} is made meaningful by reusing the same generation and evaluation substrate, while changing the decision policy that allocates budget.
+\bmab{} therefore keeps the productive heuristic-generation mechanisms of \mpage{} and replaces only the scheduling layer. In particular, the implementation preserves the original task templates, prompt taxonomy, secure evaluator, PFG-based population management, and LLM semantic clustering implementation. The new contribution is a two-level budgeted multi-armed bandit controller that decides which variation operator and which semantic cluster should receive each LLM call. This design follows a conservative research principle: the comparison against \mpage{} is made meaningful by reusing the same generation and evaluation substrate, while changing the decision policy that allocates budget.
 
 \section{Problem Formulation}
 
@@ -41,7 +41,7 @@ The Pareto front is the image of the non-dominated solution set in objective spa
   \right),
 \]
 
-where $\mathrm{ND}(Y)$ denotes the non-dominated subset and $\lambda(\cdot)$ denotes $M$-dimensional volume. A larger hypervolume means that the obtained Pareto approximation is both closer to the ideal region and more broadly spread across trade-offs. The benchmark evaluators in this project use this quantity as the inner solution-quality signal and execution time as the efficiency signal.
+where $\mathrm{ND}(Y)$ denotes the non-dominated subset and $\lambda(\cdot)$ denotes $M$-dimensional volume. A larger hypervolume means that the obtained Pareto approximation is both closer to the ideal region and more broadly spread across trade-offs. The benchmark evaluators in this thesis use this quantity as the inner solution-quality signal and execution time as the efficiency signal.
 
 \subsection{Outer Heuristic-Design Problem}
 
@@ -144,7 +144,7 @@ The implementation is centered in \methodcode{bmab\_llm.py}. The main supporting
 
 \section{Components Inherited from MPaGE}
 
-\bmab{} intentionally retains the core generative and evaluative substrate of \mpage{}. This inheritance is documented in the project design notes and is visible in the vendored MPaGE subtree. The retained components are important because they isolate the proposed contribution to budget-aware scheduling rather than changing the benchmark, prompt templates, or evaluation logic.
+\bmab{} intentionally retains the core generative and evaluative substrate of \mpage{}. This inheritance is documented in the implementation materials and is visible in the vendored MPaGE subtree. The retained components are important because they isolate the proposed contribution to budget-aware scheduling rather than changing the benchmark, prompt templates, or evaluation logic.
 
 \subsection{Population Representation and PFG Selection}
 
@@ -213,11 +213,11 @@ The LLM-call budget is treated as a first-class constraint. Let $B$ be the total
 
 If the system cannot afford an action, the action is not issued. The current implementation charges budget before the heuristic-generation call or cluster call is sent. This is important experimentally: invalid code, parsing failure, timeout, and non-improving offspring are still charged because the API resource has already been consumed.
 
-In the default call-based mode, the following costs are used:
+In the call-based mode used by the reported experiments, the following costs are used:
 
 \begin{table}[H]
   \centering
-  \caption{Default budget costs in the current implementation.}
+  \caption{Budget costs used by the current implementation.}
   \label{tab:budget-costs}
   \begin{tabular}{lc}
     \toprule
@@ -368,7 +368,7 @@ If the generated heuristic is invalid, cannot be parsed, fails evaluation, or re
   R(s) = -\lambda_{\mathrm{pen}}.
 \end{equation}
 
-The default values in the current implementation are $w_q=1.0$, $w_d=0.3$, $w_r=0.2$, and $\lambda_{\mathrm{pen}}=1.0$. These settings are exposed through the command-line interface for the weights and fixed in \methodcode{RewardComputer} for the penalty.
+The values used in the current implementation are $w_q=1.0$, $w_d=0.3$, $w_r=0.2$, and $\lambda_{\mathrm{pen}}=1.0$. These settings are exposed through the command-line interface for the weights and fixed in \methodcode{RewardComputer} for the penalty.
 
 \subsection{Quality Signal}
 
@@ -408,7 +408,7 @@ Both quantities are normalized by rolling maxima over a recent window. Let $\wid
   \end{cases}
 \end{equation}
 
-The default \methodcode{full} method uses \methodcode{final\_hv}. The ablations \methodcode{dense\_reward} and \methodcode{hybrid\_reward} change only this quality signal while retaining the same BMAB pipeline. This design makes it possible to isolate whether terminal managed-population HV, immediate HVI, or a mixture of the two provides the most useful credit signal.
+The experimental framework evaluates three parallel quality-signal variants while retaining the same BMAB scheduling pipeline. Final-HV reward uses \methodcode{final\_hv}, Dense reward uses \methodcode{dense}, and Hybrid reward uses \methodcode{hybrid}. This design makes it possible to compare whether terminal managed-population HV, immediate HVI, or a mixture of the two provides the most useful credit signal.
 
 \subsection{Diversity and Rank Smoothing}
 
@@ -454,7 +454,7 @@ When drift is detected, the corresponding arm statistics are reset to an optimis
 
 \section{Parent Selection and Variation Workflow}
 
-The original MPaGE strategy uses intra-cluster mutation and inter-cluster crossover. \bmab{} preserves this logic but changes how parents are sampled. The loop first obtains PFG-selected elites through \methodcode{Population.selection}. It then expands the clustering pool to the full current managed population to give the cluster bandit a richer set of semantic groups. To prevent the wider pool from diluting the PFG signal, parent sampling gives candidates that also appear in the PFG-selected elite set a larger weight:
+The original MPaGE strategy uses intra-cluster mutation and inter-cluster crossover. \bmab{} preserves this logic but changes how parents are sampled. The loop first obtains PFG-selected elites through \methodcode{Population.selection}. It then expands the clustering pool to the entire current managed population to give the cluster bandit a richer set of semantic groups. To prevent the wider pool from diluting the PFG signal, parent sampling gives candidates that also appear in the PFG-selected elite set a larger weight:
 
 \begin{equation}
   w(h)=
@@ -493,11 +493,11 @@ record the initial budget-HV point
 
 while budget remains do
     E_pfg <- PFG-selected elites from P
-    H_full <- current managed population
+    H_all <- current managed population
 
     if a clustering call and a generation call are affordable then
         charge one budget unit
-        clusters <- C(H_full)
+        clusters <- C(H_all)
         if clusters are invalid then
             clusters <- singleton fallback clusters
         end if
@@ -546,32 +546,32 @@ flush all pending valid offspring into P
 write budget history, budget curve, bandit log, and AUBC
 \end{lstlisting}
 
-\section{Baseline and Ablation Design}
+\section{Baseline and Variant Design}
 
-The baseline \methodcode{mpage\_orig} is not a new algorithm. It is a wrapper around the original MPaGE driver that records budget consumption and budget-HV curves using the same profiler infrastructure as \bmab{}. This is implemented in \methodcode{mpage\_orig.py}. The purpose is to compare allocation policies while keeping the task evaluators and generated artifacts as consistent as possible.
+The MPaGE-orig baseline is not a new algorithm. It is a budget-instrumented wrapper around the original MPaGE driver that records budget consumption and budget-HV curves using the same profiler infrastructure as \bmab{}. The purpose is to compare allocation policies while keeping the task evaluators and generated artifacts as consistent as possible.
 
-The current CLI defines the following method variants in \methodcode{main.py}:
+The current CLI defines the following method variants in \methodcode{main.py}. The first three BMAB-style variants share the same scheduler and differ only in the quality signal $Q(s)$ used inside the reward:
 
 \begin{table}[H]
   \centering
-  \caption{Main method variants relevant to the proposed method.}
+  \caption{Main method variants relevant to the proposed framework.}
   \label{tab:method-ablation}
   \small
   \begin{tabular}{>{\raggedright\arraybackslash}p{0.29\linewidth}>{\raggedright\arraybackslash}p{0.61\linewidth}}
     \toprule
     Variant & Interpretation \\
     \midrule
-    \methodcode{full} & Proposed BMAB method with the \methodcode{final\_hv} reward mode, operator bandit, cluster bandit, Page--Hinkley, budget annealing, and PFG-weighted parent sampling. \\
-    \methodcode{dense\_reward} & BMAB pipeline with the immediate-HVI quality signal used for reward ablation. \\
-    \methodcode{hybrid\_reward} & BMAB pipeline with a half immediate-HVI and half managed-final-HV quality signal. \\
-    \methodcode{no\_budget\_anneal} & Same as \methodcode{full}, but without remaining-budget scaling in the cluster UCB exploration term. \\
+    Final-HV reward & BMAB pipeline with the \methodcode{final\_hv} quality signal, operator bandit, cluster bandit, Page--Hinkley, budget annealing, and PFG-weighted parent sampling. \\
+    Dense reward & BMAB pipeline with the immediate-HVI quality signal. \\
+    Hybrid reward & BMAB pipeline with a half immediate-HVI and half managed-final-HV quality signal. \\
+    \methodcode{no\_budget\_anneal} & BMAB pipeline without remaining-budget scaling in the cluster UCB exploration term. \\
     \methodcode{no\_ph} & Disables practical Page--Hinkley resets by using an extremely large threshold. \\
     \methodcode{no\_diversity} & Removes the CDI diversity term by setting its weight to zero. \\
     \methodcode{op\_only} & Disables the cluster bandit and samples clusters uniformly. \\
     \methodcode{cluster\_only} & Disables the operator bandit and uses a round-robin operator sequence. \\
-    \methodcode{mpage\_orig} & Budget-instrumented wrapper around the original MPaGE implementation. \\
+    MPaGE-orig & Budget-instrumented wrapper around the original MPaGE implementation. \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-These variants are important because they separate the contribution of each methodological component. In particular, \methodcode{dense\_reward} and \methodcode{hybrid\_reward} vary only the reward quality mode, while \methodcode{no\_budget\_anneal}, \methodcode{no\_ph}, \methodcode{no\_diversity}, \methodcode{op\_only}, and \methodcode{cluster\_only} isolate specific control mechanisms.
+These variants are important because they separate the contribution of each methodological component. In particular, Final-HV reward, Dense reward, and Hybrid reward vary only the reward quality mode, while \methodcode{no\_budget\_anneal}, \methodcode{no\_ph}, \methodcode{no\_diversity}, \methodcode{op\_only}, and \methodcode{cluster\_only} isolate specific control mechanisms.

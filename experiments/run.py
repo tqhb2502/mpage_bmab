@@ -144,7 +144,8 @@ def main(argv=None) -> int:
     p.add_argument('--suite', default=None, choices=list(SUITES.keys()),
                    help="Named suite (overrides --ablations/--tasks/...).")
     p.add_argument('--ablations', default=None,
-                   help=f"CSV subset of {ALL_ABLATIONS}. Default: full")
+                   help=f"CSV subset of internal ablation keys {ALL_ABLATIONS}. "
+                        "Default: Final-HV reward.")
     p.add_argument('--tasks', default=None,
                    help=f"CSV subset of {TASKS}. Default: all four.")
     p.add_argument('--budgets', default=None,

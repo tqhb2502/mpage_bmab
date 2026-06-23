@@ -1,10 +1,10 @@
 \chapter{System Implementation}
 
-\section{Repository Organization}
+\section{Implementation Organization}
 
-The repository contains two closely related codebases. The first is the original MPaGE implementation, including its entry points, task evaluators, and documentation. The second is the extended \texttt{mpage\_bmab} project, which implements the budget-aware BMAB controller, experiment harness, analysis artifacts, result files, and the thesis source.
+The implementation used in this thesis contains two closely related codebases. The first is the original MPaGE implementation, including its entry points, task evaluators, and documentation. The second is the extended implementation developed for this study, which provides the budget-aware BMAB controller, experiment harness, analysis artifacts, result files, and thesis source.
 
-The main implementation modules of the extended project are the following:
+The main implementation modules of the extended framework are the following:
 
 \begin{itemize}
   \item \code{bmab\_llm.py}: the main BMAB orchestration loop. It performs initialization, PFG selection, semantic clustering, bandit-based operator and cluster selection, offspring generation, reward computation, population update, and final artifact writing.
@@ -19,17 +19,17 @@ The main implementation modules of the extended project are the following:
 
 This organization separates methodological logic from experiment execution. The core algorithm is implemented in the BMAB orchestration module, while the repeatable experimental matrix is controlled by the experiment configuration and runner.
 
-The separation is important for thesis reproducibility. Methodological claims in Chapter~3 are tied to the algorithm modules, while empirical claims in Chapter~5 are tied to the experiment and analysis modules. This avoids mixing two different concerns: changing the scheduler should happen in the core BMAB implementation, whereas changing which tasks, budgets, or seeds are run should happen in the experiment harness. The current repository mostly follows this separation, which makes it possible to regenerate result tables without rewriting the method itself.
+The separation is important for thesis reproducibility. Methodological claims in Chapter~3 are tied to the algorithm modules, while empirical claims in Chapter~5 are tied to the experiment and analysis modules. This avoids mixing two different concerns: changing the scheduler should happen in the core BMAB implementation, whereas changing which tasks, budgets, or seeds are run should happen in the experiment harness. The implementation mostly follows this separation, which makes it possible to regenerate result tables without rewriting the method itself.
 
 \section{Software Environment}
 
 The dependency specification files list the main Python libraries, including \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm}, and an OpenAI-compatible client. The command-line interface uses \texttt{gpt-4o-mini} as the default generator and clusterer model unless overridden by CLI arguments. API credentials are read from local secret files; their contents are not part of the thesis and are not required for interpreting the algorithmic design.
 
-The available repository materials do not specify the exact hardware, GPU, operating system version, API latency, token cost, or monetary cost per call used to produce the reported result set. No information was found in the project source code or documentation for these environment details. For this reason, the thesis treats budget primarily as the number of charged LLM calls rather than as wall-clock cost or monetary cost.
+The available implementation materials do not specify the exact hardware, GPU, operating system version, API latency, token cost, or monetary cost per call used to produce the reported result set. No information was found in the source code or documentation for these environment details. For this reason, the thesis treats budget primarily as the number of charged LLM calls rather than as wall-clock cost or monetary cost.
 
 \section{Benchmark Evaluators and Task Preparation}
 
-The current BMAB implementation imports project-local task evaluators. Each task defines both a template for the generated heuristic function and an evaluator that executes the generated function inside an archive-based inner search procedure.
+The BMAB implementation imports task evaluators packaged with the experimental framework. Each task defines both a template for the generated heuristic function and an evaluator that executes the generated function inside an archive-based inner search procedure.
 
 The Bi-TSP evaluator uses four fixed instances, problem size 20, a timeout of 60 seconds, an initial archive of 100 random tours, and 2,000 heuristic calls per instance.
 
@@ -51,7 +51,7 @@ The core data object flowing through the system is a generated heuristic functio
 
 The first component is negated because the outer population manager follows a minimization convention. The second component is average runtime. This two-dimensional convention is used even for Tri-TSP, whose inner archive has three objective dimensions. The tri-objective inner archive is first summarized by inner hypervolume, and that scalar is then paired with runtime at the outer level.
 
-The population manager keeps a bounded set of generated heuristics. New children enter a pending population during a generation and are later merged through survivor selection. This detail is significant under a strict budget. If a run stops in the middle of a generation, pending valid children must still be considered before the final population is recorded. The finalized implementation includes this flush behavior, which prevents useful generated heuristics from being lost simply because the budget ended before a full generation was completed.
+The population manager keeps a bounded set of generated heuristics. New children enter a pending population during a generation and are later merged through survivor selection. This detail is significant under a strict budget. If a run stops in the middle of a generation, pending valid children must still be considered before the final population is recorded. The finalized implementation includes this flush behavior, which prevents useful generated heuristics from being lost simply because the budget ended before a complete generation was finished.
 
 Dominance in the outer population is evaluated over heuristic scores, not over source-code similarity. Semantic clustering is used for parent organization and budget allocation, but the final population is determined by numerical objectives. Thus, a semantically novel heuristic that is slow and low-quality can still be dominated, while a semantically similar heuristic can survive if it improves the quality--runtime trade-off.
 
@@ -59,7 +59,7 @@ Dominance in the outer population is evaluated over heuristic scores, not over s
 
 Each generated heuristic is represented as Python code containing a task-specific \texttt{select\_neighbor} function. The LLM is prompted using MPaGE prompt templates, the response is parsed into executable code, and the evaluator attempts to run the function in a controlled process. A successful evaluation returns a two-dimensional outer score: negated inner hypervolume and runtime. If the code fails to parse, raises an exception, violates task constraints, times out, or returns an invalid object, the evaluator may return a null score.
 
-The project uses the same conceptual evaluation interface across all benchmark families. For each fixed problem instance, the evaluator creates an initial archive, repeatedly calls the generated \texttt{select\_neighbor} heuristic, inserts feasible and non-dominated candidates, removes dominated archive members, and computes the inner hypervolume of the final archive. The heuristic score used by the outer BMAB population is then averaged over the task instances.
+The experimental framework uses the same conceptual evaluation interface across all benchmark families. For each fixed problem instance, the evaluator creates an initial archive, repeatedly calls the generated \texttt{select\_neighbor} heuristic, inserts feasible and non-dominated candidates, removes dominated archive members, and computes the inner hypervolume of the final archive. The heuristic score used by the outer BMAB population is then averaged over the task instances.
 
 Tri-TSP illustrates the two-level nature of the evaluation. Although the inner task has three distance objectives, the outer heuristic score remains two-dimensional: $(-HV_{\text{inner}}, runtime)$. Accordingly, the outer reference point for Tri-TSP is two-dimensional, \texttt{(20.0, 60.0)}.
 
@@ -77,19 +77,19 @@ Finally, the run writes artifacts. The profiler records budget-curve points, AUB
 
 \section{Budget Accounting and Call Semantics}
 
-The project uses call-based budget accounting. A budget unit corresponds to an LLM call made for generation or clustering. This abstraction is simpler than token-level or monetary accounting, but it has two advantages for the current thesis. First, it is directly observable from the code path: every charged action passes through the budget tracker. Second, it is stable across tasks, which makes the task--budget matrix easier to compare.
+The implementation uses call-based budget accounting. A budget unit corresponds to an LLM call made for generation or clustering. This abstraction is simpler than token-level or monetary accounting, but it has two advantages for the current thesis. First, it is directly observable from the code path: every charged action passes through the budget tracker. Second, it is stable across tasks, which makes the task--budget matrix easier to compare.
 
 The budget tracker enforces two properties. The first is monotonic consumption: once a call is charged, the consumed budget cannot decrease. The second is affordability checking: an action should not be taken if the remaining budget cannot pay for it. The finalized method uses this not only as a safety mechanism but also as part of the algorithm. Near the end of a run, the implementation avoids spending the last available unit on clustering if doing so would leave no budget for generating a heuristic. This design choice reflects the principle that a clustering call has value only if it can guide at least one subsequent generation call.
 
-Call-based budget accounting does not capture every practical cost. It ignores prompt length, completion length, API latency, and evaluator runtime. The repository does not provide these measurements for the result set. Nevertheless, call budget is an appropriate first-order abstraction for comparing scheduling policies because it measures the scarce generative action that the proposed method controls.
+Call-based budget accounting does not capture every practical cost. It ignores prompt length, completion length, API latency, and evaluator runtime. The implementation artifacts do not provide these measurements for the result set. Nevertheless, call budget is an appropriate first-order abstraction for comparing scheduling policies because it measures the scarce generative action that the proposed method controls.
 
 \section{Experiment Configuration}
 
-The main experimental matrix defines the default task set as \texttt{bi\_tsp}, \texttt{tri\_tsp}, \texttt{bi\_cvrp}, and \texttt{bi\_kp}. The default budgets are $B \in \{25,50,100,200\}$, and the default seeds are 2025, 2026, 2027, 2028, and 2029.
+The main experimental matrix defines the task set as \texttt{bi\_tsp}, \texttt{tri\_tsp}, \texttt{bi\_cvrp}, and \texttt{bi\_kp}. The budgets are $B \in \{25,50,100,200\}$, and the seeds are 2025, 2026, 2027, 2028, and 2029.
 
 The function \texttt{pop\_size\_for} selects the managed population size according to budget. For the two-objective tasks, the population sizes are 4, 6, 8, and 10 for budgets 25, 50, 100, and 200, respectively. For Tri-TSP, the configuration adds two extra individuals, yielding population sizes 6, 8, 10, and 12.
 
-The default bandit parameters are $c_{\mathrm{op}}=1.0$, $c_{\mathrm{cluster}}=1.0$, $\gamma_{\mathrm{budget}}=0.5$, prior count $1$, and prior reward $0.5$. The default reward weights are $w_q=1.0$, $w_d=0.3$, and $w_r=0.2$, with invalid-code penalty $1.0$ and rank window $50$. Page--Hinkley uses $\delta=0.005$ and threshold $0.5$. These values are exposed through the command-line configuration and the corresponding scheduler and reward modules.
+The bandit parameters used in the reported runs are $c_{\mathrm{op}}=1.0$, $c_{\mathrm{cluster}}=1.0$, $\gamma_{\mathrm{budget}}=0.5$, prior count $1$, and prior reward $0.5$. The reward weights are $w_q=1.0$, $w_d=0.3$, and $w_r=0.2$, with invalid-code penalty $1.0$ and rank window $50$. Page--Hinkley uses $\delta=0.005$ and threshold $0.5$. These values are exposed through the command-line configuration and the corresponding scheduler and reward modules.
 
 The configuration intentionally keeps population size coupled to budget. At small budgets, a large population would consume most of the budget during initialization and leave too few later decisions for the bandit to learn. At large budgets, a larger population can preserve more heuristic diversity and provide richer parent material. Tri-TSP receives a slightly larger population because the inner problem has three objectives and therefore tends to require more diversity to represent useful trade-offs.
 
@@ -99,7 +99,7 @@ The experiment harness separates suite definition, execution, aggregation, and c
 
 The experiment runner enumerates cells of the form \texttt{(ablation, task, budget, seed)}, creates output directories, and dispatches each cell to either the proposed BMAB entry point or the MPaGE-orig wrapper. It skips completed cells unless \texttt{--force} is specified. The aggregation code scans result directories and creates aggregate CSV summaries, while the comparison code performs paired comparisons against a selected baseline for a selected metric.
 
-Several shell launchers are provided for common workflows. One launches the standard BMAB ablation grid, one launches the MPaGE-orig versus BMAB comparison, and one launches the reward-mode comparison among \texttt{full}, \texttt{dense\_reward}, and \texttt{hybrid\_reward} before running aggregation and comparisons for both \texttt{hv\_final} and AUBC.
+Several shell launchers are provided for common workflows. One launches the standard BMAB ablation grid, one launches the MPaGE-orig versus BMAB comparison, and one launches the reward-mode comparison among Final-HV reward, Dense reward, and Hybrid reward before running aggregation and comparisons for both \texttt{hv\_final} and AUBC.
 
 The result set analyzed in Chapter~5 combines the complete MPaGE comparison matrix with the complete reward-mode matrix. It therefore covers four thesis-facing setups: Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. Other component ablations, such as \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}, are available in the codebase but are not analyzed as complete matrices in Chapter~5.
 
@@ -131,18 +131,18 @@ This separation between data, plotting code, and thesis figures is useful for re
 
 The visualization pipeline uses several levels of aggregation. Per-run artifacts are first converted into row-level summaries containing task, budget, seed, setup, AUBC, final HV, valid count, and diagnostic rates. These rows are then aggregated into task--budget cells. Normalized scores are computed within each cell so that tasks with very different absolute hypervolume scales can be compared fairly. Finally, the analysis scripts generate overview plots, pairwise win matrices, and budget-curve figures. This sequence is important because it prevents large-scale tasks such as Tri-TSP from dominating cross-task conclusions simply because their absolute outer-HV values are larger.
 
-The thesis includes figure copies rather than linking directly to the experiment output directory. This is a practical LaTeX decision: it makes the thesis project self-contained and avoids broken figure paths if experiment folders are archived or moved. The original result files remain the source of truth for numerical regeneration, while the thesis-local copies provide a stable compiled document.
+The thesis includes figure copies rather than linking directly to the experiment output directory. This is a practical LaTeX decision: it makes the thesis source self-contained and avoids broken figure paths if experiment folders are archived or moved. The original result files remain the source of truth for numerical regeneration, while the thesis-local copies provide a stable compiled document.
 
 \section{Reproducibility Considerations}
 
 The codebase provides several mechanisms for reproducibility: fixed benchmark-instance generation, explicit experiment seeds, deterministic suite definitions, per-run output directories, logged budget curves, and saved generated samples. These mechanisms make it possible to inspect what happened in each run and to recompute aggregate statistics from stored artifacts.
 
-However, exact bit-level reproducibility is not guaranteed. The system depends on an external LLM API, and the repository does not provide a complete snapshot of the model backend, sampling behavior, or service-side changes over time. The generated code can also be stochastic, because heuristics may call \texttt{random} or \texttt{numpy.random}. Therefore, the thesis interprets the reported results as reproducible under the stored artifacts and code paths, while recognizing that re-running the same experiment at a later date may produce slightly different generated heuristics.
+However, exact bit-level reproducibility is not guaranteed. The system depends on an external LLM API, and the implementation artifacts do not provide a complete snapshot of the model backend, sampling behavior, or service-side changes over time. The generated code can also be stochastic, because heuristics may call \texttt{random} or \texttt{numpy.random}. Therefore, the thesis interprets the reported results as reproducible under the stored artifacts and code paths, while recognizing that re-running the same experiment at a later date may produce slightly different generated heuristics.
 
 \section{Implementation Caveats}
 
-Three implementation caveats are important when interpreting the results. First, \texttt{mpage\_orig} and BMAB do not record budget history with identical granularity. BMAB records detailed budget events, whereas the MPaGE wrapper records a more aggregated history. Therefore, the number of budget-history rows should not be compared as if they were identical event types.
+Three implementation caveats are important when interpreting the results. First, MPaGE-orig and BMAB do not record budget history with identical granularity. BMAB records detailed budget events, whereas the MPaGE wrapper records a more aggregated history. Therefore, the number of budget-history rows should not be compared as if they were identical event types.
 
 Second, BMAB stores only accepted or scored heuristic samples in several output locations, while MPaGE-orig can retain samples with null scores. Consequently, invalid/null-score rate is a diagnostic indicator rather than a perfectly symmetric storage metric. The analysis in Chapter~5 accounts for this by using both stored samples and budget-history-derived counts.
 
-Third, the runtime timeouts in some benchmark configuration files are not always identical to the timeout values used directly in the Python evaluator classes. When there is such a discrepancy, the thesis prioritizes the evaluator source code because it is the executed path used by the current implementation.
+Third, the runtime timeouts in some benchmark configuration files are not always identical to the timeout values used directly in the Python evaluator classes. When there is such a discrepancy, the thesis prioritizes the evaluator source code because it is the executed path used by the implementation.

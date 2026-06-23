@@ -175,7 +175,7 @@ def main(argv=None) -> int:
             if ref is None:
                 continue
             budget = int(float(row['budget']))
-            official = float(row['hv_final'])
+            recorded = float(row['hv_final'])
             run_dir = Path(row['run_dir'])
             scores = _sample_scores(run_dir, ref)
             archive_hv = _hv_2d(scores, ref) if scores else 0.0
@@ -186,8 +186,8 @@ def main(argv=None) -> int:
                 'valid_saved_samples': len(scores),
                 'managed_archive_hv': managed_hv,
                 'all_archive_hv': archive_hv,
-                'managed_minus_recorded': managed_hv - official,
-                'all_minus_recorded': archive_hv - official,
+                'managed_minus_recorded': managed_hv - recorded,
+                'all_minus_recorded': archive_hv - recorded,
             })
 
     if not rows:

@@ -2,7 +2,7 @@
 
 End-to-end pipeline for the experiments described in [`../IDEA.md` §4](../IDEA.md).
 Pick a **suite**, run it, and the harness writes a CSV summary plus
-Wilcoxon comparisons against the proposed system.
+paired comparisons against the selected reference configuration.
 
 ## Layout
 
@@ -15,31 +15,30 @@ experiments/
 ├── run_smoke.sh      ← 2 cheap runs to validate the pipeline
 ├── run_headline.sh   ← 48 runs (bi_tsp, all budgets, 3 seeds)
 ├── run_budget50.sh   ← 80 runs (all tasks, B=50, 5 seeds)
-├── run_full.sh       ← 320 runs (full sweep)
+├── run_full.sh       ← 320 runs (component-ablation sweep)
 ├── run_hv_final_full.sh ← 240 runs (reward-mode comparison)
 ├── run_all_variants_full.sh ← 800 runs (all runnable variants and ablations)
 └── results/          ← per-run output directories + CSVs (gitignored)
 ```
 
-## Ablations (matches IDEA.md §4.3)
+## Variants and Ablations (matches IDEA.md §4.3)
 
-| name | what it changes | flag(s) it sets |
-|------|------------------|-----------------|
-| `full`         | the proposed BMAB-LLM | (defaults) |
-| `dense_reward` | fixed BMAB-LLM with the legacy immediate-HVI reward quality signal | `reward_mode=dense` |
-| `hybrid_reward` | fixed BMAB-LLM with half immediate-HVI and half final managed-population HV reward | `reward_mode=hybrid` |
-| `no_budget_anneal` | fixed BMAB-LLM without remaining-budget exploration annealing | `disable_budget_annealing=True` |
-| `no_ph`        | disable Page-Hinkley drift | `ph_threshold=1e9` |
-| `no_diversity` | drop the ΔCDI reward term | `w_diversity=0.0` |
-| `op_only`      | uniform random cluster sampling | `disable_cluster_bandit=True` |
-| `cluster_only` | round-robin operator selection | `disable_operator_bandit=True` |
-| `mpage_budget` | MPaGE-style baseline (no bandits, no diversity) | all three above + `w_rank=0` |
-| `mpage_orig` | actual MPaGE wrapper under the same budget accounting | dispatches to `mpage_bmab.mpage_orig` |
+| display name | internal key | what it changes | flag(s) it sets |
+|--------------|--------------|------------------|-----------------|
+| Final-HV reward | `full` | BMAB pipeline with final managed-population HV as the main quality signal | `reward_mode=final_hv` |
+| Dense reward | `dense_reward` | BMAB pipeline with immediate-HVI reward quality signal | `reward_mode=dense` |
+| Hybrid reward | `hybrid_reward` | BMAB pipeline with half immediate-HVI and half final managed-population HV reward | `reward_mode=hybrid` |
+| No budget annealing | `no_budget_anneal` | BMAB pipeline without remaining-budget exploration annealing | `disable_budget_annealing=True` |
+| No Page-Hinkley | `no_ph` | disables Page-Hinkley drift handling | `ph_threshold=1e9` |
+| No diversity reward | `no_diversity` | drops the ΔCDI reward term | `w_diversity=0.0` |
+| Operator-only control | `op_only` | uses uniform random cluster sampling | `disable_cluster_bandit=True` |
+| Cluster-only control | `cluster_only` | uses round-robin operator selection | `disable_operator_bandit=True` |
+| MPaGE-budget proxy | `mpage_budget` | MPaGE-style baseline without bandits or diversity reward | all three above + `w_rank=0` |
+| MPaGE-orig | `mpage_orig` | original MPaGE wrapper under the same budget accounting | dispatches to the MPaGE wrapper module |
 
-In the current code, `full` means the fixed final-HV-oriented method
-(`reward_mode=final_hv`). Historical outputs under
-`experiments/results/full` were produced before those fixes and should be
-reported as the historical/pre-fix `full` result set, not as `dense_reward`.
+The internal key `full` is retained for backward compatibility with existing
+result folders and CLI presets. In reader-facing reports and figures, this
+configuration should be labeled **Final-HV reward**.
 
 ## Pre-flight
 
@@ -58,11 +57,11 @@ contains `mpage_bmab/`).
 | `smoke` | 2 | ≈ 30 | sanity check the pipeline before paying for the real sweep |
 | `headline` | 48 | ≈ 4,650 | the main AUBC table for the thesis chapter |
 | `budget50` | 80 | ≈ 4,000 | comparison across all 4 tasks at the tight-budget regime |
-| `full` | 320 | ≈ 30,950 | the complete matrix from IDEA.md §4 |
+| `full` | 320 | ≈ 30,950 | complete component-ablation matrix from IDEA.md §4 |
 | `hvfix_smoke` | 4 | ≈ 100 | cheap sanity check for the final-HV fixes |
 | `hv_final_priority` | 225 | ≈ 13,125 | focused final-HV sweep including reward ablations and `mpage_orig` |
-| `hv_final_full` | 240 by default | ≈ 22,500 | full reward-mode comparison for `full`/`final_hv`, `dense_reward`/`dense`, and `hybrid_reward`/`hybrid`; optional ablations can be added manually |
-| `all_variants_full` | 800 | ≈ 75,000 | full matrix for every runnable method: `full`, reward variants, component ablations, `mpage_budget`, and `mpage_orig` |
+| `hv_final_full` | 240 by default | ≈ 22,500 | complete reward-mode comparison for Final-HV reward, Dense reward, and Hybrid reward; optional ablations can be added manually |
+| `all_variants_full` | 800 | ≈ 75,000 | complete matrix for every runnable method: reward variants, component ablations, `mpage_budget`, and `mpage_orig` |
 
 The "total LLM calls" column is approximate: each cell consumes its
 `--budget` plus a small overhead for the cluster-LLM calls (already
@@ -83,7 +82,7 @@ mpage_bmab/experiments/run_headline.sh
 cat mpage_bmab/experiments/results/summary.csv | column -ts,
 ```
 
-The headline / full launchers automatically run `aggregate.py` and
+The headline and complete-sweep launchers automatically run `aggregate.py` and
 `compare.py` after the sweep finishes.
 
 ## One-off cells
@@ -102,7 +101,7 @@ mpage_bmab/.venv/bin/python -m mpage_bmab.experiments.run \
 ## Custom slices
 
 ```bash
-# Compare full vs op_only on bi_tsp + bi_cvrp at B=50,100 across 5 seeds
+# Compare Final-HV reward vs op_only on bi_tsp + bi_cvrp at B=50,100 across 5 seeds
 mpage_bmab/.venv/bin/python -m mpage_bmab.experiments.run \
     --ablations full,op_only \
     --tasks bi_tsp,bi_cvrp \
@@ -125,7 +124,7 @@ same command, and only the missing cells run. Pass `--force` to override.
 # Collect everything under experiments/results/ into a CSV + print a summary
 mpage_bmab/.venv/bin/python -m mpage_bmab.experiments.aggregate
 
-# Wilcoxon signed-rank: full vs each ablation, paired across seeds
+# Paired comparison: Final-HV reward vs each ablation across seeds
 mpage_bmab/.venv/bin/python -m mpage_bmab.experiments.compare \
     --baseline full --metric aubc
 
@@ -154,7 +153,7 @@ Aggregated CSV columns:
 
 | column | description |
 |--------|-------------|
-| `ablation` | method tag such as `full`, `dense_reward`, `hybrid_reward`, `no_budget_anneal`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget`, or `mpage_orig` |
+| `ablation` | internal method tag such as `full` (Final-HV reward), `dense_reward` (Dense reward), `hybrid_reward` (Hybrid reward), `no_budget_anneal`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget`, or `mpage_orig` |
 | `task` | `bi_tsp` / `tri_tsp` / `bi_cvrp` / `bi_kp` |
 | `budget` | total LLM-call budget B |
 | `seed` | RNG seed |

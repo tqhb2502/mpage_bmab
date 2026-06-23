@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Full reward-mode comparison for the finalized BMAB implementation.
+# Complete reward-mode comparison for the BMAB implementation.
 # 3 variants × 4 tasks × 4 budgets × 5 seeds = 240 runs:
-#   Final-HV reward -> full / reward_mode=final_hv
-#   Dense reward    -> dense_reward / reward_mode=dense
-#   Hybrid reward   -> hybrid_reward / reward_mode=hybrid
+#   Final-HV reward -> internal key full / reward_mode=final_hv
+#   Dense reward    -> internal key dense_reward / reward_mode=dense
+#   Hybrid reward   -> internal key hybrid_reward / reward_mode=hybrid
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(dirname "$HERE")/.."

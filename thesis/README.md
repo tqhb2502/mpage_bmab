@@ -1,8 +1,8 @@
 # LaTeX Thesis
 
-This LaTeX project contains the graduation thesis generated from the source
-code, documentation, figures, tables, and experimental evidence available in
-the `MPaGE` repository.
+This LaTeX directory contains the graduation thesis generated from the source
+code, documentation, figures, tables, and experimental evidence available for
+this study.
 
 Compile with XeLaTeX:
 

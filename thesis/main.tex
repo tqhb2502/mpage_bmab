@@ -73,7 +73,7 @@
   \vspace{1.2cm}
   {\huge\bfseries Budget-Aware Large Language Model Calls for MPaGE-Based Multi-Objective Heuristic Design\par}
   \vspace{1.0cm}
-  {\Large Project: \texttt{mpage\_bmab}\par}
+  {\Large Proposed Framework: Budget-aware MPaGE-style heuristic design\par}
   \vfill
   \begin{tabular}{rl}
     Major: & Computer Science \\
@@ -86,9 +86,9 @@
 
 \pagenumbering{roman}
 \chapter*{Abstract}
-The \texttt{mpage\_bmab} project studies how a finite budget of large language model (LLM) calls can be allocated more effectively in automatic heuristic design for multi-objective combinatorial optimization. The project builds on MPaGE, a framework that combines LLM-based program generation, SEMO-style multi-objective evolution, Pareto Front Grid selection, and semantic clustering of generated heuristics. The extension developed in this project replaces the largely fixed scheduling policy with a two-level budgeted multi-armed bandit controller: the first level selects the variation operator, and the second level selects the semantic cluster to exploit in the current generation. The implementation also introduces explicit budget accounting, Page--Hinkley drift detection, bounded reward computation, reward alignment with final managed-population hypervolume, and the area under the budget curve (AUBC) as a budget-efficiency metric.
+This thesis studies how a finite budget of large language model (LLM) calls can be allocated more effectively in automatic heuristic design for multi-objective combinatorial optimization. The study builds on MPaGE, a framework that combines LLM-based program generation, SEMO-style multi-objective evolution, Pareto Front Grid selection, and semantic clustering of generated heuristics. The proposed framework replaces the largely fixed scheduling policy with a two-level budgeted multi-armed bandit controller: the first level selects the variation operator, and the second level selects the semantic cluster to exploit in the current generation. The implementation also introduces explicit budget accounting, Page--Hinkley drift detection, bounded reward computation, reward alignment mechanisms, and the area under the budget curve (AUBC) as a budget-efficiency metric.
 
-This thesis synthesizes the theoretical background, system architecture, implementation details, and experimental evidence available in the project repository. The current result set contains 320 runs over four setups, four benchmark problem families, four LLM-call budgets, and five random seeds. The analyzed setups include the official Final-HV reward method, two reward-mode variants named Dense reward and Hybrid reward, and the budget-wrapped MPaGE-orig baseline. The empirical evidence indicates that the BMAB-style methods substantially improve AUBC over MPaGE-orig, while the Final-HV reward method provides the strongest final-HV ranking and Hybrid reward provides the strongest valid-yield behavior. Because each task--budget cell contains five seeds, the thesis interprets the findings as practical empirical evidence rather than as strong statistical proof.
+This thesis synthesizes the theoretical background, system architecture, implementation details, and experimental evidence available in the implementation and result artifacts. The current result set contains 320 runs over four setups, four benchmark problem families, four LLM-call budgets, and five random seeds. The analyzed setups include three parallel quality-signal variants, namely Final-HV reward, Dense reward, and Hybrid reward, together with the budget-wrapped MPaGE-orig baseline. The empirical evidence indicates that the BMAB-style variants substantially improve AUBC over MPaGE-orig. Among the three quality-signal variants, Final-HV reward provides the strongest final-HV ranking, while Hybrid reward provides the strongest valid-yield behavior.
 
 \tableofcontents
 \listoffigures

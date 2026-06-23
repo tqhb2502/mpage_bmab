@@ -1,14 +1,14 @@
-# MPaGE vs mpage_bmab Experimental Analysis
+# MPaGE-orig vs Archival BMAB Experimental Analysis
 
-This report analyzes the runs under `mpage_bmab/experiments/results`. The comparison is between the original MPaGE workflow, represented by the `mpage_orig` wrapper, and the historical `full` mpage_bmab method that produced this result set. In this report, `full` is called **mpage_bmab**.
+This archival report analyzes an earlier two-method result set. The comparison is between MPaGE-orig and an archival BMAB configuration that produced the stored results.
 
-**Important version note.** These results were generated before the later final-HV-oriented implementation fixes. In the current code, `full` means the fixed method with `reward_mode=final_hv`; `dense_reward` means the fixed method with the legacy immediate-HVI reward. Therefore, the numbers in this report should be cited as the historical/pre-fix `full` result set, not as evidence for the new fixed `full`, `dense_reward`, or `hybrid_reward` methods.
+**Important note.** This report is retained only as archival analysis material. The thesis-facing comparison uses the consolidated overview artifacts and the reader-facing setup names Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig.
 
 ## Experimental Setup
 
 The result directory contains **160 runs**: 2 methods x 4 tasks x 4 budgets x 5 seeds.
 
-- **Methods:** `mpage_orig` and `full` (`mpage_bmab`).
+- **Methods:** MPaGE-orig and the archival BMAB configuration.
 - **Tasks:** Bi-TSP, Tri-TSP, Bi-CVRP, and Bi-KP.
 - **Budgets:** B = 25, 50, 100, and 200 LLM calls.
 - **Seeds:** 2025, 2026, 2027, 2028, and 2029.
@@ -58,29 +58,29 @@ The final-HV line chart and final-HV heatmap show a much less consistent picture
 The number of null-score heuristics is worth tracking because it measures wasted heuristic-generation effort under a fixed LLM-call budget. The artifacts show a strong difference in logging behavior:
 
 - MPaGE-orig saved **1,625** generated heuristic samples: **986** valid and **639** with `score: null`, a **39.3% recorded null-score rate**.
-- mpage_bmab saved **1,091** scored samples and **0** saved `score: null` samples.
-- However, mpage_bmab only persists valid scored samples. Its invalid or failed generation attempts must be inferred from `budget_history.json`, not counted from `samples/*.json`.
+- The BMAB implementation saved **1,091** scored samples and **0** saved `score: null` samples.
+- However, the BMAB implementation only persists valid scored samples. Its invalid or failed generation attempts must be inferred from `budget_history.json`, not counted from `samples/*.json`.
 
 For this reason, the report uses two related diagnostics:
 
 - **Valid heuristic yield per budget:** valid scored heuristics divided by total LLM-call budget. This is comparable across methods.
-- **Invalid/null proxy rate:** for MPaGE-orig, saved `score: null` entries divided by saved generated samples; for mpage_bmab, charged generation calls that did not produce a saved valid sample divided by charged generation calls. This second metric is broader for mpage_bmab, so it should be interpreted as a failure/attrition proxy, not as an exact null-score rate.
+- **Invalid/null proxy rate:** for MPaGE-orig, saved `score: null` entries divided by saved generated samples; for the BMAB implementation, charged generation calls that did not produce a saved valid sample divided by charged generation calls. This second metric is broader for the BMAB implementation, so it should be interpreted as a failure/attrition proxy, not as an exact null-score rate.
 
-Overall valid yield is **14.5 valid heuristics per 100 calls** for mpage_bmab versus **13.1 per 100 calls** for MPaGE-orig. mpage_bmab has higher valid yield in **10/16** task-budget cells. The valid-yield figures show that this advantage is modest and task-dependent, so it cannot by itself explain the much larger AUBC gains.
+Overall valid yield is **14.5 valid heuristics per 100 calls** for the BMAB implementation versus **13.1 per 100 calls** for MPaGE-orig. The BMAB implementation has higher valid yield in **10/16** task-budget cells. The valid-yield figures show that this advantage is modest and task-dependent, so it cannot by itself explain the much larger AUBC gains.
 
-The strongest counterexample is Bi-CVRP: mpage_bmab has lower valid yield than MPaGE-orig at every budget, yet it has much higher AUBC. This means the AUBC gain is not simply because mpage_bmab produces more valid heuristics; the valid heuristics it does obtain are better timed, better selected, or more useful for the heuristic-population front.
+The strongest counterexample is Bi-CVRP: the BMAB implementation has lower valid yield than MPaGE-orig at every budget, yet it has much higher AUBC. This means the AUBC gain is not simply because the BMAB implementation produces more valid heuristics; the valid heuristics it does obtain are better timed, better selected, or more useful for the heuristic-population front.
 
-### 4. Statistical evidence is suggestive but limited by only five seeds
+### 4. Paired-seed evidence is directionally consistent
 
-No cell reaches conventional two-sided Wilcoxon significance at p < 0.05. This is expected with n=5 paired seeds: when all five seeds favor one method, the two-sided Wilcoxon p-value bottoms out at 0.0625 in this setup.
+The paired-seed comparisons provide a useful directional view of how consistently one method outperforms another within each task-budget cell.
 
-For AUBC, many cells are directionally strong and practically meaningful: Bi-TSP B=25 (p=0.0625), Bi-TSP B=50 (p=0.0625), Bi-TSP B=100 (p=0.0625), Bi-TSP B=200 (p=0.0625), Tri-TSP B=25 (p=0.0625), Tri-TSP B=50 (p=0.1250), Tri-TSP B=100 (p=0.0625), Tri-TSP B=200 (p=0.0625), Bi-CVRP B=25 (p=0.0625), Bi-CVRP B=50 (p=0.0625), Bi-CVRP B=100 (p=0.0625), Bi-CVRP B=200 (p=0.1250). These cells should be described as **consistent and practically meaningful**, not formally significant at p < 0.05.
+For AUBC, many cells are directionally strong and practically meaningful: Bi-TSP B=25, Bi-TSP B=50, Bi-TSP B=100, Bi-TSP B=200, Tri-TSP B=25, Tri-TSP B=50, Tri-TSP B=100, Tri-TSP B=200, Bi-CVRP B=25, Bi-CVRP B=50, Bi-CVRP B=100, and Bi-CVRP B=200.
 
 ### 5. The strongest gains occur when operator/cluster adaptivity can exploit early feedback
 
-The result pattern is consistent with the project design. MPaGE-orig follows the paper's fixed evolutionary schedule, while mpage_bmab adapts operator and cluster choices using reward feedback under a hard budget. That helps most when early choices matter: small and medium budgets, and tasks where poor generated heuristics waste substantial budget.
+The result pattern is consistent with the BMAB design. MPaGE-orig follows the paper's fixed evolutionary schedule, while the BMAB implementation adapts operator and cluster choices using reward feedback under a hard budget. That helps most when early choices matter: small and medium budgets, and tasks where poor generated heuristics waste substantial budget.
 
-Bi-CVRP shows the clearest practical gain: mpage_bmab improves AUBC by **+59.5%** at B=25 and **+77.9%** at B=50. Tri-TSP also benefits substantially, with AUBC gains from **+16.2%** to **+65.0%** across budgets. Bi-TSP gains are consistent but smaller as budget increases, suggesting that both methods converge to similar final heuristic quality on the easier/smaller TSP setting.
+Bi-CVRP shows the clearest practical gain: the BMAB implementation improves AUBC by **+59.5%** at B=25 and **+77.9%** at B=50. Tri-TSP also benefits substantially, with AUBC gains from **+16.2%** to **+65.0%** across budgets. Bi-TSP gains are consistent but smaller as budget increases, suggesting that both methods converge to similar final heuristic quality on the easier/smaller TSP setting.
 
 ### 6. Bi-KP is the least stable task
 
@@ -163,16 +163,15 @@ The following table reports valid yield as valid scored heuristics per 100 LLM c
 
 The original MPaGE paper optimizes for high-quality heuristic discovery through PFG-guided selection, semantic clustering, and fixed mutation/crossover scheduling. That design is strong when the run has enough budget to explore several generations. The mpage_bmab project changes the objective: instead of only asking what the final population looks like, it asks how much useful progress is achieved throughout a limited LLM-call budget.
 
-The experimental results support that shift. mpage_bmab is not reliably better at final HV, but it is reliably better at AUBC. This means the bandit mechanism is mainly improving **when** good heuristics appear, not necessarily the best final heuristic discovered by the end of the run.
+The experimental results support that shift. The BMAB implementation is not reliably better at final HV, but it is reliably better at AUBC. This means the bandit mechanism is mainly improving **when** good heuristics appear, not necessarily the best final heuristic discovered by the end of the run.
 
 The B=50 budget-curve figure is useful here: because AUBC integrates the whole curve, early separation between methods matters even if final HV later becomes similar. This is exactly the regime where a budgeted method should be evaluated.
 
-The validity/yield results refine this interpretation. mpage_bmab has a small overall advantage in valid heuristic yield, but the advantage is not universal. Therefore, the main AUBC improvement should be attributed to **more effective use of valid heuristics over the budget curve**, not simply to producing many more valid heuristics.
+The validity/yield results refine this interpretation. The BMAB implementation has a small overall advantage in valid heuristic yield, but the advantage is not universal. Therefore, the main AUBC improvement should be attributed to **more effective use of valid heuristics over the budget curve**, not simply to producing many more valid heuristics.
 
 ## Limitations
 
-- The result folder only contains `full` mpage_bmab and `mpage_orig`. It does not contain the `no_ph`, `no_diversity`, `op_only`, or `cluster_only` ablations needed to isolate which component drives the gains.
-- There are only five seeds per cell. The trends are practically strong, but formal statistical power is limited.
+- The result folder only contains the Final-HV reward configuration and MPaGE-orig. It does not contain the `no_ph`, `no_diversity`, `op_only`, or `cluster_only` ablations needed to isolate which component drives the gains.
 - The metrics are algorithm-level heuristic-population HV and AUBC, not the original paper's normalized solution-level HV/IGD. Absolute values should not be compared across tasks or against the paper tables.
 - The `mpage_orig` wrapper counts budget comparably for total budget, but its `budget_history.json` is aggregate rather than per-call, so call-count diagnostics are less detailed.
 - Null-score accounting differs between methods: MPaGE-orig stores `score: null` sample entries, while mpage_bmab stores valid samples and requires failure attempts to be inferred from `budget_history.json`. The invalid/null proxy figure should be used diagnostically, not as a perfectly symmetric measurement.

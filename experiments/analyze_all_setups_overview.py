@@ -843,11 +843,11 @@ def write_latex_tables(out_dir: Path, overall: list[dict], dashboard: list[dict]
     for metric in ["aubc", "hv_final"]:
         rows = [r for r in cell_matrices if r["metric"] == metric]
         lines = [
-        "\\begin{tabular}{lrrrr}",
-        "\\toprule",
-        "Row setup & Final-HV reward & MPaGE-orig & Dense reward & Hybrid reward \\\\",
-        "\\midrule",
-    ]
+            "\\begin{tabular}{lrrrr}",
+            "\\toprule",
+            "Row setup & Final-HV reward & MPaGE-orig & Dense reward & Hybrid reward \\\\",
+            "\\midrule",
+        ]
         for method in METHODS:
             row = next(r for r in rows if r["row_method"] == method)
             lines.append(

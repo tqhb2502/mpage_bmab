@@ -59,8 +59,8 @@ TASK_LABELS = {
 }
 
 METHOD_LABELS = {
-    "full": "Current full",
-    "full_old": "Previous full",
+    "full": "Final-HV reward",
+    "full_old": "Archival reward run",
     "mpage_orig": "MPaGE-orig",
     "dense_reward": "Dense reward",
     "hybrid_reward": "Hybrid reward",
@@ -468,7 +468,7 @@ def plot_delta_heatmap(pairwise: list[dict], comparator: str, metric: str, out: 
     ax.set_yticks(range(len(TASKS)), [TASK_LABELS[t] for t in TASKS])
     ax.set_xlabel("Budget")
     ax.set_title(
-        f"Current full vs {METHOD_LABELS[comparator]}: {METRIC_LABELS[metric]} delta (%)"
+        f"Final-HV reward vs {METHOD_LABELS[comparator]}: {METRIC_LABELS[metric]} delta (%)"
     )
     for i in range(len(TASKS)):
         for j in range(len(BUDGETS)):
@@ -496,8 +496,8 @@ def plot_overall_bars(overall: list[dict], out: Path) -> None:
     ax.bar(x - width / 2, vals["aubc"], width, label="AUBC", color="#2474A6")
     ax.bar(x + width / 2, vals["hv_final"], width, label="Final HV", color="#E69F00")
     ax.set_xticks(x, [METHOD_LABELS[c] for c in comparators], rotation=15, ha="right")
-    ax.set_ylabel("Mean cell-level delta of current full (%)")
-    ax.set_title("Overall Current-Full Advantage by Comparator")
+    ax.set_ylabel("Mean cell-level delta of Final-HV reward (%)")
+    ax.set_title("Overall Final-HV Reward Delta by Comparator")
     ax.legend(frameon=False)
     for metric, offset in [("aubc", -width / 2), ("hv_final", width / 2)]:
         for xi, value in zip(x, vals[metric]):
@@ -525,7 +525,7 @@ def plot_cell_delta_boxplots(pairwise: list[dict], out: Path) -> None:
         ax.set_title(METRIC_LABELS[metric])
         ax.set_ylabel("Task-budget cell delta (%)")
         ax.tick_params(axis="x", rotation=25)
-    fig.suptitle("Current full minus comparator: task-budget cell distribution")
+    fig.suptitle("Final-HV reward minus comparator: task-budget cell distribution")
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
 
@@ -605,7 +605,7 @@ def write_latex_tables(out_dir: Path, overall: list[dict], task_summary: list[di
     lines = [
         "\\begin{tabular}{llrrrr}",
         "\\toprule",
-        "Comparator & Cell & Current full & Comparator & $\\Delta\\%$ & Wins \\\\",
+        "Comparator & Cell & Final-HV reward & Comparator & $\\Delta\\%$ & Wins \\\\",
         "\\midrule",
     ]
     for row in selected[:12]:
@@ -650,7 +650,7 @@ def write_report(
     def key_sentence(comp: str, metric: str) -> str:
         row = get_overall(comp, metric)
         return (
-            f"Against {METHOD_LABELS[comp]}, current full improves {METRIC_LABELS[metric]} "
+            f"Against {METHOD_LABELS[comp]}, Final-HV reward improves {METRIC_LABELS[metric]} "
             f"in {row['positive_cells']}/{row['n_cells']} cells, wins "
             f"{row['seed_wins']}/{row['seed_wins'] + row['seed_losses'] + row['seed_ties']} "
             f"paired seed comparisons, and has mean cell-level delta "
@@ -667,13 +667,13 @@ def write_report(
         largest_rows.append({
             "Comparator": METHOD_LABELS[r["comparator"]],
             "Cell": f"{TASK_LABELS[r['task']]}, B={r['budget']}",
-            "Current full": fmt(r["full_mean"]),
+            "Final-HV reward": fmt(r["full_mean"]),
             "Comparator mean": fmt(r["comparator_mean"]),
             "Delta %": f"{r['delta_pct_from_means']:+.1f}%",
             "Wins": f"{r['wins']}/{r['wins'] + r['losses'] + r['ties']}",
         })
 
-    report = f"""# Current Full vs Previous Full and MPaGE-orig
+    report = f"""# Final-HV Reward vs Historical Results and MPaGE-orig
 
 This report analyzes the run artifacts under `mpage_bmab/experiments/results`.
 The analysis does **not** rely on the existing `summary.csv`, because that file
@@ -683,12 +683,12 @@ complete runs: 5 methods x 4 tasks x 4 budgets x 5 seeds.
 
 ## Compared Methods
 
-- `full`: current finalized BMAB configuration.
-- `full_old`: previous full-version result set copied from the earlier thesis.
+- Final-HV reward: current BMAB quality-signal variant using final managed-population HV feedback.
+- `full_old`: archival reward-result set copied from the earlier thesis.
 - `mpage_orig`: original MPaGE baseline result set copied for comparison.
 - `dense_reward` and `hybrid_reward`: current reward-mode variants; these are
   included as secondary context, but the main historical comparisons are
-  current `full` versus `full_old` and `mpage_orig`.
+  Final-HV reward versus `full_old` and `mpage_orig`.
 
 ## Main Findings
 
@@ -697,7 +697,7 @@ complete runs: 5 methods x 4 tasks x 4 budgets x 5 seeds.
 3. {key_sentence('full_old', 'hv_final')}
 4. {key_sentence('mpage_orig', 'hv_final')}
 
-Current `full` is the best method in {current_best_aubc}/16 task-budget cells
+Final-HV reward is the best method in {current_best_aubc}/16 task-budget cells
 for AUBC and {current_best_hv}/16 cells for final HV. This confirms that the
 current implementation is not uniformly dominant at every terminal point, but
 it is useful to distinguish budget-efficiency behavior (AUBC) from final
@@ -705,8 +705,8 @@ population quality (final HV).
 
 ## Thesis-Ready Figures
 
-- `figures/aubc_mean_core_methods.png`: AUBC trends for current full,
-  previous full, and MPaGE-orig.
+- `figures/aubc_mean_core_methods.png`: AUBC trends for Final-HV reward,
+  the archival reward run, and MPaGE-orig.
 - `figures/hv_final_mean_core_methods.png`: final-HV trends for the same
   three methods.
 - `figures/aubc_delta_current_vs_full_old_heatmap.png` and
@@ -740,7 +740,7 @@ population quality (final HV).
 {markdown_table(largest_rows, [
     ('Comparator', 'Comparator'),
     ('Cell', 'Cell'),
-    ('Current full', 'Current full'),
+    ('Final-HV reward', 'Final-HV reward'),
     ('Comparator', 'Comparator mean'),
     ('Delta %', 'Delta %'),
     ('Wins', 'Wins'),
@@ -748,21 +748,18 @@ population quality (final HV).
 
 ## Interpretation
 
-The current full configuration should be presented as the official finalized
-BMAB method. The comparison with `full_old` is useful for documenting how the
-final implementation behaves relative to the previous thesis result set. The
-comparison with `mpage_orig` is the main baseline comparison. Because every
-task-budget-method cell contains only five seeds, the Wilcoxon p-values in the
-CSV tables should be interpreted cautiously; directional consistency, paired
-seed wins, and cell-level deltas are more informative for thesis discussion
-than strict significance claims.
+Final-HV reward is one of the three current BMAB quality-signal variants. The
+comparison with the archival reward run is useful for documenting how the
+current implementation behaves relative to the previous thesis result set. The
+comparison with MPaGE-orig is the main baseline comparison.
 
-When incorporating these assets into the thesis, the safest wording is:
-current full improves or degrades a metric **in the analyzed result matrix**,
-not that it proves universal superiority. This distinction is especially
-important because AUBC and final HV measure different properties: AUBC measures
-how quickly useful heuristic-population HV is obtained under budget, while
-final HV measures only the terminal population at the last budget point.
+When incorporating these assets into the thesis, the appropriate wording is that
+Final-HV reward improves or degrades a metric **in the analyzed result
+matrix**, not that it proves universal superiority. This distinction is
+especially important because AUBC and final HV measure different properties:
+AUBC measures how quickly useful heuristic-population HV is obtained under
+budget, while final HV measures only the terminal population at the last budget
+point.
 """
     out_path.write_text(report)
 

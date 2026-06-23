@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  23 JUN 2026 00:24
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  23 JUN 2026 23:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1187,137 +1187,100 @@ Chapter 1.
 
 
 ] [2] [3] [4] [5]
-Underfull \hbox (badness 1210) in paragraph at lines 76--77
-[]\TU/TimesNewRoman(0)/m/n/12 The repository does not provide evidence of LLM f
-ine-tuning, LoRA, PEFT,
+Underfull \hbox (badness 2096) in paragraph at lines 80--81
+\TU/TimesNewRoman(0)/m/n/12 The thesis follows an evidence-based implementation
+ analysis methodology. First,
  []
 
-
-Underfull \hbox (badness 2582) in paragraph at lines 76--77
-\TU/TimesNewRoman(0)/m/n/12 retrieval-augmented generation, diffusion models, G
-ANs, knowledge distillation, or
- []
-
-) [6]
+) [6] [7]
 \openout2 = `chapters/chapter2.aux'.
 
  (./chapters/chapter2.tex
 Chapter 2.
-[7
+[8
 
 
 
 
-] [8] [9] [10] [11]
+] [9] [10] [11] [12]
 File: figures/mpage_overview.png Graphic file (type bmp)
 <figures/mpage_overview.png>
 File: figures/mpage_selection.png Graphic file (type bmp)
 <figures/mpage_selection.png>
- [12]
+ [13]
 Underfull \hbox (badness 1478) in paragraph at lines 130--130
 []\TU/TimesNewRoman(0)/b/n/17.28 Validity, Null Scores, and Program-Search Fail
 ure
  []
 
-[13] [14] [15] [16] (./tables/technique_inventory.tex
+[14] [15] [16] [17] (./tables/technique_inventory.tex
 ignored: Infinite glue shrinkage fo
-und in box being split [17])) [18]
+und in box being split [18])) [19]
 \openout2 = `chapters/chapter3.aux'.
 
 
 (./chapters/chapter3.tex
 Chapter 3.
-[19
+[20
 
 
 
 
-]
-Underfull \hbox (badness 3514) in paragraph at lines 13--14
-[]\TU/TimesNewRoman(0)/m/n/12 BMAB-LLM therefore keeps the productive heuristic
--generation mechanisms
- []
-
-[20] [21] [22] [23] [24] [25] [26] [27] [28] [29]
+] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30]
 Underfull \hbox (badness 1571) in paragraph at lines 457--458
 \TU/TimesNewRoman(0)/m/n/12 The original MPaGE strategy uses intra-cluster muta
 tion and inter-cluster crossover.
  []
 
-[30]
+[31]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 473.
- [31] [32] [33]) [34]
+ [32] [33] [34]) [35]
 \openout2 = `chapters/chapter4.aux'.
 
  (./chapters/chapter4.tex
 Chapter 4.
-[35
+[36
 
 
 
 
-] [36] [37]
+] [37] [38]
 Underfull \hbox (badness 2913) in paragraph at lines 64--65
 \OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^@\OML/cmm/m/it/12 HV[]; runtime\OT1/cmr/m/n
 /12 )$\TU/TimesNewRoman(0)/m/n/12 . Accordingly, the outer reference point for 
 Tri-TSP is two-
  []
 
-[38] [39] [40] [41] [42]) [43]
+[39] [40] [41] [42] [43]) [44]
 \openout2 = `chapters/chapter5.aux'.
 
  (./chapters/chapter5.tex
 Chapter 5.
 (./tables/experiment_setups.tex
-Underfull \hbox (badness 10000) in paragraph at lines 12--12
-[]|\TU/TimesNewRoman(0)/m/n/12 Final-HV
+Underfull \hbox (badness 6252) in paragraph at lines 13--14
+\TU/TimesNewRoman(0)/m/n/12 diate hypervolume-improvement feed-
  []
 
-
-Underfull \hbox (badness 1442) in paragraph at lines 12--13
-\TU/TimesNewRoman(0)/m/n/12 Uses the two-level bandit scheduler,
- []
-
-
-Underfull \hbox (badness 1939) in paragraph at lines 12--13
-\TU/TimesNewRoman(0)/m/n/12 Page–Hinkley drift handling, budget
- []
-
-
-Underfull \hbox (badness 1231) in paragraph at lines 13--14
-\TU/TimesNewRoman(0)/m/n/12 immediate hypervolume-improvement
- []
-
-
-Underfull \hbox (badness 5832) in paragraph at lines 14--15
-[]|\TU/TimesNewRoman(0)/m/n/12 Keeps the finalized implementation
- []
-
-
-Underfull \hbox (badness 1389) in paragraph at lines 15--16
-[]|\TU/TimesNewRoman(0)/m/n/12 Runs the original MPaGE workflow
- []
-
-[44
+[45
 
 
 
 
-]) [45] [46] (./tables/all_overall_scores.tex)
+]) [46] [47] (./tables/all_overall_scores.tex)
 File: figures/all_overall_normalized_scores.png Graphic file (type bmp)
 <figures/all_overall_normalized_scores.png>
- [47] [48]
-(./tables/task_level_scores.tex) [49] (./tables/all_pairwise_wins.tex) [50]
+ [48] [49]
+(./tables/task_level_scores.tex) [50] (./tables/all_pairwise_wins.tex) [51]
 File: figures/all_aubc_pairwise_cell_wins.png Graphic file (type bmp)
 <figures/all_aubc_pairwise_cell_wins.png>
 File: figures/all_hv_final_pairwise_cell_wins.png Graphic file (type bmp)
 <figures/all_hv_final_pairwise_cell_wins.png>
 
-[51]
+[52]
 File: figures/all_aubc_mean_by_budget.png Graphic file (type bmp)
 <figures/all_aubc_mean_by_budget.png>
- [52] [53]
+ [53] [54]
 File: figures/all_budget_curves_B25.png Graphic file (type bmp)
 <figures/all_budget_curves_B25.png>
 File: figures/all_budget_curves_B50.png Graphic file (type bmp)
@@ -1326,21 +1289,21 @@ File: figures/all_budget_curves_B100.png Graphic file (type bmp)
 <figures/all_budget_curves_B100.png>
 File: figures/all_budget_curves_B200.png Graphic file (type bmp)
 <figures/all_budget_curves_B200.png>
- [54] [55]
+ [55] [56]
 File: figures/all_budget_curves_bmab_zoom_B100.png Graphic file (type bmp)
 <figures/all_budget_curves_bmab_zoom_B100.png>
 File: figures/all_hv_final_mean_by_budget.png Graphic file (type bmp)
 <figures/all_hv_final_mean_by_budget.png>
- [56]
+ [57]
 File: figures/all_aubc_vs_final_hv_tradeoff.png Graphic file (type bmp)
 <figures/all_aubc_vs_final_hv_tradeoff.png>
- [57] [58] [59]
+ [58] [59] [60]
 File: figures/all_valid_yield_mean_by_budget.png Graphic file (type bmp)
 <figures/all_valid_yield_mean_by_budget.png>
 File: figures/all_invalid_null_proxy_rate_mean_by_budget.png Graphic file (type
  bmp)
 <figures/all_invalid_null_proxy_rate_mean_by_budget.png>
- [60] [61] [62]) [63]
+ [61] [62]) [63]
 \openout2 = `chapters/chapter6.aux'.
 
 
@@ -1351,7 +1314,13 @@ Chapter 6.
 
 
 
-] [65] [66] [67]) [68] (./main.bbl [69
+]
+Underfull \hbox (badness 2050) in paragraph at lines 29--30
+\TU/TimesNewRoman(0)/m/n/12 feedback supports valid-yield and AUBC, and final-H
+V feedback supports terminal
+ []
+
+[65] [66]) [67] [68] (./main.bbl [69
 
 
 
@@ -1364,12 +1333,12 @@ L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 39005 strings out of 468168
- 929008 string characters out of 5432815
- 1665795 words of memory out of 5000000
- 67031 multiletter control sequences out of 15000+600000
- 634634 words of font info for 110 fonts, out of 8000000 for 9000
+ 39003 strings out of 468168
+ 928970 string characters out of 5432815
+ 1665797 words of memory out of 5000000
+ 67030 multiletter control sequences out of 15000+600000
+ 634626 words of font info for 109 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,11n,94p,982b,1779s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,11n,94p,925b,1779s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.xdv (77 pages, 1591144 bytes).
+Output written on main.xdv (77 pages, 1572172 bytes).

@@ -12,13 +12,13 @@ A multi-objective combinatorial optimization problem (MOCOP) can be written as
 
 where $\mathcal{X}$ is a discrete feasible set and $m$ is the number of objectives. For two feasible solutions $x$ and $y$, $x$ Pareto-dominates $y$ if $f_i(x) \le f_i(y)$ for all objectives and $f_j(x) < f_j(y)$ for at least one objective. The set of non-dominated solutions forms a Pareto approximation, which represents different trade-offs rather than a single optimum.
 
-The four benchmark families in the project instantiate this general setting. Bi-TSP and Tri-TSP evaluate tours under two or three distance objectives. Bi-CVRP evaluates route sets under distance-related objectives while enforcing vehicle-capacity constraints. Bi-KP evaluates binary item-selection vectors under two value objectives and a capacity constraint. In all cases, the inner solver maintains an archive of non-dominated candidate solutions and updates it when a generated heuristic proposes a feasible and non-dominated neighbor.
+The four benchmark families analyzed in this thesis instantiate this general setting. Bi-TSP and Tri-TSP evaluate tours under two or three distance objectives. Bi-CVRP evaluates route sets under distance-related objectives while enforcing vehicle-capacity constraints. Bi-KP evaluates binary item-selection vectors under two value objectives and a capacity constraint. In all cases, the inner solver maintains an archive of non-dominated candidate solutions and updates it when a generated heuristic proposes a feasible and non-dominated neighbor.
 
-An important distinction in this project is that the LLM-generated program is not itself a final solution to the combinatorial problem. The generated code implements a function such as \texttt{select\_neighbor}, which acts as a neighborhood operator inside an evaluator. The evaluator repeatedly calls this operator, updates an archive, and then computes the hypervolume of the resulting archive. This pattern is used consistently by the benchmark evaluators analyzed in this thesis.
+An important distinction in this study is that the LLM-generated program is not itself a final solution to the combinatorial problem. The generated code implements a function such as \texttt{select\_neighbor}, which acts as a neighborhood operator inside an evaluator. The evaluator repeatedly calls this operator, updates an archive, and then computes the hypervolume of the resulting archive. This pattern is used consistently by the benchmark evaluators analyzed in this thesis.
 
 \section{Benchmark Problem Families}
 
-The benchmark problems used in the repository are deliberately diverse. They are all multi-objective and combinatorial, but they stress different properties of a generated heuristic. This diversity is important because a method that only performs well on one family may simply exploit a narrow representation bias rather than discovering generally useful heuristic-design behavior.
+The benchmark problems used in the experimental framework are deliberately diverse. They are all multi-objective and combinatorial, but they stress different properties of a generated heuristic. This diversity is important because a method that only performs well on one family may simply exploit a narrow representation bias rather than discovering generally useful heuristic-design behavior.
 
 Bi-TSP and Tri-TSP are routing problems over complete graphs. A candidate solution is a permutation of cities, and a neighbor operator typically modifies the tour by swapping, reversing, inserting, or otherwise rearranging city positions. In Bi-TSP, the objective vector has two tour-cost components. In Tri-TSP, the same representation is evaluated under three distance matrices. The tri-objective version is harder from the perspective of the inner archive because a larger objective dimension generally increases the number of mutually non-dominated solutions. As a result, preserving useful diversity in the generated neighbor operator becomes more important.
 
@@ -30,7 +30,7 @@ All four tasks evaluate a generated heuristic on multiple fixed problem instance
 
 \section{Heuristic Design as a Two-Level Optimization Problem}
 
-The project can be understood as a two-level optimization process. At the inner level, a generated heuristic $h$ is applied to a benchmark instance $\xi$ to produce a set of candidate solutions:
+The proposed framework can be understood as a two-level optimization process. At the inner level, a generated heuristic $h$ is applied to a benchmark instance $\xi$ to produce a set of candidate solutions:
 
 \begin{equation}
   A(h,\xi) = \mathrm{Archive}\left(h, \xi\right),
@@ -79,19 +79,19 @@ The use of a Pareto population at the outer level remains essential. If the syst
 
 The hypervolume indicator measures the volume of the region dominated by a set of objective vectors and bounded by a reference point \cite{zitzler1999multiobjective,fonseca2006hv}. For minimization, larger hypervolume generally indicates that the approximation set is closer to the Pareto-optimal region and covers a broader range of trade-offs. Hypervolume is widely used because it combines convergence and diversity into a single scalar indicator, although its computational cost grows with the number of objectives.
 
-The project uses hypervolume at two different levels. The \emph{inner hypervolume} is computed over solution archives produced by a generated heuristic on a benchmark problem. This value measures how well a heuristic solves a task such as Bi-TSP or Bi-CVRP. The \emph{outer hypervolume} is computed over the population of generated heuristics, where each heuristic is represented by a score vector of the form $(-HV_{\text{inner}}, runtime)$. The first coordinate is negated so that the outer population manager can minimize both coordinates.
+This thesis uses hypervolume at two different levels. The \emph{inner hypervolume} is computed over solution archives produced by a generated heuristic on a benchmark problem. This value measures how well a heuristic solves a task such as Bi-TSP or Bi-CVRP. The \emph{outer hypervolume} is computed over the population of generated heuristics, where each heuristic is represented by a score vector of the form $(-HV_{\text{inner}}, runtime)$. The first coordinate is negated so that the outer population manager can minimize both coordinates.
 
-This distinction is essential when interpreting the experimental results. The figures and tables in Chapter~5 report heuristic-population hypervolume and AUBC under the \texttt{mpage\_bmab} harness. They should not be confused with the task-level solution hypervolume tables reported in the original MPaGE paper.
+This distinction is essential when interpreting the experimental results. The figures and tables in Chapter~5 report heuristic-population hypervolume and AUBC under the experimental framework used in this thesis. They should not be confused with the task-level solution hypervolume tables reported in the original MPaGE paper.
 
 The two hypervolume levels have different reference points because they live in different spaces. For an inner Bi-TSP archive, the points are tour-cost vectors. For an inner Tri-TSP archive, the points are three-dimensional tour-cost vectors. For the outer population, however, every heuristic is represented by a two-dimensional score vector $(-HV_{\mathrm{inner}}, runtime)$, even when the inner task is tri-objective. Thus, the outer hypervolume reference point is a bound in heuristic-score space, not in solution-objective space. This distinction is important because confusing the two spaces can lead to incorrect AUBC computation and misleading comparisons.
 
 The outer hypervolume is also sensitive to the range of the first score component. For tasks where inner hypervolume values are large, such as Tri-TSP, the dominated extent along the negated-inner-HV axis can be much larger than in Bi-TSP. Consequently, absolute outer-HV values should not be compared directly across tasks. The thesis therefore uses within-cell normalized scores and ranks when summarizing performance across task families. Absolute values remain meaningful within a task--budget cell, where all methods are evaluated under the same task, budget, reference point, and aggregation convention.
 
-In the implementation, hypervolume computation is centralized in the reward module. When \texttt{pymoo} is available, the project uses \texttt{pymoo.indicators.hv.HV} \cite{blank2020pymoo}; otherwise, it falls back to an internal two-dimensional implementation for supported cases.
+In the implementation, hypervolume computation is centralized in the reward module. When \texttt{pymoo} is available, the implementation uses \texttt{pymoo.indicators.hv.HV} \cite{blank2020pymoo}; otherwise, it falls back to an internal two-dimensional implementation for supported cases.
 
 \section{MPaGE}
 
-MPaGE, Pareto-Grid-Guided Large Language Models, is the direct methodological baseline for this project \cite{ha2026mpage}. It frames heuristic design as an LLM-guided program search problem for multi-objective combinatorial optimization. Its workflow combines generated Python heuristics, execution-based evaluation, population management, Pareto Front Grid selection, and semantic clustering.
+MPaGE, Pareto-Grid-Guided Large Language Models, is the direct methodological baseline for this thesis \cite{ha2026mpage}. It frames heuristic design as an LLM-guided program search problem for multi-objective combinatorial optimization. Its workflow combines generated Python heuristics, execution-based evaluation, population management, Pareto Front Grid selection, and semantic clustering.
 
 The first key component is a SEMO-style heuristic population. Each generated heuristic is evaluated and inserted into a population according to multi-objective criteria. The population favors non-dominated heuristics and uses diversity mechanisms to avoid collapsing to a narrow set of similar programs. This population-management design is inherited from the original MPaGE framework.
 
@@ -102,14 +102,14 @@ The third key component is LLM-based semantic clustering. Rather than grouping h
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\linewidth]{mpage_overview.png}
-  \caption{Overview of the MPaGE framework, adapted from the original project materials.}
+  \caption{Overview of the MPaGE framework, adapted from the original MPaGE materials.}
   \label{fig:mpage-overview}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.86\linewidth]{mpage_selection.png}
-  \caption{Pareto Front Grid selection in MPaGE, adapted from the original project materials.}
+  \caption{Pareto Front Grid selection in MPaGE, adapted from the original MPaGE materials.}
   \label{fig:mpage-selection}
 \end{figure}
 
@@ -117,11 +117,11 @@ The proposed \bmab{} method does not replace these components. Instead, it keeps
 
 \section{LLM-Based Program Generation for Heuristic Design}
 
-The project belongs to the broader area of LLM-based program synthesis with execution feedback. In systems such as FunSearch, an LLM generates candidate programs, an evaluator scores them, and the best programs are retained for further search \cite{romera2024funsearch}. MPaGE and \bmab{} apply the same general principle to heuristic design: generated code is not accepted because it is plausible natural language output, but because it passes execution and improves a measurable optimization criterion.
+The proposed framework belongs to the broader area of LLM-based program synthesis with execution feedback. In systems such as FunSearch, an LLM generates candidate programs, an evaluator scores them, and the best programs are retained for further search \cite{romera2024funsearch}. MPaGE and \bmab{} apply the same general principle to heuristic design: generated code is not accepted because it is plausible natural language output, but because it passes execution and improves a measurable optimization criterion.
 
-In this repository, the LLM is used primarily for prompt-driven code generation and semantic clustering. The prompt templates request Python functions with a specified signature. The secure evaluation layer then executes the generated function under task-specific constraints. This design creates a closed loop: generation proposes code, evaluation supplies a score, and population management determines whether the generated heuristic should influence future prompts.
+In the implementation used in this thesis, the LLM is used primarily for prompt-driven code generation and semantic clustering. The prompt templates request Python functions with a specified signature. The secure evaluation layer then executes the generated function under task-specific constraints. This design creates a closed loop: generation proposes code, evaluation supplies a score, and population management determines whether the generated heuristic should influence future prompts.
 
-The repository does not contain evidence of LLM fine-tuning, supervised training, LoRA, PEFT, knowledge distillation, retrieval-augmented generation, diffusion models, or GAN-based generation. The generative component is therefore best described as prompt-based program generation using an external LLM API.
+The source artifacts do not contain evidence of LLM fine-tuning, supervised training, LoRA, PEFT, knowledge distillation, retrieval-augmented generation, diffusion models, or GAN-based generation. The generative component is therefore best described as prompt-based program generation using an external LLM API.
 
 Execution feedback is the key mechanism that makes prompt-based generation usable for optimization. The LLM is not assumed to know whether a generated heuristic is correct or effective. Instead, correctness and usefulness are determined by running the generated code. This makes the evaluator a central part of the learning loop: it converts an untrusted program string into either a numerical score or a failure signal. The approach is similar in spirit to program-search systems such as FunSearch \cite{romera2024funsearch}, where the model proposes code and the environment supplies objective feedback.
 
@@ -129,7 +129,7 @@ The downside is that execution feedback is expensive and noisy. A generated func
 
 \section{Validity, Null Scores, and Program-Search Failure Modes}
 
-In this repository, an invalid heuristic is not merely a low-quality heuristic. It may fail before producing any meaningful score. The evaluation infrastructure can return a null score when parsing, execution, timeout handling, or task-specific validation fails. These null outcomes are important because they consume budget without directly improving the heuristic population.
+In the implementation used in this thesis, an invalid heuristic is not merely a low-quality heuristic. It may fail before producing any meaningful score. The evaluation infrastructure can return a null score when parsing, execution, timeout handling, or task-specific validation fails. These null outcomes are important because they consume budget without directly improving the heuristic population.
 
 There are several qualitatively different failure modes. A syntactic failure means the LLM output cannot be parsed as executable Python. An interface failure means the function exists but does not match the evaluator's expected signature or return type. A semantic failure means the function runs but returns an infeasible neighbor, such as an invalid tour, overloaded route, or capacity-violating knapsack vector. A runtime failure means the function exceeds the allowed evaluation time or raises an exception during repeated inner-loop calls. The current result summaries do not separate all of these failure types; they aggregate them through valid-yield and invalid/null diagnostics. This is sufficient for the thesis comparisons, but finer-grained failure logging would be valuable future work.
 
@@ -139,7 +139,7 @@ Validity matters differently from final quality. A method that produces many val
 
 Adaptive operator selection studies how an evolutionary algorithm can choose among variation operators based on their observed usefulness during the run. Early work shows that reward-based operator control can improve search by allocating more trials to operators that produce valuable offspring \cite{fialho2008adaptive}. This idea is directly relevant to LLM-based heuristic design because mutation and crossover prompts do not have uniform value across all stages of the search.
 
-The difference is the cost model. In a conventional evolutionary algorithm, applying a mutation operator may be computationally cheap. In this project, applying a mutation or crossover prompt consumes an LLM call. As a result, operator selection is not merely a performance-tuning mechanism; it is a budget-allocation policy. This observation motivates the operator-level UCB component of the proposed scheduler.
+The difference is the cost model. In a conventional evolutionary algorithm, applying a mutation operator may be computationally cheap. In this thesis, applying a mutation or crossover prompt consumes an LLM call. As a result, operator selection is not merely a performance-tuning mechanism; it is a budget-allocation policy. This observation motivates the operator-level UCB component of the proposed scheduler.
 
 A second difference is semantic locality. A mutation prompt is usually expected to exploit a single parent by changing or improving its algorithmic idea. A crossover prompt combines two parents and may explore a larger region of program space. Neither operator is uniformly preferable. Mutation can be effective when a cluster already contains strong heuristics whose local variants are likely to remain valid. Crossover can be useful when the current population contains complementary ideas in different semantic clusters. The operator controller therefore has to learn from the observed reward stream rather than relying on a fixed schedule.
 
@@ -167,7 +167,7 @@ In the thesis setting, an arm pull corresponds to spending at least one LLM call
 
 Budgeted bandits extend the standard bandit setting by assigning costs to actions and requiring the policy to operate under a finite resource constraint \cite{ding2013budgeted}. This is a natural model for LLM-based search, where each call to the generator or clusterer consumes budget. A method that ignores cost may obtain high reward only by using many calls inefficiently, which is undesirable in practical settings.
 
-The implementation exposes this constraint through a hard \texttt{BudgetTracker}. The bandit scheduler uses reward-per-cost at the operator level and a budget-aware exploration term at the cluster level. This is not claimed to be an optimal solution to all budgeted bandit formulations. Rather, it is a pragmatic scheduling mechanism that is compatible with the MPaGE loop and with the project objective of improving hypervolume progress per LLM call.
+The implementation exposes this constraint through a hard \texttt{BudgetTracker}. The bandit scheduler uses reward-per-cost at the operator level and a budget-aware exploration term at the cluster level. This is not claimed to be an optimal solution to all budgeted bandit formulations. Rather, it is a pragmatic scheduling mechanism that is compatible with the MPaGE loop and with the thesis objective of improving hypervolume progress per LLM call.
 
 Formally, if action $a_t$ at decision time $t$ produces reward $r_t$ and consumes cost $c_t$, the budgeted objective can be written as
 
@@ -206,7 +206,7 @@ For a budget-constrained search method, the final value alone does not capture h
 
 where $HV(b)$ is the outer heuristic-population hypervolume after consuming budget $b$. The profiler records budget-HV points, anchors the curve at $(0,0)$, and extends the last observed value to the total budget when necessary. This is the metric formulation used for all AUBC values reported in Chapter~5.
 
-AUBC is particularly appropriate for this project because the goal is not only to find a strong final heuristic population, but also to spend LLM calls productively throughout the run. A method with higher AUBC can be preferable even when its final hypervolume is similar, especially in interactive or cost-sensitive settings where early stopping is possible.
+AUBC is particularly appropriate for this thesis because the goal is not only to find a strong final heuristic population, but also to spend LLM calls productively throughout the run. A method with higher AUBC can be preferable even when its final hypervolume is similar, especially in interactive or cost-sensitive settings where early stopping is possible.
 
 The normalization by $B$ makes AUBC interpretable as an average hypervolume value over the budget horizon. If two methods end with the same $HV(B)$, the method with the higher AUBC reached useful populations earlier. If one method has higher final HV but lower AUBC, the result indicates a trade-off between early progress and terminal quality. Chapter~5 uses exactly this distinction: final HV identifies the quality of the final managed population, while AUBC identifies how much value was obtained over the entire budget trajectory.
 
@@ -214,7 +214,7 @@ The profiler anchors the budget curve at $(0,0)$ before the first recorded point
 
 \section{Technique Inventory}
 
-Table~\ref{tab:technique-inventory} summarizes the generative AI and machine learning techniques that are either present or absent in the repository. The table is included to keep the scope of the thesis precise: only techniques with direct evidence in the codebase or documentation are analyzed as part of the project.
+Table~\ref{tab:technique-inventory} summarizes the generative AI and machine learning techniques that are either present or absent in the implementation. The table is included to keep the scope of the thesis precise: only techniques with direct evidence in the codebase or documentation are analyzed as part of this study.
 
 \input{tables/technique_inventory}
 
@@ -222,4 +222,4 @@ Table~\ref{tab:technique-inventory} summarizes the generative AI and machine lea
 
 The baseline MPaGE framework provides a strong foundation for LLM-based multi-objective heuristic design, but it does not explicitly optimize the allocation of LLM calls under a hard budget. Its semantic clustering and PFG selection maintain diversity, yet they do not by themselves answer which operator and which semantic region should receive the next call. This leaves room for waste when some clusters produce invalid code, redundant heuristics, or low marginal hypervolume improvement.
 
-\bmab{} addresses this gap by treating generation as a sequential budgeted decision problem. The method is still limited by the stochasticity of external LLM APIs, the possibility of invalid generated code, evaluator runtime costs, and the small number of available experimental seeds. These limitations motivate both the implementation safeguards discussed in Chapter~4 and the empirical caution applied in Chapter~5.
+\bmab{} addresses this gap by treating generation as a sequential budgeted decision problem. The method is still affected by the stochasticity of external LLM APIs, the possibility of invalid generated code, and evaluator runtime costs. These factors motivate both the implementation safeguards discussed in Chapter~4 and the careful empirical interpretation applied in Chapter~5.

@@ -159,7 +159,8 @@ def main(argv=None) -> int:
                    help="Where to write the comparisons CSV "
                         "(defaults to comparisons_<metric>.csv next to summary).")
     p.add_argument('--baseline', default='full',
-                   help="Ablation to use as the reference (default: full).")
+                   help="Internal ablation key to use as the reference "
+                        "(default: Final-HV reward).")
     p.add_argument('--metric', default='aubc', choices=['aubc', 'hv_final'])
     args = p.parse_args(argv)
 

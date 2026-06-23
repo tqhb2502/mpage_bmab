@@ -13,6 +13,12 @@ __pycache__/
 experiments/archive_v1.0/
 experiments/archive_v1.1/full/
 experiments/archive_v1.1/mpage_orig/
-experiments/results/no_budget_anneal/
+experiments/results/dense_reward
+experiments/results/full
+experiments/results/full_old
+experiments/results/hybrid_reward
+experiments/results/mpage_orig
+experiments/results/no_budget_anneal
+experiments/results/no_ph
 
 .DS_Store

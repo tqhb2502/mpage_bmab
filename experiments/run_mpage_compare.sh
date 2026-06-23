@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Headline comparison: original MPaGE (budget-capped) vs BMAB-LLM-full.
+# Headline comparison: original MPaGE (budget-capped) vs Final-HV reward.
 # 2 methods × bi_tsp × {25,50,100,200} × 3 seeds = 24 runs.
 #
 # This is the experiment that fills the "MPaGE-orig vs BMAB" row in the

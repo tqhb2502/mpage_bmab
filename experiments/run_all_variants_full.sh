@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Full sweep for every runnable method in the current harness.
+# Complete sweep for every runnable method in the current harness.
 # 10 variants/ablations × 4 tasks × 4 budgets × 5 seeds = 800 runs:
-#   full, dense_reward, hybrid_reward, no_budget_anneal,
+#   Final-HV reward (full), Dense reward (dense_reward),
+#   Hybrid reward (hybrid_reward), no_budget_anneal,
 #   no_ph, no_diversity, op_only, cluster_only, mpage_budget, mpage_orig
 #
 # This is expensive. Run with --dry_run first to inspect the planned cells.
