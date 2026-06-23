@@ -2,90 +2,188 @@
 
 \section{Experimental Questions}
 
-The experiments in this chapter evaluate how the proposed budget-aware MPaGE extension behaves under a finite LLM-call budget. The analysis is based on the consolidated overview of all experimental setups and the corresponding raw per-run artifacts. The final comparison contains four complete thesis-facing setups, four benchmark tasks, four budget levels, and five random seeds, giving a total of 320 runs.
+This chapter evaluates the proposed budget-aware heuristic-design framework under finite LLM-call budgets. The analysis is based on the consolidated result artifacts generated from 320 runs: four setups, four benchmark problem families, four budget levels, and five random seeds. The four setups consist of three parallel quality-signal variants, namely Final-HV reward, Dense reward, and Hybrid reward, together with MPaGE-orig as the budget-wrapped baseline.
 
-The chapter addresses four experimental questions. First, which setup gives the best overall budget-aware performance across tasks and budgets? Second, does a setup that improves budget efficiency, measured by AUBC, also improve terminal heuristic-population quality, measured by final outer hypervolume? Third, how do the three BMAB quality-signal variants differ from one another? Fourth, do validity diagnostics, such as valid heuristic yield and invalid/null-score rate, help explain the observed performance differences?
+The chapter addresses three experimental questions. First, which setup gives the strongest overall budget-aware performance across tasks and budgets? Second, does better budget efficiency, measured by the area under the budget curve (AUBC), also correspond to better final heuristic-population quality, measured by final outer hypervolume? Third, how do the three quality-signal variants differ when the rest of the scheduling and population-management pipeline is held fixed?
 
-These questions follow from the thesis objective, the metric definitions, and the reward-mode descriptions documented with the implementation. The thesis does not infer results from undocumented experiments; all numerical claims in this chapter are taken from the generated result files.
+All numerical claims in this chapter are derived from generated result files and summary tables. The chapter does not infer results from undocumented runs. Whenever a quantity is aggregated across tasks, budgets, or seeds, the aggregation rule is stated before the corresponding table or figure.
 
 \section{Experimental Setups}
 
-The analyzed matrix contains four setups. Table~\ref{tab:experiment-setups} summarizes their purpose and configuration. Final-HV reward, Dense reward, and Hybrid reward are three parallel BMAB quality-signal variants. They share the same scheduling pipeline and differ in the primary quality term used by the bandit reward. MPaGE-orig is the budget-wrapped original MPaGE baseline.
+Table~\ref{tab:experiment-setups} defines the four setups compared in this chapter. Each row represents one experimental setup. The first column gives the setup name used throughout the thesis, the second column states its experimental role, and the third column summarizes the configuration. The three reward-based setups are treated as comparable alternatives rather than as a default method plus secondary variants.
 
 \input{tables/experiment_setups}
 
 The Final-HV reward setup uses the two-level budgeted bandit scheduler, front-aware cluster priors, Page--Hinkley drift handling, final pending-offspring flushing, budget-aware exploration annealing, and a quality signal based on final managed-population HV gain. It tests whether aligning bandit feedback with the terminal managed-population metric improves final heuristic-population quality.
 
-The Dense reward setup uses the same scheduling pipeline but replaces the final-HV quality signal with immediate HVI-style feedback. It tests whether denser local improvement signals improve budget trajectories by giving the controller more frequent reward information.
+The Dense reward setup uses the same scheduling and population-management pipeline but replaces the final-HV quality signal with immediate hypervolume-improvement feedback. It tests whether denser local improvement signals help the controller make useful decisions earlier in the budget horizon.
 
-The Hybrid reward setup averages the dense and final-HV signals. Its purpose is to test whether early local feedback and terminal-population alignment are complementary. In principle, a hybrid signal may improve early budget curves because dense HVI is less sparse, while still keeping some pressure toward the final metric.
+The Hybrid reward setup combines dense immediate feedback with final managed-population feedback. Its purpose is to test whether short-horizon local improvement and terminal-population alignment are complementary. MPaGE-orig preserves the original MPaGE workflow but is wrapped in the same budget-recording protocol so that budget curves, AUBC, and final-HV values can be compared consistently.
 
-The MPaGE-orig setup represents the original MPaGE workflow under the same budget-recording protocol. It is the baseline because it preserves the MPaGE generation and population-management philosophy while lacking the BMAB call-allocation controller.
+\subsection{Benchmark Problems}
 
-All four setups are evaluated on Bi-TSP, Tri-TSP, Bi-CVRP, and Bi-KP. The budget levels are $B \in \{25,50,100,200\}$, and the seeds are 2025, 2026, 2027, 2028, and 2029. Thus each setup contributes $4 \times 4 \times 5 = 80$ runs. The result summaries show that the current matrix contains 320 aggregated runs. The experiment harness records AUBC, final outer hypervolume, budget curves, budget histories, valid heuristic counts, and invalid/null diagnostics for post-hoc analysis.
+The experiments use four multi-objective combinatorial optimization benchmarks. Table~\ref{tab:benchmark-problems} makes the benchmark names explicit before the quantitative results are discussed. Each row corresponds to one benchmark family, explains what a candidate solution represents, identifies the objectives, and reports the evaluator configuration used by the implementation. These tasks are suitable for this thesis because they cover different discrete representations: permutation tours, vehicle-route sets, and binary item-selection vectors.
 
-The unit of comparison is the task--budget cell. For each setup, a cell aggregates five seeds. Most tables in this chapter first compute a mean within each cell, then compare setups across the 16 cells formed by four tasks and four budgets. This design avoids overweighting any single task or budget level. It also makes the analysis robust to differences in absolute HV scale across tasks, especially between Tri-TSP and the bi-objective tasks.
+\input{tables/benchmark_problems}
 
-\section{Evaluation Metrics}
+Bi-TSP and Tri-TSP evaluate permutation-based local-search heuristics. They differ mainly in objective dimensionality: Bi-TSP optimizes two tour-length objectives, whereas Tri-TSP optimizes three. Bi-CVRP introduces routing feasibility constraints through vehicle capacity, so a generated heuristic must preserve valid route structures while improving distance and makespan. Bi-KP uses a binary representation and a capacity constraint, making it structurally different from the routing benchmarks. Together, these four problems test whether a budget-aware LLM heuristic-design process remains useful across distinct objective spaces and representation constraints.
 
-The primary metric is AUBC, the area under the outer hypervolume-vs-budget curve. It measures how effectively a setup converts consumed LLM-call budget into heuristic-population quality throughout a run. A method can be useful under a strict budget even if its final hypervolume is only slightly different, because reaching a strong population earlier provides more value when calls are expensive or a run may be stopped early.
+\subsection{Hyperparameters and Environment}
 
-The secondary metric is \code{hv\_final}. In the aggregation pipeline, this value is extracted from the final \code{hv} entry in the budget-curve artifact. It measures the terminal outer hypervolume of the managed heuristic population. It should not be confused with the inner solution-level hypervolume computed by each benchmark evaluator.
+Table~\ref{tab:experiment-hyperparameters} summarizes the experimental hyperparameters and local running environment. The table separates what is controlled by the experiment harness, such as budgets and seeds, from what is controlled by the BMAB scheduler, such as population size, operators, reward weights, and bandit parameters. Values that are not explicitly recorded in the implementation are marked with a TODO rather than guessed.
 
-The chapter also reports valid heuristic yield per 100 calls and invalid/null-score rate. These are diagnostic metrics rather than direct optimization objectives. They are useful because LLM-generated code may fail to parse, return infeasible outputs, time out, or receive a null score. However, the invalid/null diagnostic is not perfectly symmetric across all setups: BMAB-style runs mainly store valid or scored samples, whereas MPaGE-orig can retain null-score samples differently. Therefore, validity diagnostics are interpreted cautiously and separately from the primary performance metrics.
+\input{tables/experiment_hyperparameters}
 
-For budget-curve figures, the horizontal axis is normalized as \code{budget\_consumed/total\_budget}. The plotted curves use the same initial anchor as the AUBC profiler: the curve begins at $(0,0)$ before the first recorded hypervolume value. This convention makes the plotted budget curves consistent with the AUBC calculation.
+Each setup is evaluated on the same four tasks, four budgets, and five seeds. Thus, each setup contributes $4\times4\times5=80$ runs, and the complete comparison contains 320 runs. The budget $B$ counts external generation and clustering calls under the call-cost model used by the implementation. This call-based budget is appropriate for the present comparison because the result artifacts do not provide token-level cost, API latency, or monetary cost for each run.
 
-The normalized scores in this chapter are computed within each task--budget cell. If a setup has value $v_{m,c}$ for metric $m$ in cell $c$, and the best value in that cell is $v^{\star}_{m,c}$, the normalized score is a percentage relative to the cell best. This transformation is especially important for AUBC and HV because absolute values differ greatly across tasks. Without cell normalization, high-magnitude tasks would dominate the overall average even if the relative performance pattern were similar.
+\section{Metrics and Aggregation}
 
-Mean rank is reported alongside normalized score because the two summaries answer different questions. Normalized score measures practical closeness to the best observed value. Mean rank measures ordering stability. A method can have a high normalized score but a weaker rank if it is often slightly below the best method. Conversely, a method can achieve a good rank while having a larger gap in a few cells. The thesis therefore interprets both values together.
+\subsection{Task--Budget Cells}
+
+The basic unit of comparison is the \emph{task--budget cell}. A task--budget cell is an ordered pair
+\begin{equation}
+  c=(t,b), \qquad t\in\mathcal{T},\; b\in\mathcal{B},
+\end{equation}
+where $\mathcal{T}$ is the set of four benchmark tasks and $\mathcal{B}=\{25,50,100,200\}$ is the set of budget levels. There are therefore $|\mathcal{T}||\mathcal{B}|=16$ task--budget cells.
+
+Results are grouped by task and budget for two reasons. First, different tasks have different absolute outer-HV scales, so directly averaging raw values across tasks would overweight high-magnitude tasks. Second, different budgets represent different resource regimes. A setup that performs well at $B=25$ is not necessarily the same setup that performs best at $B=200$. Grouping by task and budget preserves this structure before cross-task summaries are computed.
+
+For a setup $s$, metric $m$, task $t$, budget $b$, and seed $r$, let $v^{(m)}_{s,t,b,r}$ denote the raw per-run metric value. The cell mean used for comparisons is
+\begin{equation}
+  \bar{v}^{(m)}_{s,t,b}
+  =
+  \frac{1}{|\mathcal{R}|}
+  \sum_{r\in\mathcal{R}} v^{(m)}_{s,t,b,r},
+\end{equation}
+where $\mathcal{R}=\{2025,2026,2027,2028,2029\}$. Thus, table entries and plotted values are generally seed means unless explicitly stated otherwise.
+
+\subsection{AUBC and Final Outer Hypervolume}
+
+The primary metric is AUBC, the area under the outer hypervolume-vs-budget curve. It measures how quickly a setup converts consumed LLM-call budget into heuristic-population quality. Let $(x_i,h_i)$ be the recorded budget curve after sorting by consumed budget, where $x_i$ is consumed budget and $h_i$ is outer hypervolume. The implementation inserts the initial point $(0,0)$ and uses trapezoidal integration:
+\begin{equation}
+  \mathrm{AUBC}
+  =
+  \frac{1}{B}
+  \sum_{i=1}^{L}
+  \frac{h_{i-1}+h_i}{2}
+  (x_i-x_{i-1}).
+  \label{eq:aubc-chapter5}
+\end{equation}
+If the last recorded point occurs before the full budget is exhausted, the profiler extends the curve using the last recorded hypervolume. Higher AUBC is better because it indicates that useful heuristic populations are obtained earlier and sustained for more of the budget horizon.
+
+The secondary metric is final outer hypervolume, denoted \code{hv\_final} in the result artifacts. It is extracted from the final \code{hv} entry of each budget curve. Final outer hypervolume measures the quality of the managed heuristic population at the end of a run. Higher final outer hypervolume is better. It should not be confused with the inner solution-level hypervolume computed inside each benchmark evaluator; Chapter~3 defines this inner--outer distinction in detail.
+
+\subsection{Normalized Score}
+
+Normalized score is used to compare setups across heterogeneous task--budget cells. For AUBC and final HV, the implementation first computes the seed mean $\bar{v}^{(m)}_{s,t,b}$ for each setup in a cell. It then divides by the best mean value observed in the same cell:
+\begin{equation}
+  \mathrm{NS}^{(m)}_{s,t,b}
+  =
+  100
+  \frac{\bar{v}^{(m)}_{s,t,b}}
+       {\max_{s'\in\mathcal{S}} \bar{v}^{(m)}_{s',t,b}},
+  \qquad
+  m\in\{\mathrm{AUBC},\mathrm{FinalHV}\}.
+  \label{eq:normalized-score-chapter5}
+\end{equation}
+Here $\mathcal{S}$ is the set of compared setups. A score of 100 means that the setup has the best mean value in that task--budget cell. A score of 95 means that it reaches 95\% of the best observed mean value in that cell. Higher normalized score is better.
+
+This normalization is necessary because raw hypervolume scales are not comparable across tasks. For example, a small raw change on one benchmark may be practically important, while a larger raw change on another benchmark may be minor relative to that task's scale. Cell-wise normalization allows the overall summary to measure relative competitiveness rather than absolute magnitude.
+
+The mean normalized score reported in summary tables is
+\begin{equation}
+  \overline{\mathrm{NS}}^{(m)}_{s}
+  =
+  \frac{1}{|\mathcal{C}|}
+  \sum_{(t,b)\in\mathcal{C}}
+  \mathrm{NS}^{(m)}_{s,t,b},
+  \qquad |\mathcal{C}|=16.
+  \label{eq:mean-normalized-score-chapter5}
+\end{equation}
+The performance score is the arithmetic mean of the AUBC and final-HV mean normalized scores:
+\begin{equation}
+  \mathrm{Perf}(s)
+  =
+  \frac{
+    \overline{\mathrm{NS}}^{(\mathrm{AUBC})}_{s}
+    +
+    \overline{\mathrm{NS}}^{(\mathrm{FinalHV})}_{s}
+  }{2}.
+  \label{eq:performance-score-chapter5}
+\end{equation}
+
+\subsection{Mean Rank and Pairwise Wins}
+
+Mean rank provides an ordering-based summary. Within each task--budget cell and metric, the setups are sorted by their cell means. Since AUBC and final HV are both higher-is-better metrics, rank 1 is assigned to the largest cell mean. Ties are assigned the average of the tied rank positions, matching the aggregation script. The mean rank of setup $s$ for metric $m$ is
+\begin{equation}
+  \overline{\rho}^{(m)}_{s}
+  =
+  \frac{1}{|\mathcal{C}|}
+  \sum_{(t,b)\in\mathcal{C}}
+  \rho^{(m)}_{s,t,b}.
+  \label{eq:mean-rank-chapter5}
+\end{equation}
+Lower mean rank is better. Normalized score and mean rank should be interpreted together: normalized score measures closeness to the best observed value, while rank measures how consistently a setup is ordered ahead of the others.
+
+Pairwise wins are computed at the task--budget-cell level. For two setups $a$ and $b$, the pairwise win count for a higher-is-better metric is
+\begin{equation}
+  W^{(m)}_{a,b}
+  =
+  \sum_{(t,b)\in\mathcal{C}}
+  \mathbf{1}
+  \left[
+    \bar{v}^{(m)}_{a,t,b}
+    >
+    \bar{v}^{(m)}_{b,t,b}
+  \right].
+  \label{eq:pairwise-wins-chapter5}
+\end{equation}
+The maximum possible value is 16. A value of 16 means that setup $a$ has a higher mean value than setup $b$ in every task--budget cell.
 
 \section{Overall Four-Setup Results}
 
-Table~\ref{tab:all-overall-scores} summarizes the four setups using normalized scores across the 16 task--budget cells. A score of 100 means that the setup is the best method in that specific task--budget cell; the table reports the mean of these normalized cell scores. The performance score is the mean of the AUBC and final-HV normalized scores. Figure~\ref{fig:overall-scores} visualizes the same comparison for AUBC, final HV, and valid yield.
+Table~\ref{tab:all-overall-scores} summarizes the four setups using the normalized-score and mean-rank definitions from Equations~\ref{eq:normalized-score-chapter5}--\ref{eq:performance-score-chapter5}. Each row is one setup. The AUBC and final-HV score columns report mean normalized scores over 16 task--budget cells. The rank columns report mean ranks over the same cells, where lower is better. The performance score averages the AUBC and final-HV normalized scores.
 
 \input{tables/all_overall_scores}
+
+Figure~\ref{fig:overall-scores} visualizes the same two normalized-score columns from Table~\ref{tab:all-overall-scores}. Each bar is the mean normalized score of one setup for either AUBC or final HV. Higher bars indicate stronger relative performance across the full task--budget matrix.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\linewidth]{all_overall_normalized_scores.png}
-  \caption{Overall normalized scores for AUBC, final HV, and valid heuristic yield across the four setups.}
+  \caption{Overall normalized scores for AUBC and final outer hypervolume across the four setups.}
   \label{fig:overall-scores}
 \end{figure}
 
-The strongest overall performance is shared by Final-HV reward and Hybrid reward. Final-HV reward obtains a performance score of 96.9, the best mean final-HV rank, and the largest number of final-HV top-two cells. Hybrid reward has an almost identical performance score of 96.9, a marginally higher mean normalized AUBC score, and the best valid-yield score. This indicates that the hybrid signal is highly competitive, especially when valid heuristic production is considered, while the final-HV signal is slightly stronger in terminal population quality.
+The strongest overall performance is shared by Final-HV reward and Hybrid reward. Both obtain a performance score of 96.9. Final-HV reward has the best mean final-HV rank, while Hybrid reward has a nearly identical normalized final-HV score and a marginally higher normalized AUBC score. Dense reward is also competitive, with a performance score of 95.8. MPaGE-orig is clearly separated by its lower AUBC score, although its final-HV score is closer to the reward-based variants.
 
-Dense reward is also competitive. Its performance score is 95.8, and it beats MPaGE-orig in every AUBC task--budget cell. This result is important because it shows that immediate HVI-style feedback remains useful when embedded in the shared BMAB pipeline. However, Dense reward has a lower final-HV score than Final-HV reward and Hybrid reward, suggesting that immediate HVI alone is less aligned with terminal population quality in the current result matrix.
-
-MPaGE-orig has the weakest AUBC profile, with a mean normalized AUBC score of 76.2 and mean AUBC rank 3.94. Its final-HV score is closer to the reward-mode variants than its AUBC score, which suggests that the original MPaGE workflow can sometimes reach reasonable terminal populations, but it tends to do so later and less efficiently.
-
-The overall comparison also reveals that the strongest variant depends on which practical objective is emphasized. If the objective is final managed-population quality, Final-HV reward has the best final-HV mean rank. If the objective is valid candidate production, Hybrid reward is strongest. If the objective is only AUBC, Final-HV reward, Dense reward, and Hybrid reward are close enough that the result should be described as a family-level BMAB advantage rather than as a universal win by one reward mode. This nuance is important because it prevents overclaiming: the experiments support the proposed budget-aware framework strongly, but they do not show that one scalar reward is best in every possible sense.
+This result should be interpreted carefully. The evidence does not show that one reward design dominates every metric and every task. Instead, it shows that the three budget-aware quality-signal variants form a strong family relative to MPaGE-orig, with small but meaningful differences among the variants. Final-HV reward is the most attractive option when terminal population quality is the main objective, whereas Hybrid reward is slightly stronger in average normalized AUBC.
 
 \section{Task-Level Patterns}
 
-Table~\ref{tab:task-level-scores} reports task-level mean normalized scores for AUBC and final HV. This table helps identify whether the overall conclusion is driven by one benchmark family or whether it is visible across tasks.
+Table~\ref{tab:task-level-scores} breaks the normalized scores down by benchmark family. Each value is computed by normalizing within each task--budget cell and then averaging across the four budgets of that task. Rows are setups and columns are benchmark tasks. The table helps reveal whether the overall result is driven by one benchmark or appears across multiple problem structures.
 
 \input{tables/task_level_scores}
 
-The Bi-TSP results show that all methods are relatively close in final HV. MPaGE-orig even obtains a strong final-HV normalized score on Bi-TSP, indicating that the original workflow can find competitive terminal heuristic populations on this task. However, its AUBC score is lower than every BMAB-style method. This suggests that the main Bi-TSP advantage of BMAB is not necessarily a much better endpoint, but faster conversion of budget into a useful population.
+The Bi-TSP results show that all setups are relatively close in final HV. MPaGE-orig even obtains a strong final-HV normalized score on Bi-TSP, indicating that the original workflow can reach competitive terminal heuristic populations on this benchmark. However, its AUBC score is lower than every reward-based variant. The main Bi-TSP advantage of the budget-aware scheduler is therefore faster conversion of budget into a useful population, not necessarily a much better endpoint.
 
-Tri-TSP provides a clearer example of budget-trajectory improvement. The final-HV scores of all methods are high and close because the terminal populations reach similar outer-HV regions, but MPaGE-orig has a much lower AUBC score. This pattern means that the baseline often catches up late, while BMAB-style methods reach high outer HV earlier. The result is consistent with the intuition that tri-objective inner archives require broader early exploration and that adaptive cluster/operator allocation can help populate useful heuristic regions sooner.
+Tri-TSP provides a clearer budget-trajectory improvement. Final-HV scores are high and close for all setups, but MPaGE-orig has a substantially lower AUBC score. This means that the baseline can eventually approach strong terminal values but tends to do so later. The tri-objective setting makes early coverage of the heuristic-population trade-off surface more important, so adaptive cluster and operator allocation is especially useful.
 
-Bi-CVRP is the task where the AUBC gap against MPaGE-orig is largest. The baseline AUBC normalized score is 66.1, while the BMAB-style methods are all near or above 94.8. This is practically meaningful because Bi-CVRP has stronger feasibility structure than TSP: route capacity constraints make many naive local modifications less useful. A scheduler that learns which semantic regions and operators produce valid, improving code can therefore have a larger effect.
+Bi-CVRP has the largest AUBC gap against MPaGE-orig. The baseline AUBC normalized score is 66.1, while the three reward-based variants are all near or above 94.8. This is practically meaningful because Bi-CVRP includes route-capacity constraints and a route-structure representation. A scheduler that reallocates calls away from unproductive regions can therefore have a larger effect than on simpler permutation tasks.
 
-Bi-KP shows a more mixed reward-mode pattern. Hybrid reward has the strongest final-HV normalized score on this task, while Final-HV reward remains competitive in AUBC. This suggests that dense local feedback may be particularly helpful for the binary knapsack representation, where valid local changes can provide informative incremental improvement. At the same time, MPaGE-orig is substantially weaker in final HV on Bi-KP, which indicates that the finalized BMAB implementation improves more than only early progress on this benchmark.
-
-Across tasks, the most stable conclusion is therefore not that the same setup wins every task, but that MPaGE-orig is consistently weak in AUBC while the three current BMAB reward modes remain competitive. This supports the thesis claim that adaptive LLM-call allocation is useful across multiple combinatorial representations.
+Bi-KP shows a more mixed reward-mode pattern. Hybrid reward obtains the strongest final-HV normalized score on this task, while Final-HV reward remains competitive in AUBC. This suggests that the binary knapsack representation may benefit from feedback that captures both immediate local improvement and final population contribution. MPaGE-orig is substantially weaker in final HV on Bi-KP, indicating that the proposed scheduling framework improves more than only early progress on this benchmark.
 
 \section{Pairwise Cell-Level Comparison}
 
-Pairwise task--budget wins give a direct view of how often one setup has a higher mean metric value than another setup. Table~\ref{tab:all-pairwise-wins} reports these counts for AUBC and final HV.
+Table~\ref{tab:all-pairwise-wins} reports pairwise task--budget wins using Equation~\ref{eq:pairwise-wins-chapter5}. Each entry counts how many of the 16 cells are won by the row setup against the column setup. The diagonal is omitted because a setup is not compared against itself. A larger value means that the row setup is more often better than the column setup for the corresponding metric.
 
 \input{tables/all_pairwise_wins}
 
-For AUBC, every current BMAB-style setup is clearly stronger than MPaGE-orig. Final-HV reward wins 15 of 16 AUBC cells against MPaGE-orig. Dense reward and Hybrid reward each win all 16 AUBC cells against MPaGE-orig. This is the strongest evidence that budget-aware scheduling and the finalized BMAB implementation improve budget-integrated behavior relative to the original MPaGE workflow.
+For AUBC, every reward-based setup is clearly stronger than MPaGE-orig. Final-HV reward wins 15 of 16 AUBC cells against MPaGE-orig, while Dense reward and Hybrid reward each win all 16. This is the strongest evidence that budget-aware scheduling improves budget-integrated behavior relative to the original MPaGE workflow.
 
-Among the three current reward modes, the AUBC comparison is close. Final-HV reward wins 9 of 16 cells against Dense reward and 10 of 16 against Hybrid reward. Dense reward wins 9 of 16 against Hybrid reward. These margins indicate that no reward mode uniformly dominates all others in AUBC. The final-HV comparison is more favorable to Final-HV reward: it wins 10 of 16 cells against Dense reward and 11 of 16 against Hybrid reward. Therefore, Final-HV reward is the strongest terminal-quality variant in the current result matrix, while Dense reward and Hybrid reward remain meaningful alternatives for budget-trajectory and validity-oriented objectives.
+Among the three reward-based variants, the AUBC comparison is close. Final-HV reward wins 9 of 16 cells against Dense reward and 10 of 16 against Hybrid reward; Dense reward wins 9 of 16 against Hybrid reward. The final-HV comparison is more favorable to Final-HV reward, which wins 10 of 16 cells against Dense reward and 11 of 16 against Hybrid reward. Thus, the pairwise table supports the same conclusion as the overall table: the framework-level gain over MPaGE-orig is robust, while differences among the three quality signals are more nuanced.
+
+Figure~\ref{fig:pairwise-wins} visualizes the same pairwise counts as heatmaps. The row setup is the candidate winner, the column setup is the comparator, and darker cells indicate more wins. This figure is useful for quickly seeing asymmetric dominance patterns, especially the strong AUBC separation between the reward-based variants and MPaGE-orig.
 
 \begin{figure}[H]
   \centering
@@ -97,34 +195,30 @@ Among the three current reward modes, the AUBC comparison is close. Final-HV rew
     \includegraphics[width=\linewidth]{all_hv_final_pairwise_cell_wins.png}
     \caption{Final HV}
   \end{subfigure}
-  \caption{Pairwise task--budget win matrices for AUBC and final hypervolume.}
+  \caption{Pairwise task--budget win matrices for AUBC and final outer hypervolume.}
   \label{fig:pairwise-wins}
 \end{figure}
 
 \section{AUBC Analysis}
 
-Figure~\ref{fig:all-aubc-mean} shows mean AUBC by task and budget. The central pattern is that all three BMAB quality-signal variants substantially outperform MPaGE-orig in budget-integrated performance. The gap is especially visible in Tri-TSP and Bi-CVRP, where the baseline tends to improve later in the budget trajectory. Since AUBC integrates the whole curve, delayed improvement is penalized even when final hypervolume eventually becomes competitive.
+Figure~\ref{fig:all-aubc-mean} shows the raw mean AUBC values by task and budget. Each subplot corresponds to one benchmark task. The horizontal axis is the LLM-call budget, and each line is one setup. Each plotted point is the mean AUBC over five seeds for the corresponding setup, task, and budget. Higher values are better.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\linewidth]{all_aubc_mean_by_budget.png}
-  \caption{Mean AUBC by task and budget for the four final setups.}
+  \caption{Mean AUBC by task and budget for the four experimental setups.}
   \label{fig:all-aubc-mean}
 \end{figure}
 
-Final-HV reward obtains the best AUBC value in eight cells and is among the top two in eleven cells. Dense reward obtains four AUBC best cells and twelve top-two cells, while Hybrid reward obtains four AUBC best cells and nine top-two cells. These counts explain why their normalized AUBC scores are close. The difference between the reward modes is therefore not a simple win/loss story; rather, the reward modes trade off early dense feedback against final-population alignment.
+The central pattern is that all three reward-based variants substantially outperform MPaGE-orig in budget-integrated performance. The gap is especially visible in Tri-TSP and Bi-CVRP, where MPaGE-orig tends to improve later in the budget trajectory. Since AUBC integrates the whole curve, delayed improvement is penalized even when final hypervolume eventually becomes competitive.
 
-MPaGE-orig obtains no AUBC top-two cells. This is an important result because it is robust to task and budget variation in the current matrix. The result does not mean that MPaGE-orig never generates useful heuristics. Instead, it means that under the experimental framework and finite call budgets, it reaches useful heuristic-population hypervolume later than the BMAB-style variants.
+Final-HV reward obtains the best AUBC value in eight cells and is among the top two in eleven cells. Dense reward obtains four AUBC best cells and twelve top-two cells, while Hybrid reward obtains four AUBC best cells and nine top-two cells. These counts explain why the normalized AUBC scores of the three reward-based variants are close. The reward modes trade off early dense feedback against final-population alignment rather than producing a simple universal winner.
 
-The AUBC result is particularly important at low and medium budgets. When $B=25$ or $B=50$, the number of generation opportunities is small, so early scheduling decisions have a large effect on the integral. Spending calls on unproductive semantic regions or on operators that currently produce invalid children can leave the curve flat for a substantial fraction of the run. BMAB-style scheduling mitigates this by using reward feedback after each generated child. The advantage is therefore structural: the controller can redirect calls during the run, whereas a fixed policy must wait for the next predetermined step.
-
-At larger budgets, the interpretation changes slightly. With $B=100$ or $B=200$, all methods have more opportunities to recover from early poor choices. Consequently, final HV can become close even when AUBC remains different. This is why AUBC and final HV should be read together. A method that is worse in AUBC but similar in final HV is not necessarily incapable; it may simply require more budget to reach the same region. For LLM-driven heuristic design, that delay is itself an important cost.
-
-The budget levels also change the effective learning problem faced by the bandit. At $B=25$, a run may contain only a few meaningful decision rounds after initialization and clustering overhead. At $B=200$, the controller has enough observations to revise its beliefs about operators and clusters several times. This creates a tension between early exploration and late exploitation, which motivates the budget-annealed cluster UCB term. Larger budgets also use larger managed populations, so validity diagnostics remain relevant: a larger population can help only if the method generates enough valid and useful programs to fill it.
+The AUBC result is particularly important at low and medium budgets. When $B=25$ or $B=50$, only a small number of useful generation opportunities remain after initialization and clustering overhead. Early scheduling decisions therefore have a large effect on the integral in Equation~\ref{eq:aubc-chapter5}. At $B=100$ and $B=200$, methods have more opportunities to recover from poor early choices, so final HV can become close even when AUBC remains different. This is why AUBC and final HV should be read together.
 
 \section{Budget-Curve Behavior}
 
-The budget curves in Figure~\ref{fig:all-budget-curves} explain the AUBC results. The BMAB-style methods usually increase outer hypervolume early, often during or shortly after initialization. MPaGE-orig can exhibit a longer initial flat region, especially in Tri-TSP, Bi-CVRP, and Bi-KP. This delayed increase reduces AUBC even if the final value later approaches the BMAB-style methods.
+Figure~\ref{fig:all-budget-curves} shows mean outer-HV budget curves. Each subfigure fixes a total budget $B$. Within each subfigure, the four panels correspond to the four benchmark tasks. The horizontal axis is normalized budget, computed as consumed budget divided by total budget. For each setup, per-seed budget curves are first interpolated onto a common grid of 101 normalized-budget points; the plotted line is then the mean outer HV across the five seeds. The vertical axis is raw outer hypervolume, not normalized score.
 
 \begin{figure}[H]
   \centering
@@ -144,37 +238,41 @@ The budget curves in Figure~\ref{fig:all-budget-curves} explain the AUBC results
     \includegraphics[width=\linewidth]{all_budget_curves_B200.png}
     \caption{$B=200$}
   \end{subfigure}
-  \caption{Mean outer hypervolume curves over normalized budget for the four final setups.}
+  \caption{Mean outer hypervolume curves over normalized budget for the four experimental setups.}
   \label{fig:all-budget-curves}
 \end{figure}
 
-Some curves become nearly flat after an early rise. This should not be interpreted as a plotting error. The profiler records curve points when the managed heuristic population changes at generation boundaries and at final pending-offspring flushing. Once the population reaches a high-HV region, later generated heuristics may not improve the managed Pareto population enough to change the outer hypervolume. The zoomed BMAB-style budget curve in Figure~\ref{fig:bmab-zoom-budget} makes these smaller differences easier to see without MPaGE-orig's early zero region dominating the scale.
+The MPaGE-orig curve often looks like a step function: it remains flat over many budget intervals and then jumps when a useful heuristic changes the managed outer population. This behavior follows from the budget wrapper and profiler. Calls are charged for heuristic generation and clustering, but the recorded outer HV changes only when the current heuristic population changes enough to improve its outer hypervolume. Therefore, clustering calls, invalid or non-improving generated heuristics, and generated heuristics that are dominated by the current population can consume budget while leaving the curve unchanged. When a generated heuristic is finally accepted and improves the managed population, the curve jumps upward.
 
-The shape of a budget curve contains more information than the final point. A steep initial rise means that initialization and early generations found useful heuristics quickly. A long flat segment means that calls were spent without changing the managed population's outer HV. A late jump means that the method eventually discovered a useful heuristic but only after a period of low return. Since AUBC integrates all of these behaviors, it rewards early and sustained improvement rather than only endpoint quality.
+The three reward-based variants often appear smoother in the seed-averaged plots. This does not mean that their hypervolume changes continuously; individual runs can still contain flat segments. The smoother appearance is produced by two supported mechanisms: the BMAB profiler records population updates at generation boundaries and after final pending-offspring flushing, and the plotted curve averages interpolated curves over five seeds. In addition, the reward-based scheduler can redirect calls during the run based on observed reward feedback, which tends to create more frequent incremental improvements in several cells. The resulting AUBC advantage is therefore a trajectory effect rather than only an endpoint effect.
 
-This interpretation also explains why the y-value at normalized budget $1$ in a budget-curve plot should be read carefully. The curve endpoint corresponds to the mean final outer HV only when the curve is aggregated and plotted using the same per-run final points and the same task--budget grouping as the final-HV summary. Differences can appear when curves are averaged over interpolated budget positions, anchored at $(0,0)$, or plotted with task-level grouping that differs from the final-HV bar chart. In this thesis, the reported AUBC, final HV, and budget curves are generated from the same consolidated result artifacts.
+The y-value at normalized budget 1 corresponds to the mean final outer HV for the same setup, task, and budget when the plotted budget curve and the final-HV summary use the same per-run curve endpoints and the same grouping. It should not be compared directly with an overall normalized-score bar, because normalized-score figures divide by the best setup within each task--budget cell and then average across cells. In short, budget curves show raw seed-mean outer HV within a task, whereas the overall summary shows normalized cross-task competitiveness.
+
+Figure~\ref{fig:bmab-zoom-budget} excludes MPaGE-orig and zooms the $B=100$ curves for the three reward-based variants. Each line is again a seed-mean interpolated outer-HV curve. The purpose of the figure is not to introduce a new metric, but to make small trajectory differences among the three reward signals visible after removing the baseline's larger scale differences.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\linewidth]{all_budget_curves_bmab_zoom_B100.png}
-  \caption{Zoomed BMAB-style budget curves at $B=100$, excluding MPaGE-orig to make differences among Final-HV reward, Dense reward, and Hybrid reward more visible.}
+  \caption{Zoomed reward-variant budget curves at $B=100$, excluding MPaGE-orig to make differences among Final-HV reward, Dense reward, and Hybrid reward more visible.}
   \label{fig:bmab-zoom-budget}
 \end{figure}
 
 \section{Final Hypervolume Analysis}
 
-Final hypervolume provides a different view from AUBC. Figure~\ref{fig:all-hv-mean} shows that Final-HV reward has the strongest terminal-quality profile overall: it obtains the best final-HV rank, six best cells, and twelve top-two cells. It also wins 13 of 16 final-HV cells against MPaGE-orig. This supports the final-HV-oriented reward design when the final managed population is the main concern.
+Figure~\ref{fig:all-hv-mean} shows mean final outer hypervolume by task and budget. Each point is the mean of the final budget-curve endpoint over five seeds. Unlike AUBC, this metric ignores when improvement occurred; it measures only the terminal managed heuristic population after the budget has been consumed. Higher values are better.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\linewidth]{all_hv_final_mean_by_budget.png}
-  \caption{Mean final outer hypervolume by task and budget for the four final setups.}
+  \caption{Mean final outer hypervolume by task and budget for the four experimental setups.}
   \label{fig:all-hv-mean}
 \end{figure}
 
-The final-HV results are nevertheless more mixed than AUBC. MPaGE-orig is weak in AUBC but still has two best final-HV cells. Dense and hybrid reward are also competitive in several final-HV cells. Therefore, the main advantage of the BMAB-style methods is not simply that they always end with much larger terminal HV. The more precise conclusion is that they improve the search trajectory and usually maintain or improve terminal population quality. This distinction is important because final-HV-only analysis would underestimate the value of budget-aware scheduling.
+Final-HV reward has the strongest terminal-quality profile overall. It obtains the best final-HV mean rank, six best final-HV cells, and twelve top-two final-HV cells. It also wins 13 of 16 final-HV cells against MPaGE-orig. This supports the design rationale of using final managed-population HV gain as a quality signal when endpoint population quality is the primary target.
 
-The trade-off plot in Figure~\ref{fig:aubc-final-tradeoff} summarizes this relationship. Final-HV reward and Hybrid reward occupy the strongest region, with high normalized AUBC and high normalized final HV. Dense reward is slightly lower in final HV, while MPaGE-orig is separated mainly by its lower AUBC score.
+The final-HV results are more mixed than the AUBC results. MPaGE-orig is weak in AUBC but still has two best final-HV cells, and Dense reward and Hybrid reward are competitive in several cells. Therefore, the main advantage of the budget-aware variants is not that they always end with much larger final hypervolume. The more precise conclusion is that they improve the search trajectory and usually maintain or improve terminal population quality.
+
+Figure~\ref{fig:aubc-final-tradeoff} summarizes the relationship between AUBC and final HV. Each point is one setup. The horizontal coordinate is mean normalized AUBC score, and the vertical coordinate is mean normalized final-HV score. A point in the upper-right region indicates that the setup is strong in both budget efficiency and terminal quality.
 
 \begin{figure}[H]
   \centering
@@ -183,64 +281,30 @@ The trade-off plot in Figure~\ref{fig:aubc-final-tradeoff} summarizes this relat
   \label{fig:aubc-final-tradeoff}
 \end{figure}
 
-The final-HV results support two methodological points. First, aligning the reward with final managed-population HV is useful. Final-HV reward has the best final-HV mean rank and more final-HV top-two cells than the other quality-signal variants. This is consistent with the design rationale: if the bandit is trained on the same population-level effect that is reported at the end, its updates are more directly aligned with terminal quality.
-
-Second, final HV is not sensitive to all forms of wasted budget. If a method spends many calls early without improvement but eventually reaches a strong front, final HV can still look good. This explains why MPaGE-orig is less separated in final HV than in AUBC. For thesis evaluation, this distinction matters because a committee reader might otherwise ask why adaptive scheduling is necessary when the final endpoints are sometimes close. The answer is that the proposed framework changes the budget trajectory, not only the terminal snapshot.
-
-The trade-off between AUBC and final HV also suggests different deployment preferences. If LLM calls are expensive or runs may be interrupted, AUBC should be prioritized. If only the final artifact matters and the complete budget is guaranteed, final HV receives more weight. Final-HV reward performs well under both views, whereas Hybrid reward is attractive when valid-yield and early progress are emphasized.
+Final-HV reward and Hybrid reward occupy the strongest region of the trade-off plot. Dense reward remains close, while MPaGE-orig is separated mainly by its lower AUBC score. This reinforces the practical interpretation: if LLM calls are expensive or runs may be interrupted, AUBC should receive substantial weight; if only the final artifact matters and the complete budget is guaranteed, final HV becomes more important.
 
 \section{Reward-Mode Interpretation}
 
-The Final-HV reward, Dense reward, and Hybrid reward setups isolate the role of the main quality signal while keeping the finalized implementation otherwise unchanged. Dense reward provides immediate-HVI feedback: it rewards local hypervolume improvement against the current heuristic front. Final-HV reward evaluates the candidate by its effect after managed-population selection, aligning the bandit feedback more directly with the final reported population. Hybrid reward averages these two signals.
+The three reward-based variants isolate the role of the main quality signal while keeping the finalized implementation otherwise unchanged. Dense reward provides immediate hypervolume-improvement feedback against the current heuristic front. Final-HV reward evaluates the candidate by its effect after managed-population selection, aligning the bandit feedback more directly with the final reported population. Hybrid reward averages these two signals.
 
-The results show that immediate dense feedback remains useful. Dense reward reaches a mean normalized AUBC score of 95.4 and beats MPaGE-orig in all AUBC cells. This suggests that short-horizon HVI feedback is informative for early progress. However, its final-HV score of 96.1 is lower than both Final-HV reward and Hybrid reward. This supports the methodological concern that an immediate HVI reward can encourage locally useful candidates without fully aligning with the managed final population.
+The results show that immediate dense feedback remains useful. Dense reward reaches a mean normalized AUBC score of 95.4 and beats MPaGE-orig in all AUBC cells. This suggests that short-horizon improvement information is informative for early progress. However, its final-HV score of 96.1 is lower than Final-HV reward and Hybrid reward, which supports the methodological concern that immediate HVI alone may be less aligned with the capped final population.
 
-Hybrid reward has the highest valid-yield score and the highest mean normalized AUBC score by a very small margin. This implies that combining dense feedback with final-population feedback can improve the rate at which valid and useful heuristics are produced. Nevertheless, Hybrid reward does not surpass Final-HV reward in final-HV rank or pairwise final-HV wins. The two variants therefore represent a practical trade-off: Hybrid reward is strongest for valid-yield and marginally stronger in normalized AUBC, whereas Final-HV reward is strongest for terminal outer-HV ranking.
+Hybrid reward has the highest mean normalized AUBC score by a very small margin and ties Final-HV reward in overall performance score. Nevertheless, it does not surpass Final-HV reward in final-HV rank or pairwise final-HV wins. The two variants therefore represent a practical trade-off: Hybrid reward is slightly stronger in normalized AUBC, whereas Final-HV reward is stronger in terminal outer-HV ranking.
 
-The reward-mode comparison is also useful because it separates two kinds of improvement. The first kind is implementation-level improvement: pending-offspring flushing, final-call cluster guarding, front-aware priors, and weighted parent selection make the search process more faithful to the intended outer-population objective. The second kind is reward-signal improvement: the scalar feedback given to the bandit changes which arms are reinforced. Since Final-HV reward, Dense reward, and Hybrid reward share the same scheduling pipeline, their results show that the implementation design is not dependent on a single reward variant.
-
-Dense reward has an intuitive advantage: it gives immediate feedback whenever a candidate expands the current front. This can be helpful early because the front is sparse and many improvements are possible. Its weakness is that immediate HVI may reward candidates that improve the current front but are later discarded by the managed population cap or provide little benefit after survivor selection. Final-HV reward is more conservative, but it better matches the final metric. Hybrid reward sits between these two behaviors, and the results show exactly that: strong AUBC and validity, but not the strongest final-HV rank.
-
-\section{Validity Diagnostics}
-
-Figure~\ref{fig:valid-yield-all} shows valid heuristic yield per 100 calls. Hybrid reward is strongest on this diagnostic: it has the best valid-yield rank, seven best cells, and fourteen top-two cells. This may help explain its strong AUBC performance. A setup that produces valid candidates more consistently has more opportunities to improve the heuristic population.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\linewidth]{all_valid_yield_mean_by_budget.png}
-  \caption{Mean valid heuristic yield per 100 calls by task and budget.}
-  \label{fig:valid-yield-all}
-\end{figure}
-
-However, valid yield does not fully explain performance. Final-HV reward has a lower valid-yield score than Hybrid reward, yet it has better final-HV rank. This indicates that candidate quality and candidate placement in the managed Pareto population matter at least as much as raw valid count. In other words, producing more valid code is helpful, but not sufficient; the generated heuristics must also contribute useful trade-offs in the outer score space.
-
-Figure~\ref{fig:invalid-rate-all} reports the invalid/null proxy rate. This figure is useful for diagnosing BMAB-style runs, but it should be interpreted cautiously when comparing against MPaGE-orig because the storage conventions differ. MPaGE-orig's diagnostic score appears very strong in the normalized diagnostic tables because its invalid/null information is recorded differently. For this reason, the thesis uses invalid/null rate as supporting evidence rather than as a primary ranking metric.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\linewidth]{all_invalid_null_proxy_rate_mean_by_budget.png}
-  \caption{Mean invalid/null proxy rate by task and budget. Lower values are better, but storage conventions differ between BMAB-style runs and MPaGE-orig.}
-  \label{fig:invalid-rate-all}
-\end{figure}
-
-The validity diagnostics help avoid a simplistic interpretation of the results. If the best-performing method were simply the one that generated the most valid code, then valid-yield ranking would match AUBC and final-HV ranking. It does not. Hybrid reward is strongest in valid yield, but Final-HV reward is strongest in final-HV rank. This means that the search controller must balance at least two factors: producing executable candidates and producing candidates that occupy useful positions in the outer Pareto score space.
-
-The invalid/null diagnostic also reveals a measurement limitation. Because the result formats differ between BMAB-style runs and MPaGE-orig, the normalized invalid/null score cannot be used as a fair standalone ranking across all four setups. This is why the thesis focuses on AUBC and final HV for performance claims. Validity metrics are still useful internally: they can identify cells where an unexpectedly weak AUBC value may be caused by too few valid offspring rather than by poor selection among valid offspring.
+The reward-mode comparison also separates two kinds of improvement. The first is framework-level improvement: budget accounting, adaptive operator and cluster scheduling, front-aware priors, parent weighting, and final pending-offspring flushing make the search process more faithful to the intended outer-population objective. The second is reward-signal choice: the scalar feedback given to the bandit changes which arms are reinforced. Because Final-HV reward, Dense reward, and Hybrid reward share the same scheduling pipeline, their differences should be interpreted as reward-design differences rather than as evidence for entirely separate architectures.
 
 \section*{Limitations of the Evidence}
 
-Final-HV reward, Dense reward, and Hybrid reward are quality-signal variants of the same scheduling framework, not separate systems with different schedulers. Therefore, differences among the BMAB-style setups should be interpreted as differences in bandit feedback, not as evidence for completely separate architectures.
+The local hardware environment is reported in Table~\ref{tab:experiment-hyperparameters}, but the implementation artifacts do not provide token usage, API latency, monetary cost, GPU utilization, or memory-utilization traces for the reported runs. No information was found in the source code or documentation for these runtime measurements. Consequently, the budget model in this chapter remains call-based.
 
-The implementation artifacts do not provide token usage, API latency, monetary cost, GPU usage, or memory consumption for the reported runs. No information was found in the source code or documentation for these measurements. Consequently, the budget model in this thesis remains call-based.
+All reported HV and AUBC values are outer heuristic-population metrics. They are meaningful for comparing heuristic-design processes under the experimental framework used in this thesis, but they are not direct reproductions of the normalized inner-solver metrics reported in the original MPaGE paper.
 
-Finally, all reported HV and AUBC values are outer heuristic-population metrics. They are meaningful for comparing heuristic-design processes under the experimental framework used in this thesis, but they are not direct reproductions of the normalized inner-solver metrics reported in the original MPaGE paper.
+The experiment matrix compares the three quality-signal variants and MPaGE-orig, but it does not yet fully isolate every architectural component. The codebase contains ablation hooks for Page--Hinkley drift detection, diversity reward, cluster-only control, operator-only control, and budget annealing, but complete result matrices for all of these variants are not part of the current thesis evidence. Therefore, the chapter can conclude that the finalized budget-aware methods work well as a family, but it cannot assign a precise causal contribution to every individual component.
 
-Another limitation is that the experiment matrix compares reward modes but does not yet fully isolate every architectural component. The codebase contains ablation hooks for Page--Hinkley, diversity reward, cluster-only control, operator-only control, and budget annealing, but complete result matrices for all of these variants are not part of the current thesis evidence. Therefore, the chapter can conclude that the finalized BMAB-style methods work well as a family, but it cannot assign a precise causal contribution to every individual component.
-
-The analysis also remains quantitative rather than qualitative. It does not inspect the generated heuristic code to identify recurring algorithmic motifs. Such an analysis could reveal whether BMAB scheduling discovers genuinely different heuristic families or mainly reallocates budget among similar local variants. The saved samples make this possible, but it is outside the present scope.
+The analysis also remains quantitative rather than qualitative. It does not inspect the generated heuristic code to identify recurring algorithmic motifs. Such an analysis could reveal whether adaptive scheduling discovers genuinely different heuristic families or mainly reallocates budget among similar local variants. The saved samples make this possible, but it is outside the present scope.
 
 \section*{Chapter Summary}
 
-The current result artifacts support three main findings. First, the BMAB-style variants are substantially stronger than MPaGE-orig in AUBC. This indicates that budget-aware scheduling improves how quickly useful heuristic populations are obtained. Second, Final-HV reward and Hybrid reward form the strongest overall pair: they are effectively tied in performance score, with Final-HV reward leading in final-HV rank and Hybrid reward leading in valid-yield behavior. Third, the reward-mode comparison reveals a meaningful trade-off. Dense and Hybrid reward provide strong early feedback and valid-yield behavior, while Final-HV reward provides the most reliable terminal population-quality ranking.
+The result artifacts support three main findings. First, the three reward-based variants are substantially stronger than MPaGE-orig in AUBC, indicating that budget-aware scheduling improves how quickly useful heuristic populations are obtained. Second, Final-HV reward and Hybrid reward form the strongest overall pair: they are tied in performance score, with Final-HV reward leading in final-HV rank and Hybrid reward marginally leading in normalized AUBC. Third, Dense reward remains competitive, showing that immediate HVI-style feedback is useful even though it is less aligned with terminal managed-population quality than Final-HV reward.
 
-Overall, the experiments support the thesis claim that LLM-call allocation is an algorithmically important part of MPaGE-style heuristic design. The gains are not explained solely by producing more valid programs. Rather, the evidence suggests that adaptive selection of operators, semantic regions, and reward signals changes the budget trajectory of heuristic-population search.
+Overall, the experiments support the thesis claim that LLM-call allocation is an algorithmically important part of MPaGE-style heuristic design. The evidence suggests that adaptive selection of operators, semantic regions, and quality signals changes the budget trajectory of heuristic-population search while preserving strong terminal quality.

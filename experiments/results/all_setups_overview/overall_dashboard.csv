@@ -1,5 +1,5 @@
-method,aubc_normalized_score,aubc_mean_rank,aubc_best_cells,aubc_top2_cells,hv_final_normalized_score,hv_final_mean_rank,hv_final_best_cells,hv_final_top2_cells,valid_yield_per_100_calls_normalized_score,valid_yield_per_100_calls_mean_rank,valid_yield_per_100_calls_best_cells,valid_yield_per_100_calls_top2_cells,invalid_null_proxy_rate_normalized_score,invalid_null_proxy_rate_mean_rank,invalid_null_proxy_rate_best_cells,invalid_null_proxy_rate_top2_cells,performance_score_mean,diagnostic_score_mean,all_metric_score_mean,performance_rank_mean,all_metric_rank_mean
-full,96.20084005344917,1.875,8,11,97.60264634109716,1.875,6,12,90.72345074294867,2.40625,3,6,2.1973342367392275,3.1875,0,5,96.90174319727316,46.46039248984395,71.68106784355855,1.875,2.3359375
-mpage_orig,76.20938555661826,3.9375,0,0,91.21850769944295,3.1875,2,4,84.08360425723275,3.15625,2,4,100.0,1.0,16,16,83.71394662803061,92.04180212861638,87.8778743783235,3.5625,2.8203125
-dense_reward,95.43209336315047,2.0,4,12,96.1180992648012,2.5,5,7,90.79199223764219,2.6875,2,6,1.802040006209734,3.25,0,2,95.77509631397584,46.297016121925964,71.0360562179509,2.25,2.609375
-hybrid_reward,96.2142719984938,2.1875,4,9,97.5721693428671,2.4375,3,9,94.37874659169331,1.75,7,14,3.710317340042532,2.5625,0,9,96.89322067068045,49.044531965867925,72.96887631827418,2.3125,2.234375
+method,aubc_normalized_score,aubc_mean_rank,aubc_best_cells,aubc_top2_cells,hv_final_normalized_score,hv_final_mean_rank,hv_final_best_cells,hv_final_top2_cells,performance_score_mean,performance_rank_mean
+full,96.20084005344917,1.875,8,11,97.60264634109716,1.875,6,12,96.90174319727316,1.875
+mpage_orig,76.20938555661826,3.9375,0,0,91.21850769944295,3.1875,2,4,83.71394662803061,3.5625
+dense_reward,95.43209336315047,2.0,4,12,96.1180992648012,2.5,5,7,95.77509631397584,2.25
+hybrid_reward,96.2142719984938,2.1875,4,9,97.5721693428671,2.4375,3,9,96.89322067068045,2.3125

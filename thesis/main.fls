@@ -444,6 +444,16 @@ INPUT ./tables/experiment_setups.tex
 INPUT ./tables/experiment_setups.tex
 INPUT ./tables/experiment_setups.tex
 INPUT tables/experiment_setups.tex
+INPUT ./tables/benchmark_problems.tex
+INPUT ./tables/benchmark_problems.tex
+INPUT ./tables/benchmark_problems.tex
+INPUT ./tables/benchmark_problems.tex
+INPUT tables/benchmark_problems.tex
+INPUT ./tables/experiment_hyperparameters.tex
+INPUT ./tables/experiment_hyperparameters.tex
+INPUT ./tables/experiment_hyperparameters.tex
+INPUT ./tables/experiment_hyperparameters.tex
+INPUT tables/experiment_hyperparameters.tex
 INPUT ./tables/all_overall_scores.tex
 INPUT ./tables/all_overall_scores.tex
 INPUT ./tables/all_overall_scores.tex
@@ -481,10 +491,6 @@ INPUT ./figures/all_hv_final_mean_by_budget.png
 INPUT ./figures/all_hv_final_mean_by_budget.png
 INPUT ./figures/all_aubc_vs_final_hv_tradeoff.png
 INPUT ./figures/all_aubc_vs_final_hv_tradeoff.png
-INPUT ./figures/all_valid_yield_mean_by_budget.png
-INPUT ./figures/all_valid_yield_mean_by_budget.png
-INPUT ./figures/all_invalid_null_proxy_rate_mean_by_budget.png
-INPUT ./figures/all_invalid_null_proxy_rate_mean_by_budget.png
 INPUT ./chapters/chapter6.tex
 INPUT ./chapters/chapter6.tex
 OUTPUT chapters/chapter6.aux

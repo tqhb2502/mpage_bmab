@@ -125,7 +125,7 @@ Another important artifact is the saved sample set. Sample files make it possibl
 
 \section{Visualization and Analysis Code}
 
-The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated four-setup overview script creates AUBC plots, final-HV plots, budget curves, valid-yield charts, invalid/null diagnostics, pairwise win matrices, and trade-off figures. The thesis includes local copies of the generated figures so that the compiled document is self-contained.
+The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated four-setup overview script creates AUBC plots, final-HV plots, budget curves, pairwise win matrices, normalized-score summaries, mean-rank summaries, and trade-off figures. The thesis includes local copies of the generated figures so that the compiled document is self-contained.
 
 This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be executed again to update the numerical summaries and figures without changing the methodological exposition.
 
@@ -143,6 +143,6 @@ However, exact bit-level reproducibility is not guaranteed. The system depends o
 
 Three implementation caveats are important when interpreting the results. First, MPaGE-orig and BMAB do not record budget history with identical granularity. BMAB records detailed budget events, whereas the MPaGE wrapper records a more aggregated history. Therefore, the number of budget-history rows should not be compared as if they were identical event types.
 
-Second, BMAB stores only accepted or scored heuristic samples in several output locations, while MPaGE-orig can retain samples with null scores. Consequently, invalid/null-score rate is a diagnostic indicator rather than a perfectly symmetric storage metric. The analysis in Chapter~5 accounts for this by using both stored samples and budget-history-derived counts.
+Second, BMAB and MPaGE-orig do not store generated samples with identical conventions. BMAB stores accepted or scored heuristic samples in several output locations, while the MPaGE wrapper can retain additional failed samples. For this reason, Chapter~5 avoids using sample-storage diagnostics as primary thesis-facing performance metrics and instead focuses on AUBC and final outer hypervolume.
 
 Third, the runtime timeouts in some benchmark configuration files are not always identical to the timeout values used directly in the Python evaluator classes. When there is such a discrepancy, the thesis prioritizes the evaluator source code because it is the executed path used by the implementation.

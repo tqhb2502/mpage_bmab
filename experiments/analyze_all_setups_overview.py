@@ -45,23 +45,15 @@ BUDGETS = [25, 50, 100, 200]
 METRICS = [
     "aubc",
     "hv_final",
-    "valid_yield_per_100_calls",
-    "invalid_null_proxy_rate",
 ]
 PRIMARY_SUMMARY_METRICS = [
     "aubc",
     "hv_final",
-    "valid_yield_per_100_calls",
-]
-DIAGNOSTIC_SUMMARY_METRICS = [
-    "invalid_null_proxy_rate",
 ]
 
 HIGHER_IS_BETTER = {
     "aubc": True,
     "hv_final": True,
-    "valid_yield_per_100_calls": True,
-    "invalid_null_proxy_rate": False,
 }
 
 TASK_LABELS = {
@@ -81,15 +73,11 @@ METHOD_LABELS = {
 METRIC_LABELS = {
     "aubc": "AUBC",
     "hv_final": "Final HV",
-    "valid_yield_per_100_calls": "Valid yield",
-    "invalid_null_proxy_rate": "Invalid/null proxy",
 }
 
 METRIC_SHORT = {
     "aubc": "AUBC",
     "hv_final": "Final HV",
-    "valid_yield_per_100_calls": "Valid yield",
-    "invalid_null_proxy_rate": "Invalid rate",
 }
 
 COLORS = {
@@ -357,25 +345,9 @@ def build_rank_tables(cell_means: list[dict]) -> tuple[list[dict], list[dict], l
             rec["aubc_normalized_score"],
             rec["hv_final_normalized_score"],
         ])
-        rec["diagnostic_score_mean"] = mean_or_nan([
-            rec["valid_yield_per_100_calls_normalized_score"],
-            rec["invalid_null_proxy_rate_normalized_score"],
-        ])
-        rec["all_metric_score_mean"] = mean_or_nan([
-            rec["aubc_normalized_score"],
-            rec["hv_final_normalized_score"],
-            rec["valid_yield_per_100_calls_normalized_score"],
-            rec["invalid_null_proxy_rate_normalized_score"],
-        ])
         rec["performance_rank_mean"] = mean_or_nan([
             rec["aubc_mean_rank"],
             rec["hv_final_mean_rank"],
-        ])
-        rec["all_metric_rank_mean"] = mean_or_nan([
-            rec["aubc_mean_rank"],
-            rec["hv_final_mean_rank"],
-            rec["valid_yield_per_100_calls_mean_rank"],
-            rec["invalid_null_proxy_rate_mean_rank"],
         ])
         dashboard.append(rec)
     return rank_rows, overall, dashboard
@@ -574,8 +546,6 @@ def plot_overall_normalized_bars(overall: list[dict], out: Path, metrics: list[s
     metric_colors = {
         "aubc": "#2474A6",
         "hv_final": "#E69F00",
-        "valid_yield_per_100_calls": "#2CA25F",
-        "invalid_null_proxy_rate": "#7570B3",
     }
     for offset, metric in zip(metric_offsets(metrics, width), metrics):
         vals = [by[(method, metric)]["mean_normalized_score"] for method in METHODS]
@@ -597,8 +567,6 @@ def plot_mean_rank_bars(overall: list[dict], out: Path, metrics: list[str], titl
     metric_colors = {
         "aubc": "#2474A6",
         "hv_final": "#E69F00",
-        "valid_yield_per_100_calls": "#2CA25F",
-        "invalid_null_proxy_rate": "#7570B3",
     }
     for offset, metric in zip(metric_offsets(metrics, width), metrics):
         vals = [by[(method, metric)]["mean_rank"] for method in METHODS]
@@ -621,8 +589,6 @@ def plot_best_counts(overall: list[dict], out: Path, metrics: list[str], title: 
     metric_colors = {
         "aubc": "#2474A6",
         "hv_final": "#E69F00",
-        "valid_yield_per_100_calls": "#2CA25F",
-        "invalid_null_proxy_rate": "#7570B3",
     }
     for offset, metric in zip(metric_offsets(metrics, width), metrics):
         vals = [by[(method, metric)]["best_cells"] for method in METHODS]
@@ -763,34 +729,6 @@ def plot_tradeoff_scatter(dashboard: list[dict], out: Path) -> None:
     plt.close(fig)
 
 
-def plot_diagnostic_scatter(dashboard: list[dict], out: Path) -> None:
-    fig, ax = plt.subplots(figsize=(7.6, 5.6), constrained_layout=True)
-    xs: list[float] = []
-    ys: list[float] = []
-    for row in dashboard:
-        method = row["method"]
-        xs.append(float(row["valid_yield_per_100_calls_normalized_score"]))
-        ys.append(float(row["invalid_null_proxy_rate_normalized_score"]))
-        ax.scatter(
-            row["valid_yield_per_100_calls_normalized_score"],
-            row["invalid_null_proxy_rate_normalized_score"],
-            s=155,
-            marker=MARKERS[method],
-            facecolors="none",
-            edgecolors=COLORS[method],
-            linewidth=2.0,
-            label=METHOD_LABELS[method],
-        )
-    ax.set_xlabel("Mean normalized valid-yield score")
-    ax.set_ylabel("Mean normalized invalid-rate score")
-    ax.set_title("Validity Diagnostics Trade-off")
-    ax.set_xlim(max(0, min(xs) - 4), min(105, max(xs) + 4))
-    ax.set_ylim(max(0, min(ys) - 4), min(105, max(ys) + 4))
-    ax.legend(frameon=False, loc="center left", bbox_to_anchor=(1.02, 0.5))
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-
-
 def latex_escape(text: str) -> str:
     return str(text).replace("_", "\\_")
 
@@ -805,9 +743,9 @@ def write_latex_tables(out_dir: Path, overall: list[dict], dashboard: list[dict]
     by = {(r["method"], r["metric"]): r for r in overall}
 
     lines = [
-        "\\begin{tabular}{lrrrrrrrr}",
+        "\\begin{tabular}{lrrrrr}",
         "\\toprule",
-        "Setup & AUBC score & AUBC rank & Final-HV score & Final-HV rank & Valid score & Invalid score & Perf. score & All score \\\\",
+        "Setup & AUBC score & AUBC rank & Final-HV score & Final-HV rank & Perf. score \\\\",
         "\\midrule",
     ]
     for row in dashboard:
@@ -816,26 +754,22 @@ def write_latex_tables(out_dir: Path, overall: list[dict], dashboard: list[dict]
             f"{METHOD_LABELS[method]} & "
             f"{fmt(row['aubc_normalized_score'])} & {fmt(row['aubc_mean_rank'], 2)} & "
             f"{fmt(row['hv_final_normalized_score'])} & {fmt(row['hv_final_mean_rank'], 2)} & "
-            f"{fmt(row['valid_yield_per_100_calls_normalized_score'])} & "
-            f"{fmt(row['invalid_null_proxy_rate_normalized_score'])} & "
-            f"{fmt(row['performance_score_mean'])} & {fmt(row['all_metric_score_mean'])} \\\\"
+            f"{fmt(row['performance_score_mean'])} \\\\"
         )
     lines += ["\\bottomrule", "\\end{tabular}"]
     write_latex_table(out_dir / "overall_normalized_scores.tex", lines)
 
     lines = [
-        "\\begin{tabular}{lrrrrrrrr}",
+        "\\begin{tabular}{lrrrr}",
         "\\toprule",
-        "Setup & AUBC best & AUBC top-2 & Final-HV best & Final-HV top-2 & Valid best & Valid top-2 & Invalid best & Invalid top-2 \\\\",
+        "Setup & AUBC best & AUBC top-2 & Final-HV best & Final-HV top-2 \\\\",
         "\\midrule",
     ]
     for method in METHODS:
         lines.append(
             f"{METHOD_LABELS[method]} & "
             f"{by[(method, 'aubc')]['best_cells']} & {by[(method, 'aubc')]['top2_cells']} & "
-            f"{by[(method, 'hv_final')]['best_cells']} & {by[(method, 'hv_final')]['top2_cells']} & "
-            f"{by[(method, 'valid_yield_per_100_calls')]['best_cells']} & {by[(method, 'valid_yield_per_100_calls')]['top2_cells']} & "
-            f"{by[(method, 'invalid_null_proxy_rate')]['best_cells']} & {by[(method, 'invalid_null_proxy_rate')]['top2_cells']} \\\\"
+            f"{by[(method, 'hv_final')]['best_cells']} & {by[(method, 'hv_final')]['top2_cells']} \\\\"
         )
     lines += ["\\bottomrule", "\\end{tabular}"]
     write_latex_table(out_dir / "best_and_top2_counts.tex", lines)
@@ -883,7 +817,7 @@ def run(results_root: Path, out_dir: Path) -> None:
 
     write_latex_tables(table_dir, overall, dashboard, cell_matrices)
 
-    for metric in METRICS:
+    for metric in ["aubc", "hv_final"]:
         plot_metric_lines(cell_means, metric, fig_dir / f"{metric}_mean_all_setups.png")
         plot_normalized_heatmap(rank_rows, metric, fig_dir / f"{metric}_normalized_heatmap.png")
         plot_pairwise_matrix(
@@ -905,23 +839,11 @@ def run(results_root: Path, out_dir: Path) -> None:
         PRIMARY_SUMMARY_METRICS,
         "Overall Normalized Scores by Setup",
     )
-    plot_overall_normalized_bars(
-        overall,
-        fig_dir / "invalid_null_diagnostic_normalized_scores.png",
-        DIAGNOSTIC_SUMMARY_METRICS,
-        "Invalid/Null Diagnostic Scores by Setup",
-    )
     plot_mean_rank_bars(
         overall,
         fig_dir / "mean_rank_by_metric.png",
         PRIMARY_SUMMARY_METRICS,
         "Mean Rank by Setup and Primary Metric",
-    )
-    plot_mean_rank_bars(
-        overall,
-        fig_dir / "invalid_null_diagnostic_mean_rank.png",
-        DIAGNOSTIC_SUMMARY_METRICS,
-        "Mean Rank by Setup for Invalid/Null Diagnostics",
     )
     plot_best_counts(
         overall,
@@ -929,14 +851,7 @@ def run(results_root: Path, out_dir: Path) -> None:
         PRIMARY_SUMMARY_METRICS,
         "Best-Cell Counts by Setup and Primary Metric",
     )
-    plot_best_counts(
-        overall,
-        fig_dir / "invalid_null_diagnostic_best_cell_counts.png",
-        DIAGNOSTIC_SUMMARY_METRICS,
-        "Best-Cell Counts by Setup for Invalid/Null Diagnostics",
-    )
     plot_tradeoff_scatter(dashboard, fig_dir / "aubc_vs_final_hv_tradeoff.png")
-    plot_diagnostic_scatter(dashboard, fig_dir / "valid_yield_vs_invalid_rate_tradeoff.png")
     for budget in BUDGETS:
         plot_budget_curves(rows, budget, fig_dir / f"budget_curves_all_setups_B{budget}.png")
         plot_bmab_zoom_budget_curves(rows, budget, fig_dir / f"budget_curves_bmab_zoom_B{budget}.png")

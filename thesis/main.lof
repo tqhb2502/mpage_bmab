@@ -1,19 +1,17 @@
 \babel@toc {english}{}\relax 
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Overview of the MPaGE framework, adapted from the original MPaGE materials.}}{13}{figure.caption.5}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Pareto Front Grid selection in MPaGE, adapted from the original MPaGE materials.}}{13}{figure.caption.6}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Overview of the MPaGE framework, adapted from the original MPaGE materials.}}{12}{figure.caption.5}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Pareto Front Grid selection in MPaGE, adapted from the original MPaGE materials.}}{12}{figure.caption.6}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Logical architecture of BMAB-LLM{}. The method preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control.}}{23}{figure.caption.7}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Logical architecture of BMAB-LLM{}. The method preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control.}}{22}{figure.caption.7}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Overall normalized scores for AUBC, final HV, and valid heuristic yield across the four setups.}}{49}{figure.caption.12}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Pairwise task--budget win matrices for AUBC and final hypervolume.}}{53}{figure.caption.15}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Mean AUBC by task and budget for the four final setups.}}{54}{figure.caption.16}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Mean outer hypervolume curves over normalized budget for the four final setups.}}{56}{figure.caption.17}%
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Zoomed BMAB-style budget curves at $B=100$, excluding MPaGE-orig to make differences among Final-HV reward, Dense reward, and Hybrid reward more visible.}}{57}{figure.caption.18}%
-\contentsline {figure}{\numberline {5.6}{\ignorespaces Mean final outer hypervolume by task and budget for the four final setups.}}{58}{figure.caption.19}%
-\contentsline {figure}{\numberline {5.7}{\ignorespaces Trade-off between mean normalized AUBC score and mean normalized final-HV score.}}{59}{figure.caption.20}%
-\contentsline {figure}{\numberline {5.8}{\ignorespaces Mean valid heuristic yield per 100 calls by task and budget.}}{61}{figure.caption.21}%
-\contentsline {figure}{\numberline {5.9}{\ignorespaces Mean invalid/null proxy rate by task and budget. Lower values are better, but storage conventions differ between BMAB-style runs and MPaGE-orig.}}{62}{figure.caption.22}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Overall normalized scores for AUBC and final outer hypervolume across the four setups.}}{52}{figure.caption.12}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Pairwise task--budget win matrices for AUBC and final outer hypervolume.}}{55}{figure.caption.15}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Mean AUBC by task and budget for the four experimental setups.}}{56}{figure.caption.16}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Mean outer hypervolume curves over normalized budget for the four experimental setups.}}{57}{figure.caption.17}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Zoomed reward-variant budget curves at $B=100$, excluding MPaGE-orig to make differences among Final-HV reward, Dense reward, and Hybrid reward more visible.}}{59}{figure.caption.18}%
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Mean final outer hypervolume by task and budget for the four experimental setups.}}{60}{figure.caption.19}%
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Trade-off between mean normalized AUBC score and mean normalized final-HV score.}}{61}{figure.caption.20}%
 \addvspace {10\p@ }

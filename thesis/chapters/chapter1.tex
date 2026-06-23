@@ -34,7 +34,6 @@ The thesis is organized around four research questions.
   \item \textbf{Budget efficiency.} Does a budget-aware scheduling policy improve the area under the outer hypervolume-vs-budget curve compared with the budget-wrapped MPaGE baseline?
   \item \textbf{Terminal quality.} Does improving budget efficiency also preserve or improve final heuristic-population hypervolume, or does it merely move progress earlier without changing the final population?
   \item \textbf{Reward design.} How do immediate dense HVI reward, final managed-population HV reward, and their hybrid differ in practice when all other finalized implementation components are held fixed?
-  \item \textbf{Validity and diagnostics.} To what extent do validity-related metrics, such as valid heuristic yield and invalid/null-score rate, explain differences in AUBC and final hypervolume?
 \end{enumerate}
 
 These questions are narrower than a complete re-evaluation of MPaGE across every table in the original paper. They focus on the budgeted outer search process implemented in this thesis. This choice is intentional. The most distinctive contribution of the study is not a new benchmark task or a new LLM prompt family, but a controller that decides how to spend a fixed call budget across operators and semantic regions.
@@ -45,7 +44,7 @@ The motivation for this thesis is supported by three observations found directly
 
 First, the implementation treats LLM calls as a limited resource. The system includes a hard budget tracker that records budget consumption through explicit charging operations. Both the proposed method and the MPaGE baseline wrapper receive the same budget argument so that methods can be compared under a common call budget.
 
-Second, generated heuristics can be invalid or uninformative. The secure evaluation layer executes generated programs in a separate process and may return a null score when the code is syntactically invalid, semantically incompatible with the task, or exceeds the allowed runtime. The validity analysis reported in Chapter~5 confirms that validity is an empirical phenomenon worth measuring, not merely an implementation detail.
+Second, generated heuristics can be invalid or uninformative. The secure evaluation layer executes generated programs in a separate process and may return a null score when the code is syntactically invalid, semantically incompatible with the task, or exceeds the allowed runtime. This makes each LLM call a risky investment rather than a guaranteed source of improvement.
 
 Third, terminal hypervolume alone is insufficient for evaluating a budget-constrained LLM search process. As defined in the metric formulation used throughout this thesis, AUBC is the area under the hypervolume-vs-budget curve and measures how quickly a method converts consumed budget into heuristic-population quality. Two methods may reach similar final hypervolume, but the method that reaches high-quality fronts earlier is more useful when LLM calls are expensive or when a run may be stopped before exhausting a large budget.
 
@@ -61,7 +60,7 @@ The thesis has five concrete objectives.
   \item Analyze the MPaGE baseline and identify the retained components, including the task templates, prompt families, semantic clustering, PFG selection, and secure evaluation infrastructure.
   \item Present the proposed \bmab{} method as a budget-aware extension of MPaGE. The discussion covers hard budget accounting, operator-level bandit scheduling, cluster-level bandit scheduling, Page--Hinkley drift detection, final-HV-oriented reward computation, budget-aware exploration annealing, and final population flushing.
   \item Explain the system implementation, benchmark evaluators, experimental harness, and reproducibility artifacts at a level sufficient for reproducing the experimental protocol.
-  \item Analyze the available experimental evidence summarized in the thesis tables and figures, including AUBC, final hypervolume, invalid/null-score rate, and valid heuristic yield per budget.
+  \item Analyze the available experimental evidence summarized in the thesis tables and figures, focusing on AUBC, final hypervolume, normalized scores, mean ranks, pairwise task--budget wins, and budget-curve behavior.
   \item Draw evidence-controlled conclusions. Claims are made only when they are supported by source code, documentation, or experimental artifacts. When information is absent, the thesis explicitly states that no information was found in the source code or documentation.
 \end{enumerate}
 
@@ -79,7 +78,7 @@ The implementation does not provide evidence of LLM fine-tuning, LoRA, PEFT, ret
 
 The thesis follows an evidence-based implementation analysis methodology. First, README files, design documents, implementation modules, evaluator definitions, scripts, result files, and generated figures were inspected to reconstruct the research problem and implementation architecture. Second, the mathematical and algorithmic foundations were organized around multi-objective optimization, hypervolume, LLM-based program synthesis, adaptive operator selection, budgeted multi-armed bandits, and online drift detection. Third, the result CSV and JSON files were analyzed using the metrics defined for this study, particularly AUBC and final hypervolume.
 
-The primary empirical metric is AUBC because it directly evaluates budget efficiency. Final hypervolume is used as a complementary terminal-quality metric. Valid heuristic yield and invalid/null-score rate are used as diagnostic indicators to understand whether improvements arise merely from producing more executable code or from allocating calls to more valuable regions of the heuristic-design search space. Chapter~5 reports normalized scores, mean ranks, cell-level pairwise wins, budget curves, and validity diagnostics generated from the result directory.
+The primary empirical metric is AUBC because it directly evaluates budget efficiency. Final hypervolume is used as a complementary terminal-quality metric. Chapter~5 reports normalized scores, mean ranks, cell-level pairwise wins, and budget curves generated from the result artifacts.
 
 \section{Thesis Organization}
 

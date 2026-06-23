@@ -3,77 +3,82 @@
 \contentsline {section}{\numberline {1.1}Research Context}{1}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}%
 \contentsline {section}{\numberline {1.3}Research Questions}{3}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Research Motivation}{4}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Research Objectives}{5}{section.1.5}%
+\contentsline {section}{\numberline {1.4}Research Motivation}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Research Objectives}{4}{section.1.5}%
 \contentsline {section}{\numberline {1.6}Research Scope}{5}{section.1.6}%
 \contentsline {section}{\numberline {1.7}Research Methodology}{6}{section.1.7}%
 \contentsline {section}{\numberline {1.8}Thesis Organization}{6}{section.1.8}%
-\contentsline {chapter}{\numberline {2}Background and Related Work}{8}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Multi-Objective Combinatorial Optimization}{8}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Benchmark Problem Families}{9}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Heuristic Design as a Two-Level Optimization Problem}{10}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Evolutionary Multi-Objective Optimization}{10}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Hypervolume as a Quality Indicator}{11}{section.2.5}%
-\contentsline {section}{\numberline {2.6}MPaGE}{12}{section.2.6}%
-\contentsline {section}{\numberline {2.7}LLM-Based Program Generation for Heuristic Design}{13}{section.2.7}%
-\contentsline {section}{\numberline {2.8}Validity, Null Scores, and Program-Search Failure Modes}{14}{section.2.8}%
-\contentsline {section}{\numberline {2.9}Adaptive Operator Selection}{15}{section.2.9}%
-\contentsline {section}{\numberline {2.10}Multi-Armed Bandits and UCB}{16}{section.2.10}%
-\contentsline {section}{\numberline {2.11}Budgeted Bandits}{16}{section.2.11}%
-\contentsline {section}{\numberline {2.12}Page--Hinkley Drift Detection}{17}{section.2.12}%
-\contentsline {section}{\numberline {2.13}AUBC: Area Under the Budget Curve}{17}{section.2.13}%
-\contentsline {section}{\numberline {2.14}Technique Inventory}{18}{section.2.14}%
-\contentsline {section}{\numberline {2.15}Limitations of Existing Approaches}{19}{section.2.15}%
-\contentsline {chapter}{\numberline {3}Proposed Method}{20}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Research Motivation and Design Rationale}{20}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Problem Formulation}{21}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Inner Multi-Objective Combinatorial Optimization Problem}{21}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Outer Heuristic-Design Problem}{22}{subsection.3.2.2}%
-\contentsline {section}{\numberline {3.3}System Overview}{23}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Components Inherited from MPaGE}{24}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Population Representation and PFG Selection}{24}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}LLM-Based Semantic Clustering}{25}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Mutation and Crossover Prompt Families}{26}{subsection.3.4.3}%
-\contentsline {section}{\numberline {3.5}Hard Budget Model}{26}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Two-Level Budgeted Bandit Scheduler}{27}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Why a Two-Level Scheduler is Needed}{27}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Operator-Level UCB}{27}{subsection.3.6.2}%
-\contentsline {subsection}{\numberline {3.6.3}Cluster-Level Budgeted UCB}{27}{subsection.3.6.3}%
-\contentsline {section}{\numberline {3.7}Front-Aware Cluster Priors}{28}{section.3.7}%
-\contentsline {section}{\numberline {3.8}Reward and Credit Assignment}{29}{section.3.8}%
-\contentsline {subsection}{\numberline {3.8.1}Reward Components}{29}{subsection.3.8.1}%
-\contentsline {subsection}{\numberline {3.8.2}Quality Signal}{30}{subsection.3.8.2}%
-\contentsline {subsection}{\numberline {3.8.3}Diversity and Rank Smoothing}{30}{subsection.3.8.3}%
-\contentsline {section}{\numberline {3.9}Non-Stationarity and Page--Hinkley Reset}{31}{section.3.9}%
-\contentsline {section}{\numberline {3.10}Parent Selection and Variation Workflow}{31}{section.3.10}%
-\contentsline {section}{\numberline {3.11}Complete Algorithm}{32}{section.3.11}%
-\contentsline {section}{\numberline {3.12}Baseline and Variant Design}{34}{section.3.12}%
-\contentsline {chapter}{\numberline {4}System Implementation}{36}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Implementation Organization}{36}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Software Environment}{37}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Benchmark Evaluators and Task Preparation}{37}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Score and Population Data Model}{38}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Heuristic Generation and Evaluation Pipeline}{39}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Execution Flow of a BMAB Run}{39}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Budget Accounting and Call Semantics}{40}{section.4.7}%
-\contentsline {section}{\numberline {4.8}Experiment Configuration}{41}{section.4.8}%
-\contentsline {section}{\numberline {4.9}Experiment Suites and Run Scripts}{41}{section.4.9}%
-\contentsline {section}{\numberline {4.10}Generated Artifacts}{42}{section.4.10}%
-\contentsline {section}{\numberline {4.11}Visualization and Analysis Code}{43}{section.4.11}%
-\contentsline {section}{\numberline {4.12}Reproducibility Considerations}{43}{section.4.12}%
-\contentsline {section}{\numberline {4.13}Implementation Caveats}{44}{section.4.13}%
-\contentsline {chapter}{\numberline {5}Experiments and Evaluation}{45}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Experimental Questions}{45}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Experimental Setups}{45}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Evaluation Metrics}{47}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Overall Four-Setup Results}{48}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Task-Level Patterns}{50}{section.5.5}%
-\contentsline {section}{\numberline {5.6}Pairwise Cell-Level Comparison}{51}{section.5.6}%
-\contentsline {section}{\numberline {5.7}AUBC Analysis}{53}{section.5.7}%
-\contentsline {section}{\numberline {5.8}Budget-Curve Behavior}{55}{section.5.8}%
-\contentsline {section}{\numberline {5.9}Final Hypervolume Analysis}{57}{section.5.9}%
-\contentsline {section}{\numberline {5.10}Reward-Mode Interpretation}{60}{section.5.10}%
-\contentsline {section}{\numberline {5.11}Validity Diagnostics}{61}{section.5.11}%
+\contentsline {chapter}{\numberline {2}Background and Related Work}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Multi-Objective Combinatorial Optimization}{7}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Benchmark Problem Families}{8}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Heuristic Design as a Two-Level Optimization Problem}{9}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Evolutionary Multi-Objective Optimization}{9}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Hypervolume as a Quality Indicator}{10}{section.2.5}%
+\contentsline {section}{\numberline {2.6}MPaGE}{11}{section.2.6}%
+\contentsline {section}{\numberline {2.7}LLM-Based Program Generation for Heuristic Design}{12}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Execution Failures, Null Scores, and Program-Search Failure Modes}{13}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Adaptive Operator Selection}{14}{section.2.9}%
+\contentsline {section}{\numberline {2.10}Multi-Armed Bandits and UCB}{15}{section.2.10}%
+\contentsline {section}{\numberline {2.11}Budgeted Bandits}{15}{section.2.11}%
+\contentsline {section}{\numberline {2.12}Page--Hinkley Drift Detection}{16}{section.2.12}%
+\contentsline {section}{\numberline {2.13}AUBC: Area Under the Budget Curve}{16}{section.2.13}%
+\contentsline {section}{\numberline {2.14}Technique Inventory}{17}{section.2.14}%
+\contentsline {section}{\numberline {2.15}Limitations of Existing Approaches}{18}{section.2.15}%
+\contentsline {chapter}{\numberline {3}Proposed Method}{19}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Research Motivation and Design Rationale}{19}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Problem Formulation}{20}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Inner Multi-Objective Combinatorial Optimization Problem}{20}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Outer Heuristic-Design Problem}{21}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}System Overview}{22}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Components Inherited from MPaGE}{23}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Population Representation and PFG Selection}{23}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}LLM-Based Semantic Clustering}{24}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Mutation and Crossover Prompt Families}{25}{subsection.3.4.3}%
+\contentsline {section}{\numberline {3.5}Hard Budget Model}{25}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Two-Level Budgeted Bandit Scheduler}{26}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Why a Two-Level Scheduler is Needed}{26}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Operator-Level UCB}{26}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Cluster-Level Budgeted UCB}{26}{subsection.3.6.3}%
+\contentsline {section}{\numberline {3.7}Front-Aware Cluster Priors}{27}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Reward and Credit Assignment}{28}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Reward Components}{28}{subsection.3.8.1}%
+\contentsline {subsection}{\numberline {3.8.2}Quality Signal}{29}{subsection.3.8.2}%
+\contentsline {subsection}{\numberline {3.8.3}Diversity and Rank Smoothing}{29}{subsection.3.8.3}%
+\contentsline {section}{\numberline {3.9}Non-Stationarity and Page--Hinkley Reset}{30}{section.3.9}%
+\contentsline {section}{\numberline {3.10}Parent Selection and Variation Workflow}{30}{section.3.10}%
+\contentsline {section}{\numberline {3.11}Complete Algorithm}{31}{section.3.11}%
+\contentsline {section}{\numberline {3.12}Baseline and Variant Design}{33}{section.3.12}%
+\contentsline {chapter}{\numberline {4}System Implementation}{35}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Implementation Organization}{35}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Software Environment}{36}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Benchmark Evaluators and Task Preparation}{36}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Score and Population Data Model}{37}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Heuristic Generation and Evaluation Pipeline}{38}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Execution Flow of a BMAB Run}{38}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Budget Accounting and Call Semantics}{39}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Experiment Configuration}{40}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Experiment Suites and Run Scripts}{40}{section.4.9}%
+\contentsline {section}{\numberline {4.10}Generated Artifacts}{41}{section.4.10}%
+\contentsline {section}{\numberline {4.11}Visualization and Analysis Code}{42}{section.4.11}%
+\contentsline {section}{\numberline {4.12}Reproducibility Considerations}{42}{section.4.12}%
+\contentsline {section}{\numberline {4.13}Implementation Caveats}{43}{section.4.13}%
+\contentsline {chapter}{\numberline {5}Experiments and Evaluation}{44}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Experimental Questions}{44}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Experimental Setups}{44}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Benchmark Problems}{46}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Hyperparameters and Environment}{47}{subsection.5.2.2}%
+\contentsline {section}{\numberline {5.3}Metrics and Aggregation}{49}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Task--Budget Cells}{49}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}AUBC and Final Outer Hypervolume}{50}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Normalized Score}{50}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}Mean Rank and Pairwise Wins}{51}{subsection.5.3.4}%
+\contentsline {section}{\numberline {5.4}Overall Four-Setup Results}{51}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Task-Level Patterns}{53}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Pairwise Cell-Level Comparison}{54}{section.5.6}%
+\contentsline {section}{\numberline {5.7}AUBC Analysis}{55}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Budget-Curve Behavior}{57}{section.5.8}%
+\contentsline {section}{\numberline {5.9}Final Hypervolume Analysis}{59}{section.5.9}%
+\contentsline {section}{\numberline {5.10}Reward-Mode Interpretation}{61}{section.5.10}%
 \contentsline {chapter}{\numberline {6}Conclusion and Future Work}{64}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Summary}{64}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Main Contributions}{64}{section.6.2}%
