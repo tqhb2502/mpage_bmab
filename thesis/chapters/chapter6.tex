@@ -34,7 +34,7 @@ The most accurate empirical conclusion is therefore careful rather than absolute
 
 \section{Limitations}
 
-The current complete result matrix includes the MPaGE baseline and the three BMAB quality-signal variants. However, it does not include complete matrices for all component ablations. The codebase implements additional variants, including \texttt{no\_budget\_anneal}, \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}. Without complete result matrices for these variants, the thesis cannot isolate the causal contribution of every scheduler component.
+The current complete result matrix includes the MPaGE baseline and the three BMAB quality-signal variants. However, it does not include complete matrices for all component ablations. The implementation contains switches for disabling budget annealing, Page--Hinkley drift handling, diversity reward, operator-level scheduling, and cluster-level scheduling. Without complete result matrices for these variants, the thesis cannot isolate the causal contribution of every scheduler component.
 
 The local hardware environment is known, but the implementation artifacts do not provide GPU-utilization traces, memory-utilization traces, API latency, token-level cost, or monetary cost for the reported runs. No information was found in the source code or documentation for these runtime measurements. Consequently, the current budget model counts LLM calls rather than modeling heterogeneous token costs or real-time latency.
 
@@ -48,7 +48,7 @@ The most immediate future direction is to run a complete component ablation matr
 
 A second direction is to extend the budget model from uniform call cost to token- or latency-aware cost. In practical LLM deployments, prompts and completions can differ substantially in length, and different models can have different price and latency profiles. A token-aware budgeted bandit would better reflect deployment constraints.
 
-A third direction is to log and analyze invalid-generation failures more precisely. Separating syntax errors, missing function definitions, runtime exceptions, infeasible outputs, and timeouts would support targeted prompt engineering and repair strategies. Such diagnostics could also clarify whether validity improvements or reward allocation contribute more to AUBC gains.
+A third direction is to log and analyze generation failures more precisely. Separating syntax errors, missing function definitions, runtime exceptions, infeasible outputs, and timeouts would support targeted prompt engineering and repair strategies. Such diagnostics could also clarify whether prompt robustness or reward allocation contributes more to AUBC gains.
 
 A fourth direction is to extend the search controller with higher-level planning mechanisms, such as prompt repair, memory over successful heuristic motifs, or structured exploration over operator sequences. These extensions should be evaluated carefully because any additional LLM calls must justify their cost under the same AUBC-oriented budget criterion.
 

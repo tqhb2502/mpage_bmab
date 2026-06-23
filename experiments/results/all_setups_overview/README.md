@@ -1,7 +1,7 @@
 # Final Consolidated Result Overview
 
 This directory is the canonical thesis-facing location for the final result
-tables and figures.
+tables and figures used in the four-setup comparison.
 
 The final comparison includes four distinct setups:
 
@@ -10,13 +10,13 @@ The final comparison includes four distinct setups:
 - **Hybrid reward**
 - **MPaGE-orig**
 
-The historical `full_old` result tree is not included here. It is kept only as
-archival material because Dense reward is the controlled current-implementation
-variant for immediate-HVI feedback.
+Historical or special-case result trees are not included in this overview. They
+remain archival material outside the thesis-facing summary.
 
-The overview is regenerated with:
+The overview is regenerated from the repository root with the overview analysis
+script:
 
 ```bash
-MPLCONFIGDIR=/private/tmp/mpl mpage_bmab/.venv/bin/python \
-    mpage_bmab/experiments/analyze_all_setups_overview.py
+MPLCONFIGDIR=/private/tmp/mpl <python-interpreter> \
+    <path-to-overview-analysis-script>
 ```

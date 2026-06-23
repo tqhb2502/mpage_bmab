@@ -25,7 +25,7 @@ The separation is important for thesis reproducibility. Methodological claims in
 
 The dependency specification files list the main Python libraries, including \texttt{numpy}, \texttt{scipy}, \texttt{pymoo}, \texttt{matplotlib}, \texttt{pandas}, \texttt{tqdm}, and an OpenAI-compatible client. The command-line interface uses \texttt{gpt-4o-mini} as the default generator and clusterer model unless overridden by CLI arguments. API credentials are read from local secret files; their contents are not part of the thesis and are not required for interpreting the algorithmic design.
 
-The available implementation materials do not specify the exact hardware, GPU, operating system version, API latency, token cost, or monetary cost per call used to produce the reported result set. No information was found in the source code or documentation for these environment details. For this reason, the thesis treats budget primarily as the number of charged LLM calls rather than as wall-clock cost or monetary cost.
+The local machine used for the analyzed experiments is described in Chapter~5. The available implementation materials do not record operating-system version, API latency, token cost, monetary cost per call, or utilization traces for CPU, GPU, and memory. For this reason, the thesis treats budget primarily as the number of charged LLM calls rather than as wall-clock cost or monetary cost.
 
 \section{Benchmark Evaluators and Task Preparation}
 
@@ -97,11 +97,11 @@ The configuration intentionally keeps population size coupled to budget. At smal
 
 The experiment harness separates suite definition, execution, aggregation, and comparison.
 
-The experiment runner enumerates cells of the form \texttt{(ablation, task, budget, seed)}, creates output directories, and dispatches each cell to either the proposed BMAB entry point or the MPaGE-orig wrapper. It skips completed cells unless \texttt{--force} is specified. The aggregation code scans result directories and creates aggregate CSV summaries, while the comparison code performs paired comparisons against a selected baseline for a selected metric.
+The experiment runner enumerates combinations of setup, task, budget, and seed; creates output directories; and dispatches each cell to either the proposed BMAB entry point or the MPaGE-orig wrapper. It skips completed cells unless explicitly forced to rerun. The aggregation code scans result directories and creates aggregate CSV summaries, while the comparison code performs paired comparisons against a selected baseline for a selected metric.
 
-Several shell launchers are provided for common workflows. One launches the standard BMAB ablation grid, one launches the MPaGE-orig versus BMAB comparison, and one launches the reward-mode comparison among Final-HV reward, Dense reward, and Hybrid reward before running aggregation and comparisons for both \texttt{hv\_final} and AUBC.
+Several shell launchers are provided for common workflows. One launches the MPaGE-orig versus BMAB comparison, and one launches the reward-mode comparison among Final-HV reward, Dense reward, and Hybrid reward before running aggregation and comparisons for both final outer hypervolume and AUBC.
 
-The result set analyzed in Chapter~5 combines the complete MPaGE comparison matrix with the complete reward-mode matrix. It therefore covers four thesis-facing setups: Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. Other component ablations, such as \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}, are available in the codebase but are not analyzed as complete matrices in Chapter~5.
+The result set analyzed in Chapter~5 combines the complete MPaGE comparison matrix with the complete reward-mode matrix. It therefore covers four thesis-facing setups: Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. Other component ablations are available in the implementation but are not analyzed as complete matrices in Chapter~5.
 
 \section{Generated Artifacts}
 
@@ -129,7 +129,7 @@ The figures used in Chapter~5 are generated from result CSV and JSON files. The 
 
 This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be executed again to update the numerical summaries and figures without changing the methodological exposition.
 
-The visualization pipeline uses several levels of aggregation. Per-run artifacts are first converted into row-level summaries containing task, budget, seed, setup, AUBC, final HV, valid count, and diagnostic rates. These rows are then aggregated into task--budget cells. Normalized scores are computed within each cell so that tasks with very different absolute hypervolume scales can be compared fairly. Finally, the analysis scripts generate overview plots, pairwise win matrices, and budget-curve figures. This sequence is important because it prevents large-scale tasks such as Tri-TSP from dominating cross-task conclusions simply because their absolute outer-HV values are larger.
+The visualization pipeline uses several levels of aggregation. Per-run artifacts are first converted into row-level summaries containing task, budget, seed, setup, AUBC, and final outer hypervolume. These rows are then aggregated into task--budget cells. Normalized scores are computed within each cell so that tasks with very different absolute hypervolume scales can be compared fairly. Finally, the analysis scripts generate overview plots, pairwise win matrices, and budget-curve figures. This sequence is important because it prevents large-scale tasks such as Tri-TSP from dominating cross-task conclusions simply because their absolute outer-HV values are larger.
 
 The thesis includes figure copies rather than linking directly to the experiment output directory. This is a practical LaTeX decision: it makes the thesis source self-contained and avoids broken figure paths if experiment folders are archived or moved. The original result files remain the source of truth for numerical regeneration, while the thesis-local copies provide a stable compiled document.
 

@@ -546,11 +546,11 @@ flush all pending valid offspring into P
 write budget history, budget curve, bandit log, and AUBC
 \end{lstlisting}
 
-\section{Baseline and Variant Design}
+\section{Baseline and Quality-Signal Variants}
 
 The MPaGE-orig baseline is not a new algorithm. It is a budget-instrumented wrapper around the original MPaGE driver that records budget consumption and budget-HV curves using the same profiler infrastructure as \bmab{}. The purpose is to compare allocation policies while keeping the task evaluators and generated artifacts as consistent as possible.
 
-The current CLI defines the following method variants in \methodcode{main.py}. The first three BMAB-style variants share the same scheduler and differ only in the quality signal $Q(s)$ used inside the reward:
+The experimental comparison treats the three reward-based BMAB configurations as parallel quality-signal variants. They share the same scheduler, population handling, budget accounting, and evaluation pipeline. Their only intended methodological difference is the quality term $Q(s)$ used inside the reward:
 
 \begin{table}[H]
   \centering
@@ -561,17 +561,12 @@ The current CLI defines the following method variants in \methodcode{main.py}. T
     \toprule
     Variant & Interpretation \\
     \midrule
-    Final-HV reward & BMAB pipeline with the \methodcode{final\_hv} quality signal, operator bandit, cluster bandit, Page--Hinkley, budget annealing, and PFG-weighted parent sampling. \\
+    Final-HV reward & BMAB pipeline with a quality signal based on managed final-population HV gain, together with the operator bandit, cluster bandit, Page--Hinkley reset, budget annealing, and PFG-weighted parent sampling. \\
     Dense reward & BMAB pipeline with the immediate-HVI quality signal. \\
     Hybrid reward & BMAB pipeline with a half immediate-HVI and half managed-final-HV quality signal. \\
-    \methodcode{no\_budget\_anneal} & BMAB pipeline without remaining-budget scaling in the cluster UCB exploration term. \\
-    \methodcode{no\_ph} & Disables practical Page--Hinkley resets by using an extremely large threshold. \\
-    \methodcode{no\_diversity} & Removes the CDI diversity term by setting its weight to zero. \\
-    \methodcode{op\_only} & Disables the cluster bandit and samples clusters uniformly. \\
-    \methodcode{cluster\_only} & Disables the operator bandit and uses a round-robin operator sequence. \\
     MPaGE-orig & Budget-instrumented wrapper around the original MPaGE implementation. \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-These variants are important because they separate the contribution of each methodological component. In particular, Final-HV reward, Dense reward, and Hybrid reward vary only the reward quality mode, while \methodcode{no\_budget\_anneal}, \methodcode{no\_ph}, \methodcode{no\_diversity}, \methodcode{op\_only}, and \methodcode{cluster\_only} isolate specific control mechanisms.
+The codebase also contains component-level ablation switches for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Those controls are useful for future causal studies, but the complete result matrix analyzed in Chapter~5 focuses on the three quality-signal variants and the MPaGE-orig baseline.

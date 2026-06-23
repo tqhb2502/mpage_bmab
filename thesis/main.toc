@@ -47,7 +47,7 @@
 \contentsline {section}{\numberline {3.9}Non-Stationarity and Page--Hinkley Reset}{30}{section.3.9}%
 \contentsline {section}{\numberline {3.10}Parent Selection and Variation Workflow}{30}{section.3.10}%
 \contentsline {section}{\numberline {3.11}Complete Algorithm}{31}{section.3.11}%
-\contentsline {section}{\numberline {3.12}Baseline and Variant Design}{33}{section.3.12}%
+\contentsline {section}{\numberline {3.12}Baseline and Quality-Signal Variants}{33}{section.3.12}%
 \contentsline {chapter}{\numberline {4}System Implementation}{35}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Implementation Organization}{35}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Software Environment}{36}{section.4.2}%

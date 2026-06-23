@@ -27,7 +27,7 @@ Page--Hinkley settings & Drift threshold $\lambda=0.5$ and slack $\delta=0.005$.
 Generator LLM & \code{gpt-4o-mini} through an external OpenAI-compatible chat-completion API. \\
 Cluster LLM & \code{gpt-4o-mini} through the structured clustering API path. \\
 Generator decoding configuration & Maximum completion length 8,192 tokens, temperature 0.7, streaming disabled, timeout 30 seconds. \\
-Cluster decoding configuration & Structured parse call with a 30-second timeout. TODO: the source code does not explicitly record cluster temperature, top-p, or the exact service-side model snapshot. \\
+Cluster decoding configuration & Structured parse call with a 30-second timeout. Cluster temperature, top-p, and the exact service-side model snapshot are not recorded in the available artifacts. \\
 Local running environment & Apple M4 chip with 10-core CPU, 8-core GPU, and 16 GB RAM. The local machine runs orchestration and benchmark evaluation; LLM inference is served by the external API. \\
 \bottomrule
 \end{longtable}
