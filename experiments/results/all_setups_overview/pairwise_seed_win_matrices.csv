@@ -1,9 +1,7 @@
-metric,row_method,full_wins,full_ties,full_losses,full,mpage_orig_wins,mpage_orig_ties,mpage_orig_losses,mpage_orig,dense_reward_wins,dense_reward_ties,dense_reward_losses,dense_reward,hybrid_reward_wins,hybrid_reward_ties,hybrid_reward_losses,hybrid_reward
-aubc,full,0,80,0,0/80,73,0,7,73/80,40,0,40,40/80,46,0,34,46/80
-aubc,mpage_orig,7,0,73,7/80,0,80,0,0/80,8,0,72,8/80,11,0,69,11/80
-aubc,dense_reward,40,0,40,40/80,72,0,8,72/80,0,80,0,0/80,44,0,36,44/80
-aubc,hybrid_reward,34,0,46,34/80,69,0,11,69/80,36,0,44,36/80,0,80,0,0/80
-hv_final,full,0,80,0,0/80,46,0,34,46/80,48,0,32,48/80,44,0,36,44/80
-hv_final,mpage_orig,34,0,46,34/80,0,80,0,0/80,36,0,44,36/80,33,0,47,33/80
-hv_final,dense_reward,32,0,48,32/80,44,0,36,44/80,0,80,0,0/80,40,0,40,40/80
-hv_final,hybrid_reward,36,0,44,36/80,47,0,33,47/80,40,0,40,40/80,0,80,0,0/80
+metric,row_method,full_wins,full_ties,full_losses,full,mpage_orig_wins,mpage_orig_ties,mpage_orig_losses,mpage_orig,hybrid_reward_wins,hybrid_reward_ties,hybrid_reward_losses,hybrid_reward
+aubc,full,0,80,0,0/80,73,0,7,73/80,46,0,34,46/80
+aubc,mpage_orig,7,0,73,7/80,0,80,0,0/80,11,0,69,11/80
+aubc,hybrid_reward,34,0,46,34/80,69,0,11,69/80,0,80,0,0/80
+hv_final,full,0,80,0,0/80,46,0,34,46/80,44,0,36,44/80
+hv_final,mpage_orig,34,0,46,34/80,0,80,0,0/80,33,0,47,33/80
+hv_final,hybrid_reward,36,0,44,36/80,47,0,33,47/80,0,80,0,0/80

@@ -1,0 +1,15 @@
+\begin{table}[H]
+\centering
+\caption[Component ablation settings]{Component ablations analyzed against Final-HV reward. Each ablation preserves the Final-HV quality signal and changes one scheduler component.}
+\label{tab:ablation-settings}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{p{0.25\linewidth}p{0.31\linewidth}p{0.34\linewidth}}
+\toprule
+Ablation & Disabled component & Hypothesis tested \\
+\midrule
+No budget annealing & The remaining-budget decay factor in the cluster-bandit exploration term is disabled, so exploration pressure no longer decreases as the budget is consumed. & Tests whether annealing exploration toward the end of a run improves budget efficiency and prevents late-budget over-exploration. \\
+No Page-Hinkley & The Page--Hinkley drift threshold is set high enough that cluster-arm reset is effectively disabled in the analyzed runs. & Tests whether resetting stale cluster statistics helps when cluster reward distributions change during heuristic-population search. \\
+\bottomrule
+\end{tabular}
+\end{table}

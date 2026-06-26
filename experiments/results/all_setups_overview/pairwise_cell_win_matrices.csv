@@ -1,9 +1,7 @@
-metric,row_method,full_wins,full_ties,full_losses,full,mpage_orig_wins,mpage_orig_ties,mpage_orig_losses,mpage_orig,dense_reward_wins,dense_reward_ties,dense_reward_losses,dense_reward,hybrid_reward_wins,hybrid_reward_ties,hybrid_reward_losses,hybrid_reward
-aubc,full,0,16,0,0/16,15,0,1,15/16,9,0,7,9/16,10,0,6,10/16
-aubc,mpage_orig,1,0,15,1/16,0,16,0,0/16,0,0,16,0/16,0,0,16,0/16
-aubc,dense_reward,7,0,9,7/16,16,0,0,16/16,0,16,0,0/16,9,0,7,9/16
-aubc,hybrid_reward,6,0,10,6/16,16,0,0,16/16,7,0,9,7/16,0,16,0,0/16
-hv_final,full,0,16,0,0/16,13,0,3,13/16,10,0,6,10/16,11,0,5,11/16
-hv_final,mpage_orig,3,0,13,3/16,0,16,0,0/16,5,0,11,5/16,5,0,11,5/16
-hv_final,dense_reward,6,0,10,6/16,11,0,5,11/16,0,16,0,0/16,7,0,9,7/16
-hv_final,hybrid_reward,5,0,11,5/16,11,0,5,11/16,9,0,7,9/16,0,16,0,0/16
+metric,row_method,full_wins,full_ties,full_losses,full,mpage_orig_wins,mpage_orig_ties,mpage_orig_losses,mpage_orig,hybrid_reward_wins,hybrid_reward_ties,hybrid_reward_losses,hybrid_reward
+aubc,full,0,16,0,0/16,15,0,1,15/16,10,0,6,10/16
+aubc,mpage_orig,1,0,15,1/16,0,16,0,0/16,0,0,16,0/16
+aubc,hybrid_reward,6,0,10,6/16,16,0,0,16/16,0,16,0,0/16
+hv_final,full,0,16,0,0/16,13,0,3,13/16,11,0,5,11/16
+hv_final,mpage_orig,3,0,13,3/16,0,16,0,0/16,5,0,11,5/16
+hv_final,hybrid_reward,5,0,11,5/16,11,0,5,11/16,0,16,0,0/16

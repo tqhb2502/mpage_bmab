@@ -1,0 +1,7 @@
+metric,row_method,full_wins,full_ties,full_losses,full,no_budget_anneal_wins,no_budget_anneal_ties,no_budget_anneal_losses,no_budget_anneal,no_ph_wins,no_ph_ties,no_ph_losses,no_ph
+aubc,full,0,80,0,0/80,42,0,38,42/80,38,0,42,38/80
+aubc,no_budget_anneal,38,0,42,38/80,0,80,0,0/80,35,0,45,35/80
+aubc,no_ph,42,0,38,42/80,45,0,35,45/80,0,80,0,0/80
+hv_final,full,0,80,0,0/80,49,0,31,49/80,40,0,40,40/80
+hv_final,no_budget_anneal,31,0,49,31/80,0,80,0,0/80,27,0,53,27/80
+hv_final,no_ph,40,0,40,40/80,53,0,27,53/80,0,80,0,0/80

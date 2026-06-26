@@ -60,7 +60,7 @@ contains `mpage_bmab/`).
 | `full` | 320 | ≈ 30,950 | complete component-ablation matrix from IDEA.md §4 |
 | `hvfix_smoke` | 4 | ≈ 100 | cheap sanity check for the final-HV fixes |
 | `hv_final_priority` | 225 | ≈ 13,125 | focused final-HV sweep including reward ablations and `mpage_orig` |
-| `hv_final_full` | 240 by default | ≈ 22,500 | complete reward-mode comparison for Final-HV reward, Dense reward, and Hybrid reward; optional ablations can be added manually |
+| `hv_final_full` | 240 by default | ≈ 22,500 | internal reward-mode diagnostic suite for Final-HV reward, Dense reward, and Hybrid reward; the thesis-facing comparison uses Final-HV reward and Hybrid reward |
 | `all_variants_full` | 800 | ≈ 75,000 | complete matrix for every runnable method: reward variants, component ablations, `mpage_budget`, and `mpage_orig` |
 
 The "total LLM calls" column is approximate: each cell consumes its

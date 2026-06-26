@@ -16,17 +16,17 @@ The second contribution is a two-level bandit scheduler for MPaGE-style heuristi
 
 The third contribution is the integration of non-stationarity handling through Page--Hinkley drift detection. Because a semantic cluster can become less useful after repeated exploitation, resetting stale cluster statistics is a practical mechanism for avoiding persistent overconfidence in outdated reward estimates.
 
-The fourth contribution is the reward and population-handling design used by the three quality-signal variants. The implementation rewards the actual generated child, supports Final-HV, Dense, and Hybrid quality signals, prevents the last affordable call from being spent only on clustering, incorporates front-aware cluster priors, weights parents by PFG membership, and flushes pending valid offspring into the final population before result writing.
+The fourth contribution is the reward and population-handling design used by the two thesis-facing quality-signal variants. The implementation rewards the actual generated child, supports Final-HV and Hybrid quality signals, prevents the last affordable call from being spent only on clustering, incorporates front-aware cluster priors, weights parents by PFG membership, and flushes pending valid offspring into the final population before result writing.
 
 The fifth contribution is an experimental and analysis pipeline that records not only terminal results but also the process by which budget is consumed. Artifacts such as \code{budget\_curve.json}, \code{aubc.json}, \code{bandit\_log.json}, and generated thesis figures support analysis of both final quality and budget efficiency.
 
 \section{Main Findings}
 
-The current result set provides strong practical evidence that BMAB-style scheduling improves budget efficiency over the original MPaGE workflow. Across the four-setup matrix, Final-HV reward wins 15 of 16 AUBC task--budget cells against MPaGE-orig, while Dense reward and Hybrid reward each win all 16 AUBC cells against MPaGE-orig. The largest qualitative differences appear in tasks where the baseline budget curve rises later, particularly Tri-TSP, Bi-CVRP, and Bi-KP.
+The current result set provides strong practical evidence that BMAB-style scheduling improves budget efficiency over the original MPaGE workflow. Across the main comparison matrix, Final-HV reward wins 15 of 16 AUBC task--budget cells against MPaGE-orig, while Hybrid reward wins all 16 AUBC cells against MPaGE-orig. The largest qualitative differences appear in tasks where the baseline budget curve rises later, particularly Tri-TSP, Bi-CVRP, and Bi-KP.
 
-The evidence for final hypervolume is also favorable to Final-HV reward, but it remains more nuanced than AUBC. This setup has the best mean final-HV rank, six best final-HV cells, and twelve top-two final-HV cells. It also wins 13 of 16 final-HV cells against MPaGE-orig. Nevertheless, Dense reward, Hybrid reward, and occasionally MPaGE-orig remain competitive in some terminal cells. Therefore, the correct conclusion is not uniform terminal domination, but improved budget trajectory with generally strong terminal quality.
+The evidence for final hypervolume is also favorable to Final-HV reward, but it remains more nuanced than AUBC. This setup has the best mean final-HV rank, nine best final-HV cells, and fifteen top-two final-HV cells. It also wins 13 of 16 final-HV cells against MPaGE-orig. Nevertheless, Hybrid reward and occasionally MPaGE-orig remain competitive in some terminal cells. Therefore, the correct conclusion is not uniform terminal domination, but improved budget trajectory with generally strong terminal quality.
 
-The reward-mode comparison clarifies an important trade-off among the three quality-signal variants. Hybrid reward obtains a slightly higher normalized AUBC score than Final-HV reward, whereas Final-HV reward has the strongest final-HV rank. Dense reward remains competitive but is weaker than Final-HV reward in final-HV score. These results show that the three quality signals emphasize different practical objectives: dense feedback supports early local improvement, hybrid feedback balances early and terminal signals, and final-HV feedback supports terminal population quality.
+The reward-mode comparison clarifies an important trade-off between the two retained quality-signal variants. Final-HV reward has the strongest final-HV rank and wins more pairwise cells, whereas Hybrid reward remains almost tied in normalized AUBC and final-HV scores. These results show that final-HV feedback is well aligned with terminal population quality, while the hybrid signal provides a denser feedback design that remains highly competitive across task--budget cells.
 
 The task-level analysis gives a more nuanced view. On Bi-TSP, several methods reach similar final-HV values, so the BMAB advantage is expressed mainly through better budget trajectory. On Tri-TSP, final-HV values are also close, but BMAB-style methods reach high outer HV earlier. On Bi-CVRP, the AUBC gap against MPaGE-orig is especially large, suggesting that adaptive scheduling is valuable when route feasibility and structured local moves make generation more fragile. On Bi-KP, hybrid reward is particularly competitive, which suggests that dense local feedback may be useful for binary item-selection representations.
 
@@ -34,7 +34,7 @@ The most accurate empirical conclusion is therefore careful rather than absolute
 
 \section{Limitations}
 
-The current complete result matrix includes the MPaGE baseline and the three BMAB quality-signal variants. However, it does not include complete matrices for all component ablations. The implementation contains switches for disabling budget annealing, Page--Hinkley drift handling, diversity reward, operator-level scheduling, and cluster-level scheduling. Without complete result matrices for these variants, the thesis cannot isolate the causal contribution of every scheduler component.
+The current result matrix includes the MPaGE baseline, the two thesis-facing BMAB quality-signal variants, and completed ablations for budget annealing and Page--Hinkley drift handling. However, it does not include complete matrices for all component ablations. The implementation also contains switches for disabling diversity reward, operator-level scheduling, and cluster-level scheduling. Without complete result matrices for these variants, the thesis cannot isolate the causal contribution of every scheduler component.
 
 The local hardware environment is known, but the implementation artifacts do not provide GPU-utilization traces, memory-utilization traces, API latency, token-level cost, or monetary cost for the reported runs. No information was found in the source code or documentation for these runtime measurements. Consequently, the current budget model counts LLM calls rather than modeling heterogeneous token costs or real-time latency.
 
@@ -44,7 +44,7 @@ The thesis is also limited by the absence of qualitative code analysis. The save
 
 \section{Future Work}
 
-The most immediate future direction is to run a complete component ablation matrix. The reward-mode comparison is now available for Final-HV reward, Dense reward, and Hybrid reward, but the effects of Page--Hinkley drift detection, diversity reward, operator-only scheduling, cluster-only scheduling, and budget annealing still require complete controlled sweeps.
+The most immediate future direction is to extend the component ablation matrix. The current thesis analyzes budget annealing and Page--Hinkley drift handling, but the effects of diversity reward, operator-only scheduling, and cluster-only scheduling still require complete controlled sweeps.
 
 A second direction is to extend the budget model from uniform call cost to token- or latency-aware cost. In practical LLM deployments, prompts and completions can differ substantially in length, and different models can have different price and latency profiles. A token-aware budgeted bandit would better reflect deployment constraints.
 
@@ -52,7 +52,7 @@ A third direction is to log and analyze generation failures more precisely. Sepa
 
 A fourth direction is to extend the search controller with higher-level planning mechanisms, such as prompt repair, memory over successful heuristic motifs, or structured exploration over operator sequences. These extensions should be evaluated carefully because any additional LLM calls must justify their cost under the same AUBC-oriented budget criterion.
 
-A fifth direction is adaptive reward scheduling. The current results show that Dense reward is useful for early progress and that Final-HV reward is strongest for terminal quality. This suggests a natural schedule in which the controller uses more Dense or Hybrid feedback early and gradually shifts toward Final-HV feedback as the remaining budget decreases.
+A fifth direction is adaptive reward scheduling. The current results show that Hybrid reward remains competitive by combining immediate HVI with managed final-HV feedback, while Final-HV reward is strongest in terminal-quality ranking. This suggests a natural schedule in which the controller uses more local feedback early and gradually shifts toward stricter final-HV feedback as the remaining budget decreases.
 
 A sixth direction is qualitative heuristic analysis. Since the implementation stores generated samples, future work can cluster or manually inspect the generated code to identify recurring local-search structures. This could answer questions that pure HV metrics cannot answer, such as whether successful heuristics share common move operators, whether invalid code arises from specific prompt patterns, or whether crossover actually combines useful motifs from two parents.
 

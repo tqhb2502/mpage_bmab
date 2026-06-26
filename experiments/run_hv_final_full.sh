@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Complete reward-mode comparison for the BMAB implementation.
-# 3 variants × 4 tasks × 4 budgets × 5 seeds = 240 runs:
+# Internal reward-mode diagnostic suite for the BMAB implementation.
+# 3 variants × 4 tasks × 4 budgets × 5 seeds = 240 runs.
+# The thesis-facing comparison uses Final-HV and Hybrid; Dense remains here
+# only for reproducibility of previous reward-mode diagnostics:
 #   Final-HV reward -> internal key full / reward_mode=final_hv
 #   Dense reward    -> internal key dense_reward / reward_mode=dense
 #   Hybrid reward   -> internal key hybrid_reward / reward_mode=hybrid

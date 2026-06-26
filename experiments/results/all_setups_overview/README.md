@@ -1,17 +1,18 @@
 # Final Consolidated Result Overview
 
 This directory is the canonical thesis-facing location for the final result
-tables and figures used in the four-setup comparison.
+tables and figures used in the main comparison and component ablation study.
 
-The final comparison includes four distinct setups:
+The main comparison includes three distinct setups:
 
 - **Final-HV reward**
-- **Dense reward**
 - **Hybrid reward**
 - **MPaGE-orig**
 
-Historical or special-case result trees are not included in this overview. They
-remain archival material outside the thesis-facing summary.
+The component ablation study compares **No budget annealing** and **No
+Page-Hinkley** against **Final-HV reward**. Other completed or historical result
+trees remain available for reproducibility, but they are not emphasized in the
+thesis-facing summary.
 
 The overview is regenerated from the repository root with the overview analysis
 script:

@@ -1,0 +1,146 @@
+[2026-06-26 09:24:02] profile.py(179) : ==================================LLM Parameters===============================
+[2026-06-26 09:24:02] profile.py(180) : LLM: HttpsApiOpenAI
+[2026-06-26 09:24:02] profile.py(183) : do_auto_trim: True
+[2026-06-26 09:24:02] profile.py(183) : debug_mode: False
+[2026-06-26 09:24:02] profile.py(183) : _model: gpt-4o-mini
+[2026-06-26 09:24:02] profile.py(183) : _client: <openai.OpenAI object at 0x108353fa0>
+[2026-06-26 09:24:02] profile.py(185) : ==================================Problem Parameters===============================
+[2026-06-26 09:24:02] profile.py(187) : Problem: TRITSPEvaluation
+[2026-06-26 09:24:02] profile.py(190) : task_description: You are solving a Tri-objective Travelling Salesman Problem (bi-TSP), where each node has three different 2D coordinates: (x1, y1), (x2, y2) and (x3, y3), representing its position in three objective spaces. The goal is to find a tour visiting each node exactly once and returning to the starting node, while minimizing three objectives simultaneously: the total tour length in each coordinate space. Given an archive of non-dominated solutions, where each solution is a numpy array representing a TSP tour, and its corresponding objective is a tuple of three values (cost in each space), design a heuristic function named 'select_neighbor' that selects one solution from the archive and apply a novel or hybrid local search operator to generate a neighbor solution from it. Must always ensure that the generated neighbor solution remains feasible, i.e., the solution must represent a valid TSP tour: it visits each node exactly once, ensuring no node is skipped or revisited. Please perform an intelligent random selection from among the solutions that show promising potential for further local improvement.Using a creative local search strategy of your own design, specifically tailored to effectively optimize across three objectives, go beyond standard approaches to design a method that yields higher-quality solutions across multiple objectives. The function should return the new neighbor solution.
+[2026-06-26 09:24:02] profile.py(190) : use_numba_accelerate: False
+[2026-06-26 09:24:02] profile.py(190) : use_protected_div: False
+[2026-06-26 09:24:02] profile.py(190) : protected_div_delta: 1e-05
+[2026-06-26 09:24:02] profile.py(190) : random_seed: None
+[2026-06-26 09:24:02] profile.py(190) : timeout_seconds: 90
+[2026-06-26 09:24:02] profile.py(190) : exec_code: True
+[2026-06-26 09:24:02] profile.py(190) : safe_evaluate: True
+[2026-06-26 09:24:02] profile.py(190) : daemon_eval_process: False
+[2026-06-26 09:24:02] profile.py(190) : n_instance: 20
+[2026-06-26 09:24:02] profile.py(190) : problem_size: 20
+[2026-06-26 09:24:02] profile.py(190) : ref_point: [20. 20. 20.]
+[2026-06-26 09:24:02] profile.py(192) : ==================================Method Parameters===============================
+[2026-06-26 09:24:02] profile.py(194) : Method: BMABLLM
+[2026-06-26 09:24:02] profile.py(197) : _budget: BudgetTracker(mode=call, remaining=200.00/200.00, steps=0)
+[2026-06-26 09:24:02] profile.py(197) : _cluster_sampler: <mpage_bmab._llm4ad.method.LLMPFG.sampler.EoHSampler object at 0x10846b5e0>
+[2026-06-26 09:24:02] profile.py(197) : _cluster_mgr: <mpage_bmab.cluster_manager.ClusterManager object at 0x10846bc10>
+[2026-06-26 09:24:02] profile.py(197) : _operator_bandit: <mpage_bmab.bandit.OperatorBandit object at 0x10846bb80>
+[2026-06-26 09:24:02] profile.py(197) : _cluster_bandit: <mpage_bmab.bandit.ClusterBandit object at 0x108498fa0>
+[2026-06-26 09:24:02] profile.py(197) : _reward: <mpage_bmab.reward.RewardComputer object at 0x1084ade20>
+[2026-06-26 09:24:02] profile.py(197) : _pop_size: 12
+[2026-06-26 09:24:02] profile.py(197) : _selection_num: 2
+[2026-06-26 09:24:02] profile.py(197) : _max_generations: None
+[2026-06-26 09:24:02] profile.py(197) : _use_e1: True
+[2026-06-26 09:24:02] profile.py(197) : _use_e2: True
+[2026-06-26 09:24:02] profile.py(197) : _use_m1: True
+[2026-06-26 09:24:02] profile.py(197) : _use_m2: True
+[2026-06-26 09:24:02] profile.py(197) : _review: False
+[2026-06-26 09:24:02] profile.py(197) : _init_target_successes: 12
+[2026-06-26 09:24:02] profile.py(197) : _init_max_calls: 60
+[2026-06-26 09:24:02] profile.py(197) : _gen_call_cost: 1.0
+[2026-06-26 09:24:02] profile.py(197) : _cluster_call_cost: 1.0
+[2026-06-26 09:24:02] profile.py(197) : _init_call_cost: 1.0
+[2026-06-26 09:24:02] profile.py(197) : _review_call_cost: 1.0
+[2026-06-26 09:24:02] profile.py(197) : _ref_point: [20. 60.]
+[2026-06-26 09:24:02] profile.py(197) : _debug: False
+[2026-06-26 09:24:02] profile.py(197) : _disable_cluster_bandit: False
+[2026-06-26 09:24:02] profile.py(197) : _disable_operator_bandit: False
+[2026-06-26 09:24:02] profile.py(197) : _rr_idx: 0
+[2026-06-26 09:24:02] profile.py(199) : ==================================End of Parameters===============================
+[2026-06-26 09:24:07] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:25:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:25:55] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:26:04] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:27:06] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:27:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:27:57] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:28:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:28:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:29:00] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:29:48] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:31:25] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:31:31] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:32:17] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:33:25] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:34:12] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:34:18] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:34:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:34:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:34:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:35:28] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:35:34] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-26 09:36:45] _base_client.py(1111) : Retrying request to /chat/completions in 0.455612 seconds
+[2026-06-26 09:36:46] _base_client.py(1111) : Retrying request to /chat/completions in 0.955310 seconds
+[2026-06-26 09:36:47] _base_client.py(1111) : Retrying request to /chat/completions in 0.496525 seconds
+[2026-06-26 09:36:47] _base_client.py(1111) : Retrying request to /chat/completions in 0.909426 seconds
+[2026-06-26 09:36:48] _base_client.py(1111) : Retrying request to /chat/completions in 0.379696 seconds
+[2026-06-26 09:36:49] _base_client.py(1111) : Retrying request to /chat/completions in 0.835872 seconds
+[2026-06-26 09:36:50] _base_client.py(1111) : Retrying request to /chat/completions in 0.476534 seconds
+[2026-06-26 09:36:50] _base_client.py(1111) : Retrying request to /chat/completions in 0.844309 seconds
+[2026-06-26 09:36:51] _base_client.py(1111) : Retrying request to /chat/completions in 0.455550 seconds
+[2026-06-26 09:36:51] _base_client.py(1111) : Retrying request to /chat/completions in 0.999861 seconds
+[2026-06-26 09:36:52] _base_client.py(1111) : Retrying request to /chat/completions in 0.386433 seconds
+[2026-06-26 09:36:53] _base_client.py(1111) : Retrying request to /chat/completions in 0.846925 seconds
+[2026-06-26 09:36:54] _base_client.py(1111) : Retrying request to /chat/completions in 0.430858 seconds
+[2026-06-26 09:36:54] _base_client.py(1111) : Retrying request to /chat/completions in 0.795086 seconds
+[2026-06-26 09:36:55] _base_client.py(1111) : Retrying request to /chat/completions in 0.379578 seconds
+[2026-06-26 09:36:55] _base_client.py(1111) : Retrying request to /chat/completions in 0.996528 seconds
+[2026-06-26 09:36:56] _base_client.py(1111) : Retrying request to /chat/completions in 0.462386 seconds
+[2026-06-26 09:36:57] _base_client.py(1111) : Retrying request to /chat/completions in 0.854467 seconds
+[2026-06-26 09:36:58] _base_client.py(1111) : Retrying request to /chat/completions in 0.463168 seconds
+[2026-06-26 09:36:58] _base_client.py(1111) : Retrying request to /chat/completions in 0.759289 seconds
+[2026-06-26 09:36:59] _base_client.py(1111) : Retrying request to /chat/completions in 0.471378 seconds
+[2026-06-26 09:36:59] _base_client.py(1111) : Retrying request to /chat/completions in 0.896053 seconds
+[2026-06-26 09:37:00] _base_client.py(1111) : Retrying request to /chat/completions in 0.437353 seconds
+[2026-06-26 09:37:01] _base_client.py(1111) : Retrying request to /chat/completions in 0.773760 seconds
+[2026-06-26 09:37:02] _base_client.py(1111) : Retrying request to /chat/completions in 0.441531 seconds
+[2026-06-26 09:37:02] _base_client.py(1111) : Retrying request to /chat/completions in 0.977381 seconds
+[2026-06-26 09:37:03] _base_client.py(1111) : Retrying request to /chat/completions in 0.405730 seconds
+[2026-06-26 09:37:03] _base_client.py(1111) : Retrying request to /chat/completions in 0.897130 seconds
+[2026-06-26 09:37:04] _base_client.py(1111) : Retrying request to /chat/completions in 0.457601 seconds
+[2026-06-26 09:37:05] _base_client.py(1111) : Retrying request to /chat/completions in 0.840431 seconds
+[2026-06-26 09:37:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.456319 seconds
+[2026-06-26 09:37:06] _base_client.py(1111) : Retrying request to /chat/completions in 0.750717 seconds
+[2026-06-26 09:37:07] _base_client.py(1111) : Retrying request to /chat/completions in 0.430597 seconds
+[2026-06-26 09:37:07] _base_client.py(1111) : Retrying request to /chat/completions in 0.906988 seconds
+[2026-06-26 09:37:08] _base_client.py(1111) : Retrying request to /chat/completions in 0.465432 seconds
+[2026-06-26 09:37:09] _base_client.py(1111) : Retrying request to /chat/completions in 0.995751 seconds
+[2026-06-26 09:37:10] _base_client.py(1111) : Retrying request to /chat/completions in 0.409858 seconds
+[2026-06-26 09:37:10] _base_client.py(1111) : Retrying request to /chat/completions in 0.828845 seconds
+[2026-06-26 09:37:11] _base_client.py(1111) : Retrying request to /chat/completions in 0.433791 seconds
+[2026-06-26 09:37:11] _base_client.py(1111) : Retrying request to /chat/completions in 0.926810 seconds
+[2026-06-26 09:37:12] _base_client.py(1111) : Retrying request to /chat/completions in 0.455835 seconds
+[2026-06-26 09:37:13] _base_client.py(1111) : Retrying request to /chat/completions in 0.799014 seconds
+[2026-06-26 09:37:14] _base_client.py(1111) : Retrying request to /chat/completions in 0.476983 seconds
+[2026-06-26 09:37:14] _base_client.py(1111) : Retrying request to /chat/completions in 0.801796 seconds
+[2026-06-26 09:37:15] _base_client.py(1111) : Retrying request to /chat/completions in 0.435173 seconds
+[2026-06-26 09:37:15] _base_client.py(1111) : Retrying request to /chat/completions in 0.835535 seconds
+[2026-06-26 09:37:16] _base_client.py(1111) : Retrying request to /chat/completions in 0.409601 seconds
+[2026-06-26 09:37:17] _base_client.py(1111) : Retrying request to /chat/completions in 0.985020 seconds
+[2026-06-26 09:37:18] _base_client.py(1111) : Retrying request to /chat/completions in 0.409624 seconds
+[2026-06-26 09:37:18] _base_client.py(1111) : Retrying request to /chat/completions in 0.877539 seconds
+[2026-06-26 09:37:19] _base_client.py(1111) : Retrying request to /chat/completions in 0.383783 seconds
+[2026-06-26 09:37:19] _base_client.py(1111) : Retrying request to /chat/completions in 0.947818 seconds
+[2026-06-26 09:37:20] _base_client.py(1111) : Retrying request to /chat/completions in 0.384128 seconds
+[2026-06-26 09:37:21] _base_client.py(1111) : Retrying request to /chat/completions in 0.935534 seconds
+[2026-06-26 09:37:22] _base_client.py(1111) : Retrying request to /chat/completions in 0.451507 seconds
+[2026-06-26 09:37:22] _base_client.py(1111) : Retrying request to /chat/completions in 0.765318 seconds
+[2026-06-26 09:37:23] _base_client.py(1111) : Retrying request to /chat/completions in 0.403120 seconds
+[2026-06-26 09:37:23] _base_client.py(1111) : Retrying request to /chat/completions in 0.833221 seconds
+[2026-06-26 09:37:24] _base_client.py(1111) : Retrying request to /chat/completions in 0.405199 seconds
+[2026-06-26 09:37:25] _base_client.py(1111) : Retrying request to /chat/completions in 0.867111 seconds
+[2026-06-26 09:37:26] _base_client.py(1111) : Retrying request to /chat/completions in 0.401709 seconds
+[2026-06-26 09:37:26] _base_client.py(1111) : Retrying request to /chat/completions in 0.869802 seconds
+[2026-06-26 09:37:27] _base_client.py(1111) : Retrying request to /chat/completions in 0.390179 seconds
+[2026-06-26 09:37:27] _base_client.py(1111) : Retrying request to /chat/completions in 0.784105 seconds
+[2026-06-26 09:37:28] _base_client.py(1111) : Retrying request to /chat/completions in 0.484406 seconds
+[2026-06-26 09:37:29] _base_client.py(1111) : Retrying request to /chat/completions in 0.784230 seconds
+[2026-06-26 09:37:29] _base_client.py(1111) : Retrying request to /chat/completions in 0.426647 seconds
+[2026-06-26 09:37:30] _base_client.py(1111) : Retrying request to /chat/completions in 0.837426 seconds
+[2026-06-26 09:37:31] _base_client.py(1111) : Retrying request to /chat/completions in 0.414388 seconds
+[2026-06-26 09:37:31] _base_client.py(1111) : Retrying request to /chat/completions in 0.839173 seconds
+[2026-06-26 09:37:32] _base_client.py(1111) : Retrying request to /chat/completions in 0.427991 seconds
+[2026-06-26 09:37:32] _base_client.py(1111) : Retrying request to /chat/completions in 0.856561 seconds
+[2026-06-26 09:37:33] _base_client.py(1111) : Retrying request to /chat/completions in 0.471322 seconds
+[2026-06-26 09:37:34] _base_client.py(1111) : Retrying request to /chat/completions in 0.782018 seconds
+[2026-06-26 09:37:34] _base_client.py(1111) : Retrying request to /chat/completions in 0.499508 seconds
+[2026-06-26 09:37:35] _base_client.py(1111) : Retrying request to /chat/completions in 0.792691 seconds

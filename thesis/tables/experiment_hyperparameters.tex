@@ -1,33 +1,59 @@
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.32\linewidth}>{\raggedright\arraybackslash}p{0.58\linewidth}}
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.16}
+\setlength{\tabcolsep}{6pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash\bfseries}p{0.30\linewidth}>{\raggedright\arraybackslash}p{0.64\linewidth}@{}}
 \caption[Experimental hyperparameters and environment]{Experimental hyperparameters and local running environment used for the analyzed result matrix.}
 \label{tab:experiment-hyperparameters}\\
 \toprule
-Item & Value used in the experiments \\
+\normalfont Item & \textbf{Value used in the experiments} \\
 \midrule
 \endfirsthead
 \toprule
-Item & Value used in the experiments \\
+\normalfont Item & \textbf{Value used in the experiments} \\
 \midrule
 \endhead
-Compared setups & Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. \\
+Compared setups & Main comparison: Final-HV reward, Hybrid reward, and MPaGE-orig. Component ablations: No budget annealing and No Page-Hinkley, each compared against Final-HV reward. \\
+\addlinespace[0.25em]
 Benchmark tasks & Bi-TSP, Tri-TSP, Bi-CVRP, and Bi-KP. \\
+\addlinespace[0.25em]
 LLM-call budgets & $B \in \{25,50,100,200\}$. \\
+\addlinespace[0.25em]
 Random seeds & 2025, 2026, 2027, 2028, and 2029. \\
-Managed population size & For Bi-TSP, Bi-CVRP, and Bi-KP: 4, 6, 8, and 10 at budgets 25, 50, 100, and 200. For Tri-TSP: 6, 8, 10, and 12 at the same budgets. \\
+\addlinespace[0.25em]
+Managed population size &
+Bi-TSP, Bi-CVRP, and Bi-KP: 4, 6, 8, and 10 at budgets 25, 50, 100, and 200.\newline
+Tri-TSP: 6, 8, 10, and 12 at the same budgets. \\
+\addlinespace[0.25em]
 Generation target per BMAB generation & The target number of generated offspring is equal to the managed population size. \\
+\addlinespace[0.25em]
 Initialization limit & The initializer targets one successful population of size \code{pop\_size}; the maximum initialization calls are the larger of 25 and five times \code{pop\_size}. \\
+\addlinespace[0.25em]
 Variation operators & Two operators are used: mutation and crossover. The operator-level bandit selects between these two operators. \\
+\addlinespace[0.25em]
 Cluster-level arms & Within a generation, arms are semantic cluster--operator pairs. If the clusterer returns $K$ clusters, the cluster bandit considers up to $2K$ cluster--operator arms. \\
+\addlinespace[0.25em]
 Selection count & Two parent heuristics are selected when crossover is used. \\
+\addlinespace[0.25em]
 Budget accounting & Initialization, clustering, generation, and review calls each have unit cost. Review is disabled in the analyzed runs. \\
+\addlinespace[0.25em]
 Bandit exploration constants & Operator exploration constant $c_{\mathrm{op}}=1.0$ and cluster exploration constant $c_{\mathrm{cluster}}=1.0$. \\
-Budget annealing & Enabled for the three BMAB quality-signal variants, with $\gamma_{\mathrm{budget}}=0.5$. \\
+\addlinespace[0.25em]
+Budget annealing & Enabled for Final-HV reward and Hybrid reward, with $\gamma_{\mathrm{budget}}=0.5$. The No budget annealing ablation disables this exploration-decay factor. \\
+\addlinespace[0.25em]
 Reward weights & Quality, diversity, and rank weights are $w_q=1.0$, $w_d=0.3$, and $w_r=0.2$, respectively. \\
-Page--Hinkley settings & Drift threshold $\lambda=0.5$ and slack $\delta=0.005$. \\
+\addlinespace[0.25em]
+Page--Hinkley settings & Drift threshold $\lambda=0.5$ and slack $\delta=0.005$. The No Page-Hinkley ablation sets the threshold high enough that drift resets are effectively disabled in the analyzed runs. \\
+\addlinespace[0.25em]
 Generator LLM & \code{gpt-4o-mini} through an external OpenAI-compatible chat-completion API. \\
+\addlinespace[0.25em]
 Cluster LLM & \code{gpt-4o-mini} through the structured clustering API path. \\
+\addlinespace[0.25em]
 Generator decoding configuration & Maximum completion length 8,192 tokens, temperature 0.7, streaming disabled, timeout 30 seconds. \\
-Cluster decoding configuration & Structured parse call with a 30-second timeout. Cluster temperature, top-p, and the exact service-side model snapshot are not recorded in the available artifacts. \\
+\addlinespace[0.25em]
+Cluster decoding configuration & Structured parse call with a 30-second timeout. \\
+\addlinespace[0.25em]
 Local running environment & Apple M4 chip with 10-core CPU, 8-core GPU, and 16 GB RAM. The local machine runs orchestration and benchmark evaluation; LLM inference is served by the external API. \\
 \bottomrule
 \end{longtable}
+\endgroup

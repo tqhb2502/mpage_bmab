@@ -1,0 +1,39 @@
+\begin{table}[H]
+\centering
+\caption[Component ablation results]{Component ablation results. Normalized scores and ranks compare Final-HV reward with the two ablations over the same 16 task--budget cells. The delta table reports the mean percentage change of each ablation relative to Final-HV reward; negative values indicate worse performance than Final-HV reward.}
+\label{tab:ablation-results}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{subtable}{\linewidth}
+\centering
+\caption{Normalized scores and mean ranks}
+\begin{tabular}{lrrrrr}
+\toprule
+Setup & AUBC sc. & AUBC rk. & Final-HV sc. & Final-HV rk. & Perf. sc. \\
+\midrule
+Final-HV reward & 96.9 & 1.69 & 98.0 & 1.69 & 97.5 \\
+No budget annealing & 90.0 & 2.44 & 95.7 & 2.25 & 92.9 \\
+No Page-Hinkley & 92.7 & 1.88 & 93.7 & 2.06 & 93.2 \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+
+\vspace{0.5em}
+
+\begin{subtable}{\linewidth}
+\centering
+\caption{Cell-level percentage deltas relative to Final-HV reward}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrrr}
+\toprule
+Ablation & Metric & Better cells & Mean $\Delta$ & Median $\Delta$ & Worst task & $B=25$ $\Delta$ \\
+\midrule
+No budget annealing & AUBC & 3/16 & -6.3\% & -2.9\% & Bi-KP (-13.1\%) & -15.3\% \\
+No budget annealing & Final HV & 5/16 & -1.9\% & -0.4\% & Bi-CVRP (-10.3\%) & -8.3\% \\
+No Page-Hinkley & AUBC & 8/16 & -4.1\% & -0.0\% & Bi-KP (-14.3\%) & -15.7\% \\
+No Page-Hinkley & Final HV & 6/16 & -4.1\% & -0.2\% & Bi-KP (-12.5\%) & -14.4\% \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}

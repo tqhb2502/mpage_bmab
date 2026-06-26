@@ -189,11 +189,12 @@ SUITES: Dict[str, Suite] = {
         tasks=TASKS,
         budgets=BUDGETS,
         seeds=SEEDS,
-        description='Complete reward-mode comparison for the BMAB '
+        description='Internal reward-mode diagnostic suite for the BMAB '
                     'implementation: Final-HV reward, Dense reward, and '
                     'Hybrid reward across all tasks, budgets, and seeds '
-                    '(3 × 4 × 4 × 5 = 240 runs). Add no_budget_anneal or '
-                    'mpage_orig manually if needed.',
+                    '(3 × 4 × 4 × 5 = 240 runs). The thesis-facing main '
+                    'comparison uses Final-HV reward and Hybrid reward; '
+                    'Dense reward is retained here for reproducibility.',
     ),
     'all_variants_full': Suite(
         name='all_variants_full',

@@ -1,0 +1,4 @@
+method,aubc_normalized_score,aubc_mean_rank,aubc_best_cells,aubc_top2_cells,hv_final_normalized_score,hv_final_mean_rank,hv_final_best_cells,hv_final_top2_cells,performance_score_mean,performance_rank_mean
+full,96.94753223831083,1.6875,8,13,98.02062572834038,1.6875,8,13,97.4840789833256,1.6875
+no_budget_anneal,90.00782354078541,2.4375,2,7,95.71607671336344,2.25,3,9,92.86195012707442,2.34375
+no_ph,92.67004114137507,1.875,6,12,93.66878366540395,2.0625,5,10,93.16941240338952,1.96875

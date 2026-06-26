@@ -1,5 +1,5 @@
-\begin{longtable}{p{0.22\linewidth}p{0.22\linewidth}p{0.45\linewidth}}
-\caption[Experimental setup definitions]{Experimental setups analyzed in the final comparison.}
+\begin{longtable}{p{0.24\linewidth}p{0.22\linewidth}p{0.43\linewidth}}
+\caption[Experimental setup definitions]{Experimental setups analyzed in the main comparison.}
 \label{tab:experiment-setups}\\
 \toprule
 Setup & Purpose & Configuration \\
@@ -10,8 +10,7 @@ Setup & Purpose & Configuration \\
 \midrule
 \endhead
 Final-HV reward & Quality-signal variant & Uses the shared two-level bandit scheduler, Page--Hinkley drift handling, budget annealing, diversity/rank reward terms, pending-offspring flushing, and a final managed-population HV quality signal. \\
-Dense reward & Quality-signal variant & Uses the same scheduling pipeline but changes the main quality signal to immediate hypervolume-improvement feedback. \\
-Hybrid reward & Quality-signal variant & Uses the same scheduling pipeline but combines dense immediate feedback with final managed-population HV feedback. \\
+Hybrid reward & Quality-signal variant & Uses the same scheduling and population-management pipeline but combines immediate HVI feedback with final managed-population HV feedback. \\
 MPaGE-orig & Baseline & Runs the original MPaGE workflow under the same measurement protocol so that budget curves, AUBC, and final-HV artifacts can be collected consistently. \\
 \bottomrule
 \end{longtable}

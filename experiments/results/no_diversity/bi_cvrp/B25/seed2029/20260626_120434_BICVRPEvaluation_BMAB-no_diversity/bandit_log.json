@@ -1,0 +1,167 @@
+[
+  {
+    "generation": 0,
+    "operator": {
+      "mutate": {
+        "n": 3,
+        "mean_reward": -0.5,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5
+      },
+      "crossover": {
+        "n": 3,
+        "mean_reward": -0.13333333333333333,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.13333333333333333
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 1,
+        "mean_reward": 0.25,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.25
+      },
+      "0_crossover": {
+        "n": 1,
+        "mean_reward": 0.25,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.25
+      },
+      "1_mutate": {
+        "n": 2,
+        "mean_reward": -0.125,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.125
+      },
+      "1_crossover": {
+        "n": 2,
+        "mean_reward": 0.425,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.425
+      },
+      "2_mutate": {
+        "n": 2,
+        "mean_reward": -0.37359966574168635,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.37359966574168635
+      },
+      "2_crossover": {
+        "n": 2,
+        "mean_reward": -0.37359966574168635,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.37359966574168635
+      }
+    }
+  },
+  {
+    "generation": 1,
+    "operator": {
+      "mutate": {
+        "n": 4,
+        "mean_reward": -0.625,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.625
+      },
+      "crossover": {
+        "n": 6,
+        "mean_reward": -0.5666666666666667,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5666666666666667
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 2,
+        "mean_reward": -0.14766332067522148,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.14766332067522148
+      },
+      "0_crossover": {
+        "n": 3,
+        "mean_reward": -0.401557786216519,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.401557786216519
+      },
+      "1_mutate": {
+        "n": 1,
+        "mean_reward": 0.20467335864955707,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.20467335864955707
+      },
+      "1_crossover": {
+        "n": 2,
+        "mean_reward": -0.3523366793247785,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.3523366793247785
+      }
+    }
+  },
+  {
+    "generation": 2,
+    "operator": {
+      "mutate": {
+        "n": 5,
+        "mean_reward": -0.7,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.7
+      },
+      "crossover": {
+        "n": 6,
+        "mean_reward": -0.5666666666666667,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.5666666666666667
+      }
+    },
+    "cluster": {
+      "0_mutate": {
+        "n": 1,
+        "mean_reward": 0.24333073017855048,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.24333073017855048
+      },
+      "0_crossover": {
+        "n": 1,
+        "mean_reward": 0.257909929598341,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.257909929598341
+      },
+      "1_mutate": {
+        "n": 2,
+        "mean_reward": -0.1286447998549476,
+        "mean_cost": 1.0,
+        "reward_per_cost": -0.1286447998549476
+      },
+      "1_crossover": {
+        "n": 1,
+        "mean_reward": 0.7572895997098953,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.7572895997098953
+      },
+      "2_mutate": {
+        "n": 1,
+        "mean_reward": 0.24271040029010477,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.24271040029010477
+      },
+      "2_crossover": {
+        "n": 1,
+        "mean_reward": 0.2572895997098953,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.2572895997098953
+      },
+      "3_mutate": {
+        "n": 1,
+        "mean_reward": 0.24612798002811165,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.24612798002811165
+      },
+      "3_crossover": {
+        "n": 1,
+        "mean_reward": 0.26070717944790217,
+        "mean_cost": 1.0,
+        "reward_per_cost": 0.26070717944790217
+      }
+    }
+  }
+]

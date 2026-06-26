@@ -99,9 +99,9 @@ The experiment harness separates suite definition, execution, aggregation, and c
 
 The experiment runner enumerates combinations of setup, task, budget, and seed; creates output directories; and dispatches each cell to either the proposed BMAB entry point or the MPaGE-orig wrapper. It skips completed cells unless explicitly forced to rerun. The aggregation code scans result directories and creates aggregate CSV summaries, while the comparison code performs paired comparisons against a selected baseline for a selected metric.
 
-Several shell launchers are provided for common workflows. One launches the MPaGE-orig versus BMAB comparison, and one launches the reward-mode comparison among Final-HV reward, Dense reward, and Hybrid reward before running aggregation and comparisons for both final outer hypervolume and AUBC.
+Several shell launchers are provided for common workflows. One launches the MPaGE-orig versus BMAB comparison, and another launches the reward-mode experiments before running aggregation and comparisons for both final outer hypervolume and AUBC.
 
-The result set analyzed in Chapter~5 combines the complete MPaGE comparison matrix with the complete reward-mode matrix. It therefore covers four thesis-facing setups: Final-HV reward, Dense reward, Hybrid reward, and MPaGE-orig. Other component ablations are available in the implementation but are not analyzed as complete matrices in Chapter~5.
+The result set analyzed in Chapter~5 combines the MPaGE comparison matrix, the Final-HV and Hybrid reward-mode runs, and two completed component ablations. The thesis-facing main comparison covers Final-HV reward, Hybrid reward, and MPaGE-orig; the ablation study then compares No budget annealing and No Page-Hinkley against Final-HV reward.
 
 \section{Generated Artifacts}
 
@@ -125,7 +125,7 @@ Another important artifact is the saved sample set. Sample files make it possibl
 
 \section{Visualization and Analysis Code}
 
-The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated four-setup overview script creates AUBC plots, final-HV plots, budget curves, pairwise win matrices, normalized-score summaries, mean-rank summaries, and trade-off figures. The thesis includes local copies of the generated figures so that the compiled document is self-contained.
+The figures used in Chapter~5 are generated from result CSV and JSON files. The consolidated overview script creates AUBC plots, final-HV plots, budget curves, pairwise win matrices, normalized-score summaries, mean-rank summaries, trade-off figures, and component-ablation heatmaps. The thesis includes local copies of the generated figures so that the compiled document is self-contained.
 
 This separation between data, plotting code, and thesis figures is useful for reproducibility. If new runs are added, the same aggregation and visualization pipeline can be executed again to update the numerical summaries and figures without changing the methodological exposition.
 

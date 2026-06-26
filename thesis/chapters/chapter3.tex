@@ -85,42 +85,16 @@ The quantity $HV_{\text{outer}}$ is the \emph{outer hypervolume}: it is computed
 
 \section{System Overview}
 
-\bmab{} is organized as an adaptive orchestration layer around the MPaGE primitives. Figure~\ref{fig:bmab-architecture-en} summarizes the data and control flow.
+\bmab{} is organized as an adaptive orchestration layer around the MPaGE primitives. Figure~\ref{fig:bmab-llm-main} summarizes this data and control flow at the level of one complete iteration. The left side starts from the current heuristic population and applies Pareto Front Grid decomposition to identify an elite set of heuristics. The selected heuristics are then passed to the semantic clustering and bandit-selection stage. The selected operator--cluster decision controls which parents are sampled and whether mutation or crossover is used. The generated offspring heuristic is evaluated, converted into a scalar reward signal, and then inserted into the managed population through non-dominated sorting and crowding-distance truncation.
 
 \begin{figure}[H]
   \centering
-  \resizebox{0.98\linewidth}{!}{%
-  \begin{tikzpicture}[
-    node distance=1.05cm and 0.82cm,
-    box/.style={draw, rounded corners=2pt, align=center, text width=2.9cm, minimum height=0.92cm, font=\small},
-    ctrl/.style={draw, rounded corners=2pt, align=center, text width=5.7cm, minimum height=1.05cm, font=\small},
-    smallbox/.style={draw, rounded corners=2pt, align=center, text width=2.9cm, minimum height=0.88cm, font=\small},
-    data/.style={draw, cylinder, shape border rotate=90, aspect=0.25, align=center, text width=2.7cm, minimum height=0.92cm, font=\small},
-    arr/.style={-{Latex[length=2.2mm]}, thick}
-  ]
-    \node[box] (task) {Task template\\and MPaGE prompts};
-    \node[box, right=of task] (llm) {Generator LLM\\heuristic code};
-    \node[box, right=of llm] (eval) {Secure evaluator\\score and runtime};
-    \node[data, right=of eval] (pop) {Population\\PFG archive};
-
-    \node[smallbox, below=of task] (budget) {BudgetTracker\\hard call budget};
-    \node[ctrl, below=of llm, xshift=1.9cm] (controller) {Adaptive BMAB controller\\operator UCB + cluster UCB\\cluster priors + reward + Page--Hinkley};
-    \node[smallbox, below=of pop] (profiler) {BMABProfiler\\HV curve and logs};
-
-    \draw[arr] (task) -- (llm);
-    \draw[arr] (llm) -- (eval);
-    \draw[arr] (eval) -- (pop);
-    \draw[arr] (pop) -- (profiler);
-
-    \draw[arr] (budget.north) -- (task.south);
-    \draw[arr] (budget.east) -- (controller.west);
-    \draw[arr] (eval.south) -- ++(0,-0.35) -| (controller.north);
-    \draw[arr] (controller.north west) -- ++(0,0.35) -| (llm.south);
-  \end{tikzpicture}%
-  }
-  \caption{Logical architecture of \bmab{}. The method preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control.}
-  \label{fig:bmab-architecture-en}
+  \includegraphics[width=0.98\linewidth]{bmab_llm_main.png}
+  \caption{Iteration-level pipeline of the proposed framework. The figure shows how the current heuristic population is decomposed by Pareto Front Grid selection, grouped by LLM semantic clustering, controlled by operator and cluster bandits, transformed through mutation or crossover prompts, evaluated by the benchmark evaluator, converted into reward feedback, and finally managed through non-dominated sorting and diversity-preserving truncation.}
+  \label{fig:bmab-llm-main}
 \end{figure}
+
+This figure is important because it separates the roles of generation, evaluation, and control. The proposed framework preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control around them. The LLM is used only to produce or refine heuristic programs; it does not directly solve the benchmark instances. The evaluator executes the generated heuristic inside the inner multi-objective search process and returns a heuristic score. That score is then used in two ways: it updates the managed heuristic population and it becomes part of the reward signal observed by the bandit controller. Consequently, the proposed framework forms a closed-loop system: generated heuristics affect rewards, rewards affect future operator and cluster choices, and those choices determine how the remaining LLM-call budget is spent.
 
 The implementation is centered in \methodcode{bmab\_llm.py}. The main supporting modules are summarized in Table~\ref{tab:method-modules}.
 
@@ -233,6 +207,17 @@ In the call-based mode used by the reported experiments, the following costs are
 
 The budget state is recorded through \methodcode{BudgetTracker.history}, and the profiler later writes \methodcode{budget\_history.json}. This gives the experimental harness a direct account of how the budget was spent.
 
+Figure~\ref{fig:bmab-llm-budget-manage} summarizes the two places where budget enters the method. On the left, the budget tracker gates expensive LLM actions: semantic clustering and mutation/crossover generation are allowed only when the remaining budget can pay for the call. On the right, the recorded sequence of consumed budget and outer hypervolume values forms the budget curve used to compute AUBC.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\linewidth]{bmab_llm_budget_manage.png}
+  \caption{Budget management and AUBC measurement in the proposed framework. The budget tracker controls whether LLM semantic clustering or heuristic-generation calls can be issued, while the profiler records used budget and outer hypervolume so that the area under the budget curve can quantify budget efficiency.}
+  \label{fig:bmab-llm-budget-manage}
+\end{figure}
+
+This view clarifies why budget control is not merely a stopping rule. A clustering call is useful only if it can guide later generation, and a generation call is useful only if its resulting heuristic can be evaluated and considered by the population manager. The budget tracker therefore shapes the exploration--exploitation process: early in the run, the scheduler can afford more exploratory cluster and operator choices; near the end, budget annealing reduces exploration pressure so that remaining calls are more likely to exploit productive regions. The AUBC measurement then evaluates this behavior over the whole trajectory rather than only at the final population.
+
 \section{Two-Level Budgeted Bandit Scheduler}
 
 \subsection{Why a Two-Level Scheduler is Needed}
@@ -245,6 +230,17 @@ A direct bandit over individual heuristics is not viable because the heuristic s
 \end{enumerate}
 
 This decomposition lets the method learn long-term operator utility while still adapting to the short-lived semantic cluster structure of the current population.
+
+Figure~\ref{fig:bmab-llm-bandits} illustrates the corresponding feedback loop. The current managed population is clustered at the beginning of a generation. The persistent operator bandit provides a prior over mutation and crossover, while the generation-local cluster bandit creates arms that combine an operator with a semantic cluster. After an offspring heuristic is generated and evaluated, the reward computer sends feedback to both bandit levels. The Page--Hinkley state monitors the cluster-arm reward stream and can reset stale cluster statistics when reward behavior changes.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\linewidth]{bmab_llm_bandits.png}
+  \caption{Feedback loop of the two-level bandit scheduler. The operator bandit learns persistent preferences over mutation and crossover, the cluster bandit selects generation-local operator--cluster arms, the reward computer updates both levels using observed heuristic quality, and Page--Hinkley drift detection can reset cluster-arm statistics when the local reward distribution becomes stale.}
+  \label{fig:bmab-llm-bandits}
+\end{figure}
+
+The figure also shows how Final-HV reward and Hybrid reward fit into the scheduler. Both modes are implemented inside the reward computer and therefore affect the numerical feedback passed to the operator and cluster bandits. Final-HV reward gives credit when the managed archive improves after population management, whereas Hybrid reward combines that managed final-HV signal with immediate HVI feedback. The bandit mechanism is agnostic to the semantic meaning of the reward; it only observes scalar values. This separation is useful because the same scheduling machinery can compare different quality-signal designs while keeping the generation, evaluation, and archive-management pipeline fixed.
 
 \subsection{Operator-Level UCB}
 
@@ -394,21 +390,162 @@ The implementation also computes a managed-population HV delta. Let $\mathrm{Man
   \label{eq:managed-hv}
 \end{equation}
 
-Both quantities are normalized by rolling maxima over a recent window. Let $\widehat{\mathrm{HVI}}$ and $\widehat{\Delta HV}_{\mathrm{managed}}$ denote the normalized values. The quality mode is then
+\subsubsection{Managed Archive Operator}
+
+The operator $\mathrm{Manage}_N(\cdot)$ is the archive-management rule that connects a newly evaluated heuristic score to the final maintained population. It is not an additional optimizer over the underlying routing or knapsack instances. Instead, it operates at the outer heuristic-population level. Its input is a finite set of heuristic score vectors, such as the current valid score set $F$ or the temporary set $F\cup\{s\}$ obtained after adding a new candidate score $s$, together with a capacity limit $N$. Its output is a subset of at most $N$ score vectors that represents the managed archive used by the outer search.
+
+The implementation follows the same survivor-selection logic as the population-management step used for the final heuristic population. First, only valid finite score vectors are considered. Invalid candidates, missing scores, and non-finite scores are handled before this step by assigning the invalid-code penalty, so they do not enter the managed archive. Second, the remaining score vectors are partitioned by fast non-dominated sorting under the minimization convention. A score vector is preferred if it is no worse in every objective and strictly better in at least one objective. Thus, dominated vectors are placed in later fronts and are selected only if the archive has remaining capacity after all better fronts have been accepted.
+
+Third, $\mathrm{Manage}_N(\cdot)$ fills the archive front by front. If an entire non-dominated front fits within the remaining capacity, all scores in that front are kept. If the next front would exceed the capacity limit, the implementation computes crowding distance inside that front and keeps the scores with the largest crowding distances. Boundary scores in each objective receive infinite crowding distance, while interior scores receive a normalized distance based on neighboring objective values. This truncation rule preserves spread along the outer Pareto front when the archive must discard otherwise non-dominated alternatives. The implementation does not introduce a separate duplicate-removal criterion inside $\mathrm{Manage}_N(\cdot)$; identical or near-identical scores are treated as ordinary score vectors and are removed only if dominated or if the crowding-distance truncation excludes them.
+
+This management step matters because the final reported heuristic population is capped. A candidate can increase the hypervolume of the uncapped temporary set $F\cup\{s\}$ but still be removed after $\mathrm{Manage}_N(\cdot)$ if it is dominated or if it is an interior point that loses the crowding-distance truncation. Conversely, a candidate that survives management, or that causes a better survivor set to be retained, can increase the hypervolume of the managed archive. For Final-HV reward, the two managed archives compared by Equation~\ref{eq:managed-hv} are
+
+\begin{equation}
+  A^-=\mathrm{Manage}_N(F),
+  \qquad
+  A^+=\mathrm{Manage}_N(F\cup\{s\}).
+\end{equation}
+
+The raw Final-HV quality signal is therefore $\max(0,HV_r(A^+)-HV_r(A^-))$, which is then normalized online as described below. This construction gives credit only to candidates whose contribution survives the same management rule that determines the final population. In other words, the bandit is not rewarded merely because a candidate briefly improves an uncapped archive; it is rewarded when the maintained archive after capacity control becomes better.
+
+Both immediate HVI and managed HV delta can have very different numerical scales across tasks and across stages of the search. The implementation therefore normalizes them online by rolling maxima over a recent reward window. For reward event $t$, this can be written as
+
+\begin{align}
+  \widehat{\mathrm{HVI}}_t
+  &=
+  \frac{\mathrm{HVI}_t}
+  {\max\left(\epsilon,\max_{\tau\in W_t}\mathrm{HVI}_\tau\right)},\\
+  \widehat{\Delta HV}_{\mathrm{managed},t}
+  &=
+  \frac{\Delta HV_{\mathrm{managed},t}}
+  {\max\left(\epsilon,\max_{\tau\in W_t}\Delta HV_{\mathrm{managed},\tau}\right)},
+\end{align}
+
+where $W_t$ denotes the recent rolling window and $\epsilon$ is a small positive floor used to avoid division by zero. Let $\widehat{\mathrm{HVI}}$ and $\widehat{\Delta HV}_{\mathrm{managed}}$ denote these normalized values. The two thesis-facing quality modes are then
 
 \begin{equation}
   Q(s)=
   \begin{cases}
-    \widehat{\mathrm{HVI}}(s;F), & \mathrm{mode}=\mathrm{dense},\\
+    \widehat{\Delta HV}_{\mathrm{managed}}(s;F),
+    & \mathrm{mode}=\mathrm{final\_hv},\\
     \frac{1}{2}\widehat{\mathrm{HVI}}(s;F)
     +\frac{1}{2}\widehat{\Delta HV}_{\mathrm{managed}}(s;F),
-    & \mathrm{mode}=\mathrm{hybrid},\\
-    \widehat{\Delta HV}_{\mathrm{managed}}(s;F),
-    & \mathrm{mode}=\mathrm{final\_hv}.
+    & \mathrm{mode}=\mathrm{hybrid}.
   \end{cases}
 \end{equation}
 
-The experimental framework evaluates three parallel quality-signal variants while retaining the same BMAB scheduling pipeline. Final-HV reward uses \methodcode{final\_hv}, Dense reward uses \methodcode{dense}, and Hybrid reward uses \methodcode{hybrid}. This design makes it possible to compare whether terminal managed-population HV, immediate HVI, or a mixture of the two provides the most useful credit signal.
+Final-HV reward mode uses the normalized managed-population delta $\widehat{\Delta HV}_{\mathrm{managed}}$. It asks a strict question: after inserting the candidate, applying $\mathrm{Manage}_N(\cdot)$, and recomputing hypervolume on the capped survivor set, how much did the maintained population improve? This is a delta-HV-managed reward mode. Its reward is still computed after each evaluated candidate, but the candidate is credited only for the hypervolume improvement that survives archive management. This makes the signal directly aligned with the final reported heuristic population, because candidates that look useful locally but do not affect the capped survivor set receive little or no quality reward.
+
+The drawback of this strict alignment is that the signal can become sparse, especially late in the search. As the managed archive improves, a new heuristic must do more than produce a locally non-dominated score; it must also survive capacity control and increase the hypervolume of the maintained archive. Many valid candidates therefore receive zero quality reward even though they contain some local information about promising regions of the outer score space.
+
+Hybrid reward mode is introduced to reduce this sparsity while preserving the final-quality orientation of Final-HV reward. Its quality signal averages two normalized quantities: the immediate HVI term $\widehat{\mathrm{HVI}}$, which reacts to local expansion of the current uncapped score set, and the managed delta term $\widehat{\Delta HV}_{\mathrm{managed}}$, which checks whether the improvement survives archive management. The immediate term gives the bandit more frequent feedback during search, while the managed term prevents the reward from drifting away from the final capped-population objective.
+
+The following example illustrates why immediate HVI and managed final-HV delta can assign different quality credit. Consider a two-objective minimization score space with reference point $r=(10,10)$ and managed population cap $N=2$. Let the current valid heuristic-score set already contain two boundary trade-off scores:
+
+\begin{equation}
+  F=\{a=(1,8),\; c=(8,1)\},
+\end{equation}
+
+and suppose that a newly generated heuristic receives score $x=(3,5)$. Here the points are heuristic scores, not inner problem solutions. The new score $x$ is non-dominated with respect to $F$ and expands the uncapped dominated region between the two boundary scores. Therefore its raw immediate improvement is positive:
+
+\begin{equation}
+  r_{\mathrm{HVI}}^{\mathrm{raw}}
+  =
+  HV_r(F\cup\{x\})-HV_r(F)
+  =
+  47-32
+  =
+  15.
+\end{equation}
+
+The immediate-HVI component of Hybrid reward uses the rolling-normalized version of this positive value. However, the managed reward asks a different question. Before inserting $x$, the capped management rule keeps only two survivors:
+
+\begin{equation}
+  \mathrm{Manage}_2(F)=\{a,c\}.
+\end{equation}
+
+In this example, all three scores in $F\cup\{x\}$ are non-dominated, but $a$ and $c$ are boundary trade-off points and receive the largest crowding-distance priority when the non-dominated front must be truncated to two points. The interior score $x$ is therefore discarded by $\mathrm{Manage}_2(F\cup\{x\})$, which still returns $\{a,c\}$. Consequently,
+
+\begin{equation}
+  r_{\mathrm{final}}^{\mathrm{raw}}
+  =
+  HV_r(\mathrm{Manage}_2(F\cup\{x\}))
+  -
+  HV_r(\mathrm{Manage}_2(F))
+  =
+  HV_r(\{a,c\})-HV_r(\{a,c\})
+  =
+  0.
+\end{equation}
+
+The example therefore has the following management sequence. First, the archive before insertion is $F=\{a,c\}$ and its managed form is unchanged, $A^-=\mathrm{Manage}_2(F)=\{a,c\}$. Second, the new candidate $x$ is evaluated and temporarily added, giving $F_{\mathrm{tmp}}=F\cup\{x\}$. Third, the temporary set has larger uncapped hypervolume, so the immediate-HVI component is positive. Fourth, $\mathrm{Manage}_2(F_{\mathrm{tmp}})$ applies the archive cap and keeps only the two boundary scores, returning $A^+=\{a,c\}$. Finally, because $HV_r(A^+)=HV_r(A^-)$, the raw Final-HV reward is zero. Figure~\ref{fig:immediate-final-reward-example} visualizes this distinction.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\linewidth}
+    \centering
+    \begin{tikzpicture}[x=0.43cm,y=0.34cm,font=\scriptsize]
+      \draw[step=2,gray!15] (0,0) grid (10,10);
+      \draw[->] (0,0) -- (10.9,0) node[right] {$s_1$};
+      \draw[->] (0,0) -- (0,10.9) node[above] {$s_2$};
+      \draw[densely dashed,gray] (10,0) -- (10,10) -- (0,10);
+      \node[gray!70!black,anchor=east] at (9.8,9.55) {$r=(10,10)$};
+      \fill[gray!12] (1,8) rectangle (10,10);
+      \draw[gray!55] (1,8) rectangle (10,10);
+      \fill[gray!12] (8,1) rectangle (10,8);
+      \draw[gray!55] (8,1) rectangle (10,8);
+      \fill[blue!10] (3,5) rectangle (8,8);
+      \draw[blue!55] (3,5) rectangle (8,8);
+      \draw[very thick,gray!70!black] (1,8) -- (3,8) -- (3,5) -- (8,5) -- (8,1);
+      \begin{scope}
+        \clip (3,5) rectangle (8,8);
+        \foreach \d in {-2,-1,...,8} {
+          \draw[blue!35] (\d,5) -- ({\d+3},8);
+        }
+      \end{scope}
+      \draw[blue!70!black,thick,dashed] (3,5) rectangle (8,8);
+      \foreach \p/\name in {(1,8)/a,(8,1)/c} {
+        \fill[black] \p circle (2pt);
+        \node[above right] at \p {$\name$};
+      }
+      \fill[blue!70!black] (3,5) circle (2pt);
+      \node[below left,blue!70!black] at (3,5) {$x$};
+      \node[align=center] at (5,-2.55)
+        {(a) Uncapped immediate HVI};
+    \end{tikzpicture}
+  \end{minipage}
+  \hspace{0.01\linewidth}
+  \begin{minipage}{0.49\linewidth}
+    \centering
+    \begin{tikzpicture}[x=0.43cm,y=0.34cm,font=\scriptsize]
+      \draw[step=2,gray!15] (0,0) grid (10,10);
+      \draw[->] (0,0) -- (10.9,0) node[right] {$s_1$};
+      \draw[->] (0,0) -- (0,10.9) node[above] {$s_2$};
+      \draw[densely dashed,gray] (10,0) -- (10,10) -- (0,10);
+      \node[gray!70!black,anchor=east] at (9.8,9.55) {$r=(10,10)$};
+      \fill[gray!12] (1,8) rectangle (10,10);
+      \draw[gray!55] (1,8) rectangle (10,10);
+      \fill[gray!12] (8,1) rectangle (10,8);
+      \draw[gray!55] (8,1) rectangle (10,8);
+      \draw[very thick,gray!70!black] (1,8) -- (8,8) -- (8,1);
+      \foreach \p/\name in {(1,8)/a,(8,1)/c} {
+        \draw[gray!70!black,very thick] \p circle (4pt);
+        \fill[black] \p circle (2pt);
+        \node[above right] at \p {$\name$};
+      }
+      \fill[blue!70!black] (3,5) circle (2pt);
+      \draw[blue!70!black,thick] (2.72,4.72) -- (3.28,5.28);
+      \draw[blue!70!black,thick] (2.72,5.28) -- (3.28,4.72);
+      \node[below left,blue!70!black] at (3,5) {$x$};
+      \node[align=center] at (5,-2.55)
+        {(b) Capped set after management};
+    \end{tikzpicture}
+  \end{minipage}
+  \caption{Illustration of a case where immediate HVI and managed final-HV delta assign different quality credit. The neutral rectangles show the hypervolume already contributed by the existing boundary scores $a$ and $c$, while the blue rectangle marks only the additional HVI introduced by candidate $x$. The capped management operator with $N=2$ keeps the boundary scores $a$ and $c$ and removes $x$, so the managed-population hypervolume does not change.}
+  \label{fig:immediate-final-reward-example}
+\end{figure}
+
+The example in Figure~\ref{fig:immediate-final-reward-example} shows the practical consequence. The immediate-HVI term reinforces candidates that make any immediate Pareto-front contribution, even if the contribution is interior and later removed by capacity control. Final-HV reward reinforces only candidates whose contribution survives population management. Hybrid reward uses both signals: it remains responsive to local front expansion but still gives explicit credit to improvements that affect the managed archive. In both retained reward modes, $Q(s)$ is only the quality component of the scalar bandit reward; the full reward also includes the diversity and rank terms described below.
 
 \subsection{Diversity and Rank Smoothing}
 
@@ -550,7 +687,7 @@ write budget history, budget curve, bandit log, and AUBC
 
 The MPaGE-orig baseline is not a new algorithm. It is a budget-instrumented wrapper around the original MPaGE driver that records budget consumption and budget-HV curves using the same profiler infrastructure as \bmab{}. The purpose is to compare allocation policies while keeping the task evaluators and generated artifacts as consistent as possible.
 
-The experimental comparison treats the three reward-based BMAB configurations as parallel quality-signal variants. They share the same scheduler, population handling, budget accounting, and evaluation pipeline. Their only intended methodological difference is the quality term $Q(s)$ used inside the reward:
+The experimental comparison treats two reward-based BMAB configurations as the main quality-signal variants. They share the same scheduler, population handling, budget accounting, and evaluation pipeline. Their intended methodological difference is the quality term $Q(s)$ used inside the reward:
 
 \begin{table}[H]
   \centering
@@ -562,11 +699,10 @@ The experimental comparison treats the three reward-based BMAB configurations as
     Variant & Interpretation \\
     \midrule
     Final-HV reward & BMAB pipeline with a quality signal based on managed final-population HV gain, together with the operator bandit, cluster bandit, Page--Hinkley reset, budget annealing, and PFG-weighted parent sampling. \\
-    Dense reward & BMAB pipeline with the immediate-HVI quality signal. \\
-    Hybrid reward & BMAB pipeline with a half immediate-HVI and half managed-final-HV quality signal. \\
+    Hybrid reward & BMAB pipeline with a quality signal that combines immediate HVI with managed final-population HV gain, using the same scheduler and population-management components as Final-HV reward. \\
     MPaGE-orig & Budget-instrumented wrapper around the original MPaGE implementation. \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The codebase also contains component-level ablation switches for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Those controls are useful for future causal studies, but the complete result matrix analyzed in Chapter~5 focuses on the three quality-signal variants and the MPaGE-orig baseline.
+The implementation also contains component-level ablation switches for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Chapter~5 analyzes the two completed component ablations that are directly comparable to Final-HV reward: disabling budget annealing and disabling Page--Hinkley reset.

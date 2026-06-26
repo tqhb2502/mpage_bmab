@@ -1,8 +1,10 @@
-"""Generate balanced tables and figures for the final experiment overview.
+"""Generate balanced tables and figures for the thesis experiment overview.
 
 The script reads run artifacts directly from the experiment result tree and
 does not depend on a pre-existing summary.csv. It writes only tables and
-figures; it intentionally does not generate narrative analysis text.
+figures for the main Final-HV/Hybrid/MPaGE comparison and the Final-HV
+component ablation study; it intentionally does not generate narrative
+analysis text.
 
 Run from the repository root:
 
@@ -39,7 +41,10 @@ if str(_PROJECT_ROOT) not in sys.path:
 from mpage_bmab.experiments.aggregate import aggregate  # noqa: E402
 
 
-METHODS = ["full", "mpage_orig", "dense_reward", "hybrid_reward"]
+MAIN_METHODS = ["full", "mpage_orig", "hybrid_reward"]
+ABLATION_METHODS = ["full", "no_budget_anneal", "no_ph"]
+THESIS_METHODS = sorted(set(MAIN_METHODS + ABLATION_METHODS))
+METHODS = list(MAIN_METHODS)
 TASKS = ["bi_tsp", "tri_tsp", "bi_cvrp", "bi_kp"]
 BUDGETS = [25, 50, 100, 200]
 METRICS = [
@@ -68,6 +73,8 @@ METHOD_LABELS = {
     "mpage_orig": "MPaGE-orig",
     "dense_reward": "Dense reward",
     "hybrid_reward": "Hybrid reward",
+    "no_budget_anneal": "No budget annealing",
+    "no_ph": "No Page-Hinkley",
 }
 
 METRIC_LABELS = {
@@ -85,6 +92,8 @@ COLORS = {
     "mpage_orig": "#D55E00",
     "dense_reward": "#6C757D",
     "hybrid_reward": "#2CA25F",
+    "no_budget_anneal": "#CC79A7",
+    "no_ph": "#8C6BB1",
 }
 
 MARKERS = {
@@ -92,6 +101,8 @@ MARKERS = {
     "mpage_orig": "^",
     "dense_reward": "D",
     "hybrid_reward": "P",
+    "no_budget_anneal": "s",
+    "no_ph": "X",
 }
 
 
@@ -169,7 +180,7 @@ def bmab_generation_attempts(run_dir: Path) -> tuple[int, int]:
 def enrich_rows(rows: list[dict]) -> list[dict]:
     enriched: list[dict] = []
     for row in rows:
-        if row["ablation"] not in METHODS:
+        if row["ablation"] not in THESIS_METHODS:
             continue
         d = dict(row)
         run_dir = Path(d["run_dir"])
@@ -677,7 +688,7 @@ def plot_budget_curves(rows: list[dict], budget: int, out: Path) -> None:
 
 
 def plot_bmab_zoom_budget_curves(rows: list[dict], budget: int, out: Path) -> None:
-    methods = ["full", "dense_reward", "hybrid_reward"]
+    methods = [method for method in METHODS if method != "mpage_orig"]
     fig, axes = plt.subplots(2, 2, figsize=(11.5, 7.2), constrained_layout=True)
     for ax, task in zip(axes.ravel(), TASKS):
         task_values: list[float] = []
@@ -776,30 +787,180 @@ def write_latex_tables(out_dir: Path, overall: list[dict], dashboard: list[dict]
 
     for metric in ["aubc", "hv_final"]:
         rows = [r for r in cell_matrices if r["metric"] == metric]
+        col_spec = "l" + "r" * len(METHODS)
         lines = [
-            "\\begin{tabular}{lrrrr}",
+            f"\\begin{{tabular}}{{{col_spec}}}",
             "\\toprule",
-            "Row setup & Final-HV reward & MPaGE-orig & Dense reward & Hybrid reward \\\\",
+            "Row setup & " + " & ".join(METHOD_LABELS[m] for m in METHODS) + " \\\\",
             "\\midrule",
         ]
         for method in METHODS:
             row = next(r for r in rows if r["row_method"] == method)
             lines.append(
                 f"{METHOD_LABELS[method]} & "
-                f"{row['full']} & {row['mpage_orig']} & "
-                f"{row['dense_reward']} & {row['hybrid_reward']} \\\\"
+                + " & ".join(row[col_method] for col_method in METHODS)
+                + " \\\\"
             )
         lines += ["\\bottomrule", "\\end{tabular}"]
         write_latex_table(out_dir / f"pairwise_cell_wins_{metric}.tex", lines)
 
 
+def build_ablation_delta_rows(cell_means: list[dict], baseline: str = "full") -> list[dict]:
+    by = {
+        (row["method"], row["task"], int(row["budget"])): row
+        for row in cell_means
+    }
+    rows: list[dict] = []
+    for method in METHODS:
+        if method == baseline:
+            continue
+        for metric in METRICS:
+            deltas: list[float] = []
+            wins = ties = losses = 0
+            for task in TASKS:
+                for budget in BUDGETS:
+                    value = float(by[(method, task, budget)][f"{metric}_mean"])
+                    base = float(by[(baseline, task, budget)][f"{metric}_mean"])
+                    if math.isclose(value, base, rel_tol=1e-12, abs_tol=1e-12):
+                        ties += 1
+                    elif value > base:
+                        wins += 1
+                    else:
+                        losses += 1
+                    deltas.append((value / base - 1.0) * 100.0 if base else math.nan)
+            task_deltas = {
+                task: mean_or_nan(
+                    (float(by[(method, task, budget)][f"{metric}_mean"])
+                     / float(by[(baseline, task, budget)][f"{metric}_mean"]) - 1.0)
+                    * 100.0
+                    for budget in BUDGETS
+                    if float(by[(baseline, task, budget)][f"{metric}_mean"])
+                )
+                for task in TASKS
+            }
+            budget_deltas = {
+                budget: mean_or_nan(
+                    (float(by[(method, task, budget)][f"{metric}_mean"])
+                     / float(by[(baseline, task, budget)][f"{metric}_mean"]) - 1.0)
+                    * 100.0
+                    for task in TASKS
+                    if float(by[(baseline, task, budget)][f"{metric}_mean"])
+                )
+                for budget in BUDGETS
+            }
+            worst_task = min(task_deltas, key=lambda t: task_deltas[t])
+            rows.append({
+                "method": method,
+                "baseline": baseline,
+                "metric": metric,
+                "wins": wins,
+                "losses": losses,
+                "ties": ties,
+                "mean_delta_pct": mean_or_nan(deltas),
+                "median_delta_pct": median([d for d in deltas if not math.isnan(d)]),
+                "worst_task": worst_task,
+                "worst_task_delta_pct": task_deltas[worst_task],
+                "delta_B25_pct": budget_deltas[25],
+                "delta_B50_pct": budget_deltas[50],
+                "delta_B100_pct": budget_deltas[100],
+                "delta_B200_pct": budget_deltas[200],
+                **{f"delta_{task}_pct": value for task, value in task_deltas.items()},
+            })
+    return rows
+
+
+def plot_ablation_delta_heatmaps(cell_means: list[dict], out: Path, baseline: str = "full") -> None:
+    by = {
+        (row["method"], row["task"], int(row["budget"])): row
+        for row in cell_means
+    }
+    methods = [m for m in METHODS if m != baseline]
+    cell_labels = [f"{TASK_LABELS[t]}\nB={b}" for t in TASKS for b in BUDGETS]
+    fig, axes = plt.subplots(
+        len(METRICS),
+        1,
+        figsize=(14.0, 5.4),
+        constrained_layout=True,
+    )
+    if len(METRICS) == 1:
+        axes = [axes]
+    for ax, metric in zip(axes, METRICS):
+        values = np.zeros((len(methods), len(cell_labels)), dtype=float)
+        for i, method in enumerate(methods):
+            for j, (task, budget) in enumerate((t, b) for t in TASKS for b in BUDGETS):
+                base = float(by[(baseline, task, budget)][f"{metric}_mean"])
+                value = float(by[(method, task, budget)][f"{metric}_mean"])
+                values[i, j] = (value / base - 1.0) * 100.0 if base else math.nan
+        vmax = max(5.0, float(np.nanmax(np.abs(values))))
+        im = ax.imshow(values, cmap="RdBu", vmin=-vmax, vmax=vmax, aspect="auto")
+        ax.set_xticks(range(len(cell_labels)), cell_labels, rotation=45, ha="right")
+        ax.set_yticks(range(len(methods)), [METHOD_LABELS[m] for m in methods])
+        ax.set_title(f"{METRIC_LABELS[metric]} delta versus Final-HV reward")
+        for i in range(values.shape[0]):
+            for j in range(values.shape[1]):
+                ax.text(
+                    j,
+                    i,
+                    f"{values[i, j]:+.0f}",
+                    ha="center",
+                    va="center",
+                    color="white" if abs(values[i, j]) > vmax * 0.55 else "black",
+                    fontsize=7,
+                )
+    cbar = fig.colorbar(im, ax=axes)
+    cbar.set_label("Mean cell delta (%)")
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+
+
+def write_ablation_latex_tables(out_dir: Path, overall: list[dict], dashboard: list[dict],
+                                delta_rows: list[dict]) -> None:
+    ensure_dir(out_dir)
+    lines = [
+        "\\begin{tabular}{lrrrrr}",
+        "\\toprule",
+        "Setup & AUBC score & AUBC rank & Final-HV score & Final-HV rank & Perf. score \\\\",
+        "\\midrule",
+    ]
+    for row in dashboard:
+        method = row["method"]
+        lines.append(
+            f"{METHOD_LABELS[method]} & "
+            f"{fmt(row['aubc_normalized_score'])} & {fmt(row['aubc_mean_rank'], 2)} & "
+            f"{fmt(row['hv_final_normalized_score'])} & {fmt(row['hv_final_mean_rank'], 2)} & "
+            f"{fmt(row['performance_score_mean'])} \\\\"
+        )
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    write_latex_table(out_dir / "ablation_overall_normalized_scores.tex", lines)
+
+    lines = [
+        "\\begin{tabular}{llrrrrr}",
+        "\\toprule",
+        "Ablation & Metric & Better cells & Mean $\\Delta$ & Median $\\Delta$ & Worst task & $B=25$ $\\Delta$ \\\\",
+        "\\midrule",
+    ]
+    for row in delta_rows:
+        lines.append(
+            f"{METHOD_LABELS[row['method']]} & {METRIC_SHORT[row['metric']]} & "
+            f"{row['wins']}/16 & {fmt(row['mean_delta_pct'])}\\% & "
+            f"{fmt(row['median_delta_pct'])}\\% & "
+            f"{TASK_LABELS[row['worst_task']]} ({fmt(row['worst_task_delta_pct'])}\\%) & "
+            f"{fmt(row['delta_B25_pct'])}\\% \\\\"
+        )
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    write_latex_table(out_dir / "ablation_delta_summary.tex", lines)
+
+
 def run(results_root: Path, out_dir: Path) -> None:
+    global METHODS
     configure_matplotlib()
     fig_dir = ensure_dir(out_dir / "figures")
     table_dir = ensure_dir(out_dir / "tables")
 
-    rows = enrich_rows(aggregate(str(results_root)))
-    rows = [row for row in rows if row["ablation"] in METHODS]
+    rows_all = enrich_rows(aggregate(str(results_root)))
+
+    METHODS = list(MAIN_METHODS)
+    rows = [row for row in rows_all if row["ablation"] in METHODS]
 
     cell_means = build_cell_means(rows)
     rank_rows, overall, dashboard = build_rank_tables(cell_means)
@@ -856,7 +1017,46 @@ def run(results_root: Path, out_dir: Path) -> None:
         plot_budget_curves(rows, budget, fig_dir / f"budget_curves_all_setups_B{budget}.png")
         plot_bmab_zoom_budget_curves(rows, budget, fig_dir / f"budget_curves_bmab_zoom_B{budget}.png")
 
-    print(f"[all-setups] Aggregated {len(rows)} runs from {results_root}")
+    METHODS = list(ABLATION_METHODS)
+    ablation_rows = [row for row in rows_all if row["ablation"] in METHODS]
+    ablation_cell_means = build_cell_means(ablation_rows)
+    ablation_rank_rows, ablation_overall, ablation_dashboard = build_rank_tables(ablation_cell_means)
+    ablation_cell_matrices, ablation_seed_matrices = build_pairwise_matrices(
+        ablation_cell_means,
+        ablation_rows,
+    )
+    ablation_delta_rows = build_ablation_delta_rows(ablation_cell_means)
+
+    write_csv(out_dir / "summary_ablation_setups.csv", ablation_rows)
+    write_csv(out_dir / "cell_means_ablation_setups.csv", ablation_cell_means)
+    write_csv(out_dir / "rank_by_cell_ablation.csv", ablation_rank_rows)
+    write_csv(out_dir / "overall_metric_summary_ablation.csv", ablation_overall)
+    write_csv(out_dir / "overall_dashboard_ablation.csv", ablation_dashboard)
+    write_csv(out_dir / "pairwise_cell_win_matrices_ablation.csv", ablation_cell_matrices)
+    write_csv(out_dir / "pairwise_seed_win_matrices_ablation.csv", ablation_seed_matrices)
+    write_csv(out_dir / "ablation_delta_summary.csv", ablation_delta_rows)
+
+    write_ablation_latex_tables(table_dir, ablation_overall, ablation_dashboard, ablation_delta_rows)
+    plot_overall_normalized_bars(
+        ablation_overall,
+        fig_dir / "ablation_overall_normalized_scores.png",
+        PRIMARY_SUMMARY_METRICS,
+        "Component Ablation Normalized Scores",
+    )
+    plot_mean_rank_bars(
+        ablation_overall,
+        fig_dir / "ablation_mean_rank_by_metric.png",
+        PRIMARY_SUMMARY_METRICS,
+        "Component Ablation Mean Rank",
+    )
+    plot_ablation_delta_heatmaps(
+        ablation_cell_means,
+        fig_dir / "ablation_delta_heatmaps.png",
+    )
+
+    METHODS = list(MAIN_METHODS)
+    print(f"[all-setups] Aggregated {len(rows)} main-comparison runs from {results_root}")
+    print(f"[all-setups] Aggregated {len(ablation_rows)} ablation runs from {results_root}")
     print(f"[all-setups] Wrote tables and figures to {out_dir}")
 
 
