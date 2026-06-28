@@ -596,6 +596,11 @@ INPUT ./Chapter/0_3_Abstract.tex
 INPUT Chapter/0_3_Abstract.tex
 INPUT ./Chapter/0_3_Abstract.tex
 INPUT Chapter/0_3_Abstract.tex
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/ucrr8v.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/utmri8v.tfm
 INPUT ./main.toc
 INPUT ./main.toc
@@ -622,11 +627,6 @@ INPUT Chapter/2_Literature_review.tex
 INPUT ./Chapter/2_Literature_review.tex
 INPUT ./Chapter/2_Literature_review.tex
 INPUT Chapter/2_Literature_review.tex
-INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
-INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
-INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
-INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
-INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/ucrr8v.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/utmr8v.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/vntex/urwvn/utmr8v.tfm
 INPUT ./Figure/mpage_overview.png

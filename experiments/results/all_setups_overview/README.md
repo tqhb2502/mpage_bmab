@@ -3,6 +3,8 @@
 This directory is the canonical thesis-facing location for the final result
 tables and figures used in the main comparison and component ablation study.
 
+Repository: <https://github.com/tqhb2502/mpage_bmab>
+
 The main comparison includes three distinct setups:
 
 - **Final-HV reward**
@@ -19,5 +21,5 @@ script:
 
 ```bash
 MPLCONFIGDIR=/private/tmp/mpl <python-interpreter> \
-    <path-to-overview-analysis-script>
+    mpage_bmab/experiments/analyze_all_setups_overview.py
 ```

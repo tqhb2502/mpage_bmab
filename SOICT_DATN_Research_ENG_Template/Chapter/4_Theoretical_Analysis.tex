@@ -138,6 +138,8 @@ The thesis includes figure copies rather than linking directly to the experiment
 
 The codebase provides several mechanisms for reproducibility: fixed benchmark-instance generation, explicit experiment seeds, deterministic suite definitions, per-run output directories, logged budget curves, and saved generated samples. These mechanisms make it possible to inspect what happened in each run and to recompute aggregate statistics from stored artifacts.
 
+The source code and experimental artifacts for this thesis are publicly available at \url{https://github.com/tqhb2502/mpage_bmab}. This repository is intended to support reproducibility of the implementation, experiment launchers, aggregation scripts, generated result summaries, and thesis-facing figures.
+
 However, exact bit-level reproducibility is not guaranteed. The system depends on an external LLM API, and the implementation artifacts do not provide a complete snapshot of the model backend, sampling behavior, or service-side changes over time. The generated code can also be stochastic, because heuristics may call \texttt{random} or \texttt{numpy.random}. Therefore, the thesis interprets the reported results as reproducible under the stored artifacts and code paths, while recognizing that re-running the same experiment at a later date may produce slightly different generated heuristics.
 
 \section{Implementation Caveats}

@@ -1,8 +1,11 @@
 # BMAB-LLM Experimental Harness
 
-End-to-end pipeline for the experiments described in [`../IDEA.md` §4](../IDEA.md).
+End-to-end pipeline for the experiments described in
+[`../documents/IDEA.md` §4](../documents/IDEA.md).
 Pick a **suite**, run it, and the harness writes a CSV summary plus
 paired comparisons against the selected reference configuration.
+
+Repository: <https://github.com/tqhb2502/mpage_bmab>
 
 ## Layout
 
@@ -13,28 +16,36 @@ experiments/
 ├── aggregate.py      ← walk results/, write summary.csv
 ├── compare.py        ← Wilcoxon signed-rank per (task, budget)
 ├── run_smoke.sh      ← 2 cheap runs to validate the pipeline
-├── run_headline.sh   ← 48 runs (bi_tsp, all budgets, 3 seeds)
+├── run_headline.sh   ← 48 runs (legacy bi_tsp headline slice)
 ├── run_budget50.sh   ← 80 runs (all tasks, B=50, 5 seeds)
 ├── run_full.sh       ← 320 runs (component-ablation sweep)
 ├── run_hv_final_full.sh ← 240 runs (reward-mode comparison)
-├── run_all_variants_full.sh ← 800 runs (all runnable variants and ablations)
+├── run_all_variants_full.sh ← 640 runs (all BMAB variants and ablations)
 └── results/          ← per-run output directories + CSVs (gitignored)
 ```
 
-## Variants and Ablations (matches IDEA.md §4.3)
+## Variants and Ablations
+
+The final thesis focuses on two BMAB quality-signal variants and one baseline:
 
 | display name | internal key | what it changes | flag(s) it sets |
 |--------------|--------------|------------------|-----------------|
-| Final-HV reward | `full` | BMAB pipeline with final managed-population HV as the main quality signal | `reward_mode=final_hv` |
-| Dense reward | `dense_reward` | BMAB pipeline with immediate-HVI reward quality signal | `reward_mode=dense` |
-| Hybrid reward | `hybrid_reward` | BMAB pipeline with half immediate-HVI and half final managed-population HV reward | `reward_mode=hybrid` |
-| No budget annealing | `no_budget_anneal` | BMAB pipeline without remaining-budget exploration annealing | `disable_budget_annealing=True` |
-| No Page-Hinkley | `no_ph` | disables Page-Hinkley drift handling | `ph_threshold=1e9` |
-| No diversity reward | `no_diversity` | drops the ΔCDI reward term | `w_diversity=0.0` |
+| Final-HV reward | `full` | BMAB pipeline with final managed-population HV as the quality signal | `reward_mode=final_hv` |
+| Hybrid reward | `hybrid_reward` | BMAB pipeline with immediate-HVI feedback combined with final managed-population HV reward | `reward_mode=hybrid` |
+| MPaGE-orig | `mpage_orig` | original MPaGE wrapper under the same budget accounting | dispatches to the MPaGE wrapper module |
+
+The following additional keys are available for diagnostics and component
+ablation studies:
+
+| display name | internal key | what it changes | flag(s) it sets |
+|--------------|--------------|------------------|-----------------|
+| Dense reward diagnostic | `dense_reward` | internal immediate-HVI reward diagnostic retained for reproducibility | `reward_mode=dense` |
+| Without budget annealing | `no_budget_anneal` | BMAB pipeline without remaining-budget exploration annealing | `disable_budget_annealing=True` |
+| Without PH | `no_ph` | disables Page-Hinkley drift handling | `ph_threshold=1e9` |
+| Without diversity | `no_diversity` | drops the ΔCDI reward term | `w_diversity=0.0` |
 | Operator-only control | `op_only` | uses uniform random cluster sampling | `disable_cluster_bandit=True` |
 | Cluster-only control | `cluster_only` | uses round-robin operator selection | `disable_operator_bandit=True` |
 | MPaGE-budget proxy | `mpage_budget` | MPaGE-style baseline without bandits or diversity reward | all three above + `w_rank=0` |
-| MPaGE-orig | `mpage_orig` | original MPaGE wrapper under the same budget accounting | dispatches to the MPaGE wrapper module |
 
 The internal key `full` is retained for backward compatibility with existing
 result folders and CLI presets. In reader-facing reports and figures, this
@@ -55,13 +66,13 @@ contains `mpage_bmab/`).
 | suite | runs | total LLM calls (call-mode) | what it's for |
 |-------|-----:|----------------------------:|---------------|
 | `smoke` | 2 | ≈ 30 | sanity check the pipeline before paying for the real sweep |
-| `headline` | 48 | ≈ 4,650 | the main AUBC table for the thesis chapter |
+| `headline` | 48 | ≈ 4,650 | legacy bi-TSP headline slice for quick comparison |
 | `budget50` | 80 | ≈ 4,000 | comparison across all 4 tasks at the tight-budget regime |
-| `full` | 320 | ≈ 30,950 | complete component-ablation matrix from IDEA.md §4 |
+| `full` | 320 | ≈ 30,950 | complete component-ablation matrix from the design notes |
 | `hvfix_smoke` | 4 | ≈ 100 | cheap sanity check for the final-HV fixes |
-| `hv_final_priority` | 225 | ≈ 13,125 | focused final-HV sweep including reward ablations and `mpage_orig` |
+| `hv_final_priority` | 225 | ≈ 13,125 | focused final-HV sweep including internal reward diagnostics and `mpage_orig` |
 | `hv_final_full` | 240 by default | ≈ 22,500 | internal reward-mode diagnostic suite for Final-HV reward, Dense reward, and Hybrid reward; the thesis-facing comparison uses Final-HV reward and Hybrid reward |
-| `all_variants_full` | 800 | ≈ 75,000 | complete matrix for every runnable method: reward variants, component ablations, `mpage_budget`, and `mpage_orig` |
+| `all_variants_full` | 640 | ≈ 60,000 | complete matrix for the runnable BMAB reward variants and component ablations currently listed in `configs.py` |
 
 The "total LLM calls" column is approximate: each cell consumes its
 `--budget` plus a small overhead for the cluster-LLM calls (already
@@ -75,7 +86,7 @@ counted against the budget).
 # 1. Validate the pipeline end-to-end (~30 cheap calls)
 mpage_bmab/experiments/run_smoke.sh
 
-# 2. Run the headline experiment (this is the table for the thesis)
+# 2. Run the legacy headline experiment
 mpage_bmab/experiments/run_headline.sh
 
 # 3. Inspect the results
@@ -153,7 +164,7 @@ Aggregated CSV columns:
 
 | column | description |
 |--------|-------------|
-| `ablation` | internal method tag such as `full` (Final-HV reward), `dense_reward` (Dense reward), `hybrid_reward` (Hybrid reward), `no_budget_anneal`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget`, or `mpage_orig` |
+| `ablation` | internal method tag such as `full` (Final-HV reward), `hybrid_reward` (Hybrid reward), `dense_reward` (internal dense diagnostic), `no_budget_anneal`, `no_ph`, `no_diversity`, `op_only`, `cluster_only`, `mpage_budget`, or `mpage_orig` |
 | `task` | `bi_tsp` / `tri_tsp` / `bi_cvrp` / `bi_kp` |
 | `budget` | total LLM-call budget B |
 | `seed` | RNG seed |

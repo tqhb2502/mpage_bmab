@@ -8,8 +8,13 @@ copy of the upstream MPaGE primitives (vendored under `_llm4ad/`) and its own
 benchmark tasks. It does **not** depend on the parent project's `llm4ad/` —
 you can copy this folder somewhere else, install its requirements, and run.
 
+The public repository for the thesis implementation and experimental artifacts
+is:
+
+<https://github.com/tqhb2502/mpage_bmab>
+
 This is the source-code implementation that accompanies the refined idea
-described in [`IDEA.md`](IDEA.md).
+described in [`documents/IDEA.md`](documents/IDEA.md).
 
 ## Overview
 
@@ -25,9 +30,9 @@ BMAB-LLM extends MPaGE by:
    productive but has become barren no longer eats budget.
 4. Defining a **bounded multi-objective reward** combining a configurable
    quality signal, a rank-based smoothing term, and a CDI-based diversity
-   bonus, with a penalty for invalid heuristics. The default quality signal is
-   final managed-population HV improvement; legacy immediate-HVI and hybrid
-   modes are available for ablation.
+   bonus, with a penalty for invalid heuristics. The thesis-facing quality
+   signals are **Final-HV reward** and **Hybrid reward**. The implementation
+   also retains the immediate-HVI dense mode as an internal diagnostic option.
 5. Replacing the fixed *generation budget* with an explicit **LLM-call
    budget** `B`. The loop terminates exactly when `B` is exhausted.
 6. Recording the full **budget-vs-HV curve** so we can compute the
@@ -42,7 +47,11 @@ BMAB-LLM extends MPaGE by:
 ```
 mpage_bmab/
 ├── README.md           ← this file
-├── IDEA.md             ← refined research design
+├── documents/          ← design notes, metric definitions, and experiment notes
+├── experiments/        ← suite launchers, aggregation, comparison, and results
+├── thesis/             ← pre-template thesis source
+├── SOICT_DATN_Research_ENG_Template/
+│                       ← official SOICT submission template source
 ├── requirements.txt    ← pip requirements for the venv
 ├── .gitignore
 ├── __init__.py         ← public exports
@@ -67,7 +76,7 @@ mpage_bmab/
 `_llm4ad/` is a snapshot copied from the upstream MPaGE project with all
 imports rewritten to be package-relative. You can replace it with a newer
 upstream snapshot at any time by re-copying and re-running the relative-import
-patches noted in [the project history](IDEA.md).
+patches noted in [the project history](documents/IDEA.md).
 
 ## Setup
 
@@ -161,7 +170,7 @@ print('AUBC =', profiler.aubc(50))
 | Cluster selection | Uniform random | Budgeted UCB1 (per-generation, warm-started) |
 | Drift handling | None | Page-Hinkley reset per `(cluster, operator)` arm |
 | Stopping criterion | Fixed `max_generations` or `max_sample_nums` | Fixed LLM-call budget `B` |
-| Headline metric | HV / IGD at fixed quota | **AUBC** + HV / IGD / SWDI / CDI |
+| Headline metric | HV / IGD at fixed quota | **AUBC** + final outer HV under a fixed call budget |
 | Reward signal | None (population-level non-dominated filter only) | Final managed-population HV improvement by default, plus rank + diversity and invalid-code penalty |
 
 ## Ablations supported
@@ -169,17 +178,17 @@ print('AUBC =', profiler.aubc(50))
 The `BMABLLM` constructor accepts flags that disable each upgrade individually:
 
 * `c_explore_cluster=0.0, gamma_budget=0.0` → pure exploitation cluster bandit.
-* `ph_threshold=1e9` → effectively disable Page-Hinkley.
-* `w_diversity=0.0` → no diversity term.
-* `reward_mode='dense'` → legacy immediate-HVI quality signal inside the fixed
-  method (`dense_reward` ablation).
-* `reward_mode='hybrid'` → half immediate-HVI, half final managed-population HV
-  quality signal (`hybrid_reward` ablation).
-* `budget_annealing=False` → no remaining-budget exploration annealing
-  (`no_budget_anneal` ablation).
+* `ph_threshold=1e9` → run without PH drift handling.
+* `w_diversity=0.0` → run without the diversity reward term.
+* `reward_mode='hybrid'` → use the Hybrid reward quality signal.
+* `reward_mode='dense'` → internal immediate-HVI diagnostic retained for
+  reproducing earlier reward-mode checks.
+* `budget_annealing=False` → run without remaining-budget exploration
+  annealing.
 * Set both `c_explore_op=0` and only one of `use_m*`/`use_e*` flags → single-operator ablation.
 
-These match the ablation set described in [`IDEA.md`](IDEA.md) §4.3.
+These match the ablation set described in
+[`documents/IDEA.md`](documents/IDEA.md) §4.3.
 
 For the final-HV-focused follow-up experiments, see
-[`experiments/HV_FINAL_EXPERIMENTS.md`](experiments/HV_FINAL_EXPERIMENTS.md).
+[`documents/HV_FINAL_EXPERIMENTS.md`](documents/HV_FINAL_EXPERIMENTS.md).

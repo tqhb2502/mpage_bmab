@@ -9,6 +9,8 @@ This thesis studies how a finite budget of large language model (LLM) calls can 
 
 This thesis synthesizes the theoretical background, system architecture, implementation details, and experimental evidence available in the implementation and result artifacts. The main comparison contains 240 runs over three setups, four benchmark problem families, four LLM-call budgets, and five random seeds. The analyzed setups are Final-HV reward, Hybrid reward, and the budget-wrapped MPaGE-orig baseline. Three component ablations examine budget annealing, Page--Hinkley drift handling, and the diversity reward term. The empirical evidence indicates that the BMAB-style variants substantially improve AUBC over MPaGE-orig. Final-HV reward provides the strongest final-HV ranking, while Hybrid reward remains almost tied in normalized performance and provides a denser feedback design that is competitive across task--budget cells.
 
+The source code and experimental artifacts are available at \url{https://github.com/tqhb2502/mpage_bmab}.
+
 \begin{flushright}
 \begin{tabular}{@{}c@{}}
 Student\\

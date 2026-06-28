@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.10)  28 JUN 2026 17:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.10)  28 JUN 2026 17:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1884,8 +1884,13 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
 al/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc}]) (./Cover2.tex [1])
-(./Chapter/0_2_Acknowledgment.tex) [1] (./Chapter/0_3_Abstract.tex) [1]
-(./main.toc
+(./Chapter/0_2_Acknowledgment.tex) [1] (./Chapter/0_3_Abstract.tex
+LaTeX Font Info:    Trying to load font information for T5+pcr on input line 12
+.
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
+File: t5ucr.fd 2005/08/24 Fontinst v1.929 font definitions for T5/pcr.
+)) [1] (./main.toc
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [1
@@ -1975,12 +1980,6 @@ ness, out-put ar-ti-facts,
 ) [6]
 CHAPTER 2.
 (./Chapter/2_Literature_review.tex
-LaTeX Font Info:    Trying to load font information for T5+pcr on input line 18
-.
-
-(/usr/local/texlive/2026/texmf-dist/tex/latex/vntex/t5pcr.fd
-File: t5ucr.fd 2005/08/24 Fontinst v1.929 font definitions for T5/pcr.
-)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [7
@@ -1998,12 +1997,12 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [11]
-<Figure/mpage_overview.png, id=512, 2758.305pt x 827.09pt>
+<Figure/mpage_overview.png, id=514, 2758.305pt x 827.09pt>
 File: Figure/mpage_overview.png Graphic file (type png)
 <use Figure/mpage_overview.png>
 Package pdftex.def Info: Figure/mpage_overview.png  used on input line 105.
 (pdftex.def)             Requested size: 392.64725pt x 117.73534pt.
-<Figure/mpage_selection.png, id=514, 1517.67pt x 568.1225pt>
+<Figure/mpage_selection.png, id=516, 1517.67pt x 568.1225pt>
 File: Figure/mpage_selection.png Graphic file (type png)
 <use Figure/mpage_selection.png>
 Package pdftex.def Info: Figure/mpage_selection.png  used on input line 112.
@@ -2067,7 +2066,7 @@ ter population-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [21]
-<Figure/bmab_llm_main.png, id=591, 1416.29124pt x 883.3pt>
+<Figure/bmab_llm_main.png, id=593, 1416.29124pt x 883.3pt>
 File: Figure/bmab_llm_main.png Graphic file (type png)
 <use Figure/bmab_llm_main.png>
 Package pdftex.def Info: Figure/bmab_llm_main.png  used on input line 93.
@@ -2086,14 +2085,14 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [25]
 [26]
-<Figure/bmab_llm_budget_manage.png, id=625, 944.52875pt x 180.675pt>
+<Figure/bmab_llm_budget_manage.png, id=627, 944.52875pt x 180.675pt>
 File: Figure/bmab_llm_budget_manage.png Graphic file (type png)
 <use Figure/bmab_llm_budget_manage.png>
 Package pdftex.def Info: Figure/bmab_llm_budget_manage.png  used on input line 
 216.
 (pdftex.def)             Requested size: 418.2537pt x 80.00725pt.
  [27 <./Figure/bmab_llm_budget_manage.png>]
-<Figure/bmab_llm_bandits.png, id=634, 774.895pt x 521.95pt>
+<Figure/bmab_llm_bandits.png, id=636, 774.895pt x 521.95pt>
 File: Figure/bmab_llm_bandits.png Graphic file (type png)
 <use Figure/bmab_llm_bandits.png>
 Package pdftex.def Info: Figure/bmab_llm_bandits.png  used on input line 240.
@@ -2261,7 +2260,7 @@ LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <6.5> not available
 (Font)              size <6> substituted on input line 144.
 
 (./tables/all_overall_scores.tex)
-<Figure/all_overall_normalized_scores.png, id=904, 803.1825pt x 398.4705pt>
+<Figure/all_overall_normalized_scores.png, id=907, 803.1825pt x 398.4705pt>
 File: Figure/all_overall_normalized_scores.png Graphic file (type png)
 <use Figure/all_overall_normalized_scores.png>
 Package pdftex.def Info: Figure/all_overall_normalized_scores.png  used on inpu
@@ -2276,13 +2275,13 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [60 <./Figure/all_overall_normalized_scores.png>] [61] (./tables/all_pairwise_
 wins.tex)
-<Figure/all_aubc_pairwise_cell_wins.png, id=925, 553.851pt x 470.7405pt>
+<Figure/all_aubc_pairwise_cell_wins.png, id=928, 553.851pt x 470.7405pt>
 File: Figure/all_aubc_pairwise_cell_wins.png Graphic file (type png)
 <use Figure/all_aubc_pairwise_cell_wins.png>
 Package pdftex.def Info: Figure/all_aubc_pairwise_cell_wins.png  used on input 
 line 200.
 (pdftex.def)             Requested size: 204.85802pt x 174.11378pt.
-<Figure/all_hv_final_pairwise_cell_wins.png, id=926, 553.851pt x 470.7405pt>
+<Figure/all_hv_final_pairwise_cell_wins.png, id=929, 553.851pt x 470.7405pt>
 File: Figure/all_hv_final_pairwise_cell_wins.png Graphic file (type png)
 <use Figure/all_hv_final_pairwise_cell_wins.png>
 Package pdftex.def Info: Figure/all_hv_final_pairwise_cell_wins.png  used on in
@@ -2292,7 +2291,7 @@ put line 204.
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [62]
-<Figure/all_aubc_mean_by_budget.png, id=932, 839.3175pt x 583.7445pt>
+<Figure/all_aubc_mean_by_budget.png, id=935, 839.3175pt x 583.7445pt>
 File: Figure/all_aubc_mean_by_budget.png Graphic file (type png)
 <use Figure/all_aubc_mean_by_budget.png>
 Package pdftex.def Info: Figure/all_aubc_mean_by_budget.png  used on input line
@@ -2301,7 +2300,7 @@ Package pdftex.def Info: Figure/all_aubc_mean_by_budget.png  used on input line
 
 [63 <./Figure/all_aubc_pairwise_cell_wins.png> <./Figure/all_hv_final_pairwise_
 cell_wins.png> <./Figure/all_aubc_mean_by_budget.png>]
-<Figure/all_budget_curves_B25.png, id=942, 839.3175pt x 583.7445pt>
+<Figure/all_budget_curves_B25.png, id=945, 839.3175pt x 583.7445pt>
 File: Figure/all_budget_curves_B25.png Graphic file (type png)
 <use Figure/all_budget_curves_B25.png>
 Package pdftex.def Info: Figure/all_budget_curves_B25.png  used on input line 2
@@ -2350,19 +2349,19 @@ LaTeX Font Warning: Font shape `U/lasy/m/n' in size <7.58339> not available
 LaTeX Font Warning: Font shape `U/lasy/m/n' in size <5.41673> not available
 (Font)              size <5> substituted on input line 236.
 
-<Figure/all_budget_curves_B50.png, id=943, 839.3175pt x 583.7445pt>
+<Figure/all_budget_curves_B50.png, id=946, 839.3175pt x 583.7445pt>
 File: Figure/all_budget_curves_B50.png Graphic file (type png)
 <use Figure/all_budget_curves_B50.png>
 Package pdftex.def Info: Figure/all_budget_curves_B50.png  used on input line 2
 39.
 (pdftex.def)             Requested size: 204.85802pt x 142.47086pt.
-<Figure/all_budget_curves_B100.png, id=944, 839.3175pt x 583.7445pt>
+<Figure/all_budget_curves_B100.png, id=947, 839.3175pt x 583.7445pt>
 File: Figure/all_budget_curves_B100.png Graphic file (type png)
 <use Figure/all_budget_curves_B100.png>
 Package pdftex.def Info: Figure/all_budget_curves_B100.png  used on input line 
 243.
 (pdftex.def)             Requested size: 204.85802pt x 142.47086pt.
-<Figure/all_budget_curves_B200.png, id=945, 839.3175pt x 583.7445pt>
+<Figure/all_budget_curves_B200.png, id=948, 839.3175pt x 583.7445pt>
 File: Figure/all_budget_curves_B200.png Graphic file (type png)
 <use Figure/all_budget_curves_B200.png>
 Package pdftex.def Info: Figure/all_budget_curves_B200.png  used on input line 
@@ -2376,20 +2375,20 @@ Underfull \vbox (badness 5217) has occurred while \output is active []
 
  [65 <./Figure/all_budget_curves_B25.png> <./Figure/all_budget_curves_B50.png> 
 <./Figure/all_budget_curves_B100.png> <./Figure/all_budget_curves_B200.png>]
-<Figure/all_budget_curves_bmab_zoom_B100.png, id=961, 839.3175pt x 583.7445pt>
+<Figure/all_budget_curves_bmab_zoom_B100.png, id=964, 839.3175pt x 583.7445pt>
 File: Figure/all_budget_curves_bmab_zoom_B100.png Graphic file (type png)
 <use Figure/all_budget_curves_bmab_zoom_B100.png>
 Package pdftex.def Info: Figure/all_budget_curves_bmab_zoom_B100.png  used on i
 nput line 264.
 (pdftex.def)             Requested size: 392.64725pt x 273.08621pt.
  [66 <./Figure/all_budget_curves_bmab_zoom_B100.png>]
-<Figure/all_hv_final_mean_by_budget.png, id=969, 839.3175pt x 583.7445pt>
+<Figure/all_hv_final_mean_by_budget.png, id=972, 839.3175pt x 583.7445pt>
 File: Figure/all_hv_final_mean_by_budget.png Graphic file (type png)
 <use Figure/all_hv_final_mean_by_budget.png>
 Package pdftex.def Info: Figure/all_hv_final_mean_by_budget.png  used on input 
 line 275.
 (pdftex.def)             Requested size: 405.45047pt x 281.98453pt.
-<Figure/all_aubc_vs_final_hv_tradeoff.png, id=971, 557.4645pt x 412.9245pt>
+<Figure/all_aubc_vs_final_hv_tradeoff.png, id=974, 557.4645pt x 412.9245pt>
 File: Figure/all_aubc_vs_final_hv_tradeoff.png Graphic file (type png)
 <use Figure/all_aubc_vs_final_hv_tradeoff.png>
 Package pdftex.def Info: Figure/all_aubc_vs_final_hv_tradeoff.png  used on inpu
@@ -2415,7 +2414,7 @@ LaTeX Font Warning: Font shape `OT1/cmr/bx/n' in size <4.33336> not available
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [70]
-<Figure/ablation_overall_normalized_scores.png, id=995, 803.1825pt x 398.799pt>
+<Figure/ablation_overall_normalized_scores.png, id=998, 803.1825pt x 398.799pt>
 
 File: Figure/ablation_overall_normalized_scores.png Graphic file (type png)
 <use Figure/ablation_overall_normalized_scores.png>
@@ -2424,7 +2423,7 @@ Package pdftex.def Info: Figure/ablation_overall_normalized_scores.png  used on
 (pdftex.def)             Requested size: 392.64725pt x 194.9629pt.
 
 [71 <./Figure/ablation_overall_normalized_scores.png>]
-<Figure/ablation_delta_heatmaps.png, id=1002, 1018.0215pt x 398.4705pt>
+<Figure/ablation_delta_heatmaps.png, id=1005, 1018.0215pt x 398.4705pt>
 File: Figure/ablation_delta_heatmaps.png Graphic file (type png)
 <use Figure/ablation_delta_heatmaps.png>
 Package pdftex.def Info: Figure/ablation_delta_heatmaps.png  used on input line
@@ -2508,10 +2507,10 @@ exmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/20
 nts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/
 vntex/urwvn/utmr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/ur
 wvn/utmri8v.pfb>
-Output written on main.pdf (94 pages, 3279139 bytes).
+Output written on main.pdf (94 pages, 3279797 bytes).
 PDF statistics:
- 1496 PDF objects out of 1728 (max. 8388607)
- 1219 compressed objects within 13 object streams
+ 1499 PDF objects out of 1728 (max. 8388607)
+ 1222 compressed objects within 13 object streams
  373 named destinations out of 1000 (max. 500000)
  823 words of extra memory for PDF output out of 10000 (max. 10000000)
 

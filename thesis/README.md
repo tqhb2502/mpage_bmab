@@ -1,8 +1,11 @@
 # LaTeX Thesis
 
-This LaTeX directory contains the graduation thesis generated from the source
-code, documentation, figures, tables, and experimental evidence available for
-this study.
+This directory contains the pre-template LaTeX thesis source generated from the
+source code, documentation, figures, tables, and experimental evidence available
+for this study. The official SOICT submission version is maintained in
+`../SOICT_DATN_Research_ENG_Template/`.
+
+Repository: <https://github.com/tqhb2502/mpage_bmab>
 
 Compile with XeLaTeX:
 
