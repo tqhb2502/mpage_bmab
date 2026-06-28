@@ -97,29 +97,29 @@ The quantity $HV_{\text{outer}}$ is the \emph{outer hypervolume}: it is computed
 
 This figure is important because it separates the roles of generation, evaluation, and control. The proposed framework preserves MPaGE's prompt, evaluation, semantic clustering, and population-management components, while adding budget accounting and adaptive bandit control around them. The LLM is used only to produce or refine heuristic programs; it does not directly solve the benchmark instances. The evaluator executes the generated heuristic inside the inner multi-objective search process and returns a heuristic score. That score is then used in two ways: it updates the managed heuristic population and it becomes part of the reward signal observed by the bandit controller. Consequently, the proposed framework forms a closed-loop system: generated heuristics affect rewards, rewards affect future operator and cluster choices, and those choices determine how the remaining LLM-call budget is spent.
 
-The implementation is centered in \methodcode{bmab\_llm.py}. The main supporting modules are summarized in Table~\ref{tab:method-modules}.
+At the architectural level, the method can be decomposed into the components summarized in Table~\ref{tab:method-modules}. This presentation emphasizes the methodological roles of the components; implementation-level module names are discussed separately in Chapter~4.
 
 \begin{table}[H]
   \centering
-  \caption{Main methodological modules in the implementation.}
+  \caption{Main architectural components of the proposed method.}
   \label{tab:method-modules}
-  \begin{tabular}{p{0.28\linewidth}p{0.62\linewidth}}
+  \begin{tabular}{>{\raggedright\arraybackslash}p{0.30\linewidth}>{\raggedright\arraybackslash}p{0.62\linewidth}}
     \toprule
-    Module & Methodological role \\
+    Component & Methodological role \\
     \midrule
-    \methodcode{bmab\_llm.py} & Main orchestrator. It owns the evolutionary loop, calls PFG selection, requests semantic clusters, selects bandit arms, samples offspring, computes rewards, and flushes the final population. \\
-    \methodcode{budget.py} & Hard budget tracker. It stores total, remaining, and consumed budget and records a history entry for every charged LLM call. \\
-    \methodcode{bandit.py} & Two-level adaptive scheduler: persistent operator UCB, per-generation cluster UCB, and Page--Hinkley drift detection. \\
-    \methodcode{cluster\_manager.py} & Wrapper around MPaGE semantic clustering. It charges cluster calls, validates or repairs partitions, and computes cluster-quality priors. \\
-    \methodcode{reward.py} & Scalar credit assignment for bandit learning, including HVI, final managed-population HV gain, diversity gain, rank smoothing, and invalid-code penalties. \\
-    \methodcode{profiler.py} & Records budget-vs-HV curves, AUBC, budget history, bandit state, and population artifacts for analysis. \\
+    Evolutionary loop & Coordinates PFG selection, semantic clustering, bandit-arm selection, parent sampling, offspring generation, reward computation, and final population flushing. \\
+    Budget tracker & Stores total, remaining, and consumed LLM-call budget and records each charged action. \\
+    Bandit scheduler & Maintains persistent operator-level UCB statistics, per-generation cluster-level UCB statistics, and Page--Hinkley drift handling. \\
+    Cluster manager & Invokes MPaGE-style semantic clustering, validates or repairs partitions, and computes cluster-quality priors. \\
+    Reward computer & Converts candidate outcomes into scalar bandit feedback using HVI, final managed-population HV gain, diversity gain, rank smoothing, and invalid-code penalties. \\
+    Profiling layer & Records budget--HV curves, AUBC, budget history, bandit state, and population artifacts for experimental analysis. \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \section{Components Inherited from MPaGE}
 
-\bmab{} intentionally retains the core generative and evaluative substrate of \mpage{}. This inheritance is documented in the implementation materials and is visible in the vendored MPaGE subtree. The retained components are important because they isolate the proposed contribution to budget-aware scheduling rather than changing the benchmark, prompt templates, or evaluation logic.
+\bmab{} intentionally retains the core generative and evaluative substrate of \mpage{}. This inheritance is documented in the implementation materials and is visible in the preserved MPaGE components. The retained components are important because they isolate the proposed contribution to budget-aware scheduling rather than changing the benchmark, prompt templates, or evaluation logic.
 
 \subsection{Population Representation and PFG Selection}
 
@@ -164,7 +164,7 @@ such that
   \bigcup_{k=1}^{K} C_k=P, \qquad C_i \cap C_j = \emptyset \; (i \ne j).
 \end{equation}
 
-The implementation calls the MPaGE cluster prompt through \methodcode{cluster\_manager.py}. If the LLM response is malformed, incomplete, or unavailable, the method falls back to singleton clusters. This design preserves semantic clustering when possible while ensuring that the evolutionary loop remains robust to LLM-format failures.
+The semantic-clustering manager calls the MPaGE cluster prompt and validates the returned partition. If the LLM response is malformed, incomplete, or unavailable, the method falls back to singleton clusters. This design preserves semantic clustering when possible while ensuring that the evolutionary loop remains robust to LLM-format failures.
 
 \subsection{Mutation and Crossover Prompt Families}
 
@@ -207,7 +207,7 @@ In the call-based mode used by the reported experiments, Table~\ref{tab:budget-c
   \end{tabular}
 \end{table}
 
-The budget state is recorded through \methodcode{BudgetTracker.history}, and the profiler later writes \methodcode{budget\_history.json}. This gives the experimental harness a direct account of how the budget was spent.
+The budget tracker records each charged action, and the profiling layer stores the resulting budget-consumption trace. This gives the experimental harness a direct account of how the budget was spent.
 
 Figure~\ref{fig:bmab-llm-budget-manage} summarizes the two places where budget enters the method. On the left, the budget tracker gates expensive LLM actions: semantic clustering and mutation/crossover generation are allowed only when the remaining budget can pay for the call. On the right, the recorded sequence of consumed budget and outer hypervolume values forms the budget curve used to compute AUBC.
 
@@ -264,7 +264,7 @@ The selected operator maximizes a UCB score:
   \label{eq:operator-ucb}
 \end{equation}
 
-where $N_{\mathrm{op}}=\sum_{o' \in \mathcal{O}} n_{o'}$ and $c_{\mathrm{op}}$ controls exploration. The implementation initializes each operator with an optimistic prior count and prior reward, preventing division by zero and encouraging early exploration. This is implemented in \methodcode{bandit.py} by the \methodcode{OperatorBandit} class.
+where $N_{\mathrm{op}}=\sum_{o' \in \mathcal{O}} n_{o'}$ and $c_{\mathrm{op}}$ controls exploration. Each operator is initialized with an optimistic prior count and prior reward, preventing division by zero and encouraging early exploration.
 
 \subsection{Cluster-Level Budgeted UCB}
 
@@ -341,7 +341,7 @@ and the normalized prior used by the bandit is
   q_k = \frac{\tilde{q}_k}{\max_j \tilde{q}_j}
 \end{equation}
 
-when the denominator is positive. This design is implemented in \methodcode{cluster\_manager.py}. It is more aligned with the final outer-front objective than a one-dimensional score proxy because it rewards clusters that currently contribute to the heuristic Pareto front while still accounting for inner solution quality and runtime.
+when the denominator is positive. This design is more aligned with the final outer-front objective than a one-dimensional score proxy because it rewards clusters that currently contribute to the heuristic Pareto front while still accounting for inner solution quality and runtime.
 
 \section{Reward and Credit Assignment}
 
@@ -591,7 +591,7 @@ Downward drift is declared when
   M_t - m_t > \lambda_{\mathrm{PH}}.
 \end{equation}
 
-When drift is detected, the corresponding arm statistics are reset to an optimistic prior for the current generation. This mechanism is implemented in \methodcode{bandit.py}. It is limited to the cluster-level bandit because cluster rewards are local to the current generation and most sensitive to rapid changes in population state.
+When drift is detected, the corresponding arm statistics are reset to an optimistic prior for the current generation. This mechanism is limited to the cluster-level bandit because cluster rewards are local to the current generation and most sensitive to rapid changes in population state.
 
 \section{Parent Selection and Variation Workflow}
 

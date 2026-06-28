@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber main"] 1782634244.32263 "main.bcf" "main.bbl" "main" 1782634434.16002 0
-  "main.bcf" 1782634434.02297 109228 72c8fbfb773d0c7658035dd6bac11cff "pdflatex"
+["biber main"] 1782636100.65563 "main.bcf" "main.bbl" "main" 1782636403.25341 0
+  "main.bcf" 1782636403.10747 109228 72c8fbfb773d0c7658035dd6bac11cff "pdflatex"
   "reference.bib" 1781969861.1651 3968 889a418da582375247459fe63ef53504 ""
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1782634429.11542 "main.tex" "main.pdf" "main" 1782634434.16023 0
+["pdflatex"] 1782636398.01725 "main.tex" "main.pdf" "main" 1782636403.25367 0
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc" 1136849721 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -353,7 +353,7 @@
   "Chapter/0_3_Abstract.tex" 1782633839.90268 1980 1480b77e768a9a2239b2cce7ff4fccc1 ""
   "Chapter/1_Introduction.tex" 1782633839.90141 14441 207347a5d3e99d31da46787a4d939d19 ""
   "Chapter/2_Literature_review.tex" 1782633839.90166 28262 2c7f0f620abc2dcb010d39176727171c ""
-  "Chapter/3_Methodology.tex" 1782634046.49651 48312 86fcbbf440c321916e4caa875959929c ""
+  "Chapter/3_Methodology.tex" 1782636389.76893 48177 85d6a65299094660102b4f44c8d34c1a ""
   "Chapter/4_Theoretical_Analysis.tex" 1782633839.90204 20691 c09264413b1f455ec9cbd08fb4fba97c ""
   "Chapter/5_Numerical_results.tex" 1782633839.90224 39903 4a3302f4b671dc57c60e253adcf64ea8 ""
   "Chapter/6_Conclusions.tex" 1782633839.90244 11584 fc02077e1dcac852feecdb36cb9b0714 ""
@@ -378,13 +378,13 @@
   "Figure/mpage_overview.png" 1781062599.71651 344353 9c081caf22ffbebed6bbfa3d0b66972e ""
   "Figure/mpage_selection.png" 1781062599.708 204752 aa150481a814fe87c55ad9a7030844e4 ""
   "glossary.tex" 1782633839.90289 1562 47ba3ded5842d64a26528d24c6410c5f ""
-  "main.aux" 1782634434.01155 62221 7872e48924cb1bfadde24cfc56110eb9 "pdflatex"
-  "main.bbl" 1782634260.86924 23169 de30b810944584b08fb81225a7aa8d69 "biber main"
-  "main.lof" 1782634434.02363 3990 a34c1145ad4f8fed0c2e6a758c611fdf "pdflatex"
-  "main.lot" 1782634434.02366 1675 8ee2d561576668eff0957a0411ddd9d7 "pdflatex"
-  "main.run.xml" 1782634434.02349 2401 f29679a893e1f8b9354418903068c3fe "pdflatex"
+  "main.aux" 1782636403.09549 62227 a796d50ebd0f89312bacd5b3bb5a4cf7 "pdflatex"
+  "main.bbl" 1782636102.08562 23169 de30b810944584b08fb81225a7aa8d69 "biber main"
+  "main.lof" 1782636403.10827 3990 2d66d3f137fda80aa2b208447ebd460c "pdflatex"
+  "main.lot" 1782636403.10829 1678 323e86e400c6c2ab4fbf89a6235e2e16 "pdflatex"
+  "main.run.xml" 1782636403.10812 2401 f29679a893e1f8b9354418903068c3fe "pdflatex"
   "main.tex" 1782634416.03995 5451 fc9607a07b38b0b00875b6dda607aebc ""
-  "main.toc" 1782634434.02354 8677 eb702f6048897557533743b142dbd61a "pdflatex"
+  "main.toc" 1782636403.10818 8677 e9a34dc116668fc8bbc43ba6a086123c "pdflatex"
   "tables/ablation_results.tex" 1782619172.62831 1755 95591b561e132aa8e023e893c653194c ""
   "tables/ablation_settings.tex" 1782621209.9912 1581 a931556ea1497feb5a8be26fef6c4034 ""
   "tables/all_overall_scores.tex" 1782488769.83377 650 c2f1e305d6a718a2129620df3c89b70a ""
