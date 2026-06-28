@@ -11,7 +11,7 @@ __pycache__/
 
 # experiments results
 experiments/archive_v1.0/
-experiments/archive_v1.1/full/
+experiments/archive_v1.1/full_old/
 experiments/archive_v1.1/mpage_orig/
 experiments/results/dense_reward
 experiments/results/full
@@ -20,5 +20,7 @@ experiments/results/hybrid_reward
 experiments/results/mpage_orig
 experiments/results/no_budget_anneal
 experiments/results/no_ph
+experiments/results/no_diversity
+experiments/results/op_only
 
 .DS_Store
