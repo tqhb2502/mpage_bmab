@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.10)  28 JUN 2026 16:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.10)  28 JUN 2026 17:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1835,47 +1835,47 @@ Package biblatex Info: Reference segment=0 on input line 108.
 Package hyperref Info: Link coloring ON on input line 108.
 Package hyperref Info: Option `pageanchor' set `false' on input line 109.
  (./Cover.tex
-LaTeX Font Info:    Calculating math sizes for size <13> on input line 11.
+LaTeX Font Info:    Calculating math sizes for size <13> on input line 10.
 
 
 LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <6.5> not available
-(Font)              size <6> substituted on input line 11.
+(Font)              size <6> substituted on input line 10.
 
 
 LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <13> not available
-(Font)              size <12> substituted on input line 11.
+(Font)              size <12> substituted on input line 10.
 
 
 LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <6.5> not available
-(Font)              size <6> substituted on input line 11.
+(Font)              size <6> substituted on input line 10.
 
 
 LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <13> not available
-(Font)              size <12> substituted on input line 11.
+(Font)              size <12> substituted on input line 10.
 
 
 LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <6.5> not available
-(Font)              size <6> substituted on input line 11.
+(Font)              size <6> substituted on input line 10.
 
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 11
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 10
 .
 (/usr/local/texlive/2026/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
 
 LaTeX Font Warning: Font shape `U/lasy/m/n' in size <13> not available
-(Font)              size <12> substituted on input line 11.
+(Font)              size <12> substituted on input line 10.
 
 
 LaTeX Font Warning: Font shape `U/lasy/m/n' in size <6.5> not available
-(Font)              size <6> substituted on input line 11.
+(Font)              size <6> substituted on input line 10.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 11.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 10.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 11.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 10.
 
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -2482,7 +2482,7 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 Here is how much of TeX's memory you used:
  57164 strings out of 467525
  1261382 string characters out of 5418982
- 2528916 words of memory out of 5000000
+ 2529242 words of memory out of 5000000
  84750 multiletter control sequences out of 15000+600000
  684381 words of font info for 124 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -2508,7 +2508,7 @@ exmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/20
 nts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/
 vntex/urwvn/utmr8v.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/vntex/ur
 wvn/utmri8v.pfb>
-Output written on main.pdf (94 pages, 3271594 bytes).
+Output written on main.pdf (94 pages, 3279144 bytes).
 PDF statistics:
  1496 PDF objects out of 1728 (max. 8388607)
  1219 compressed objects within 13 object streams
