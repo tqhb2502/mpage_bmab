@@ -33,7 +33,7 @@ The thesis is organized around three research questions.
 \begin{enumerate}
   \item \textbf{Budget efficiency.} Does a budget-aware scheduling policy improve the area under the outer hypervolume-vs-budget curve compared with the budget-wrapped MPaGE baseline?
   \item \textbf{Terminal quality.} Does improving budget efficiency also preserve or improve final heuristic-population hypervolume, or does it merely move progress earlier without changing the final population?
-  \item \textbf{Reward design.} How do immediate dense HVI reward, final managed-population HV reward, and their hybrid differ in practice when all other finalized implementation components are held fixed?
+  \item \textbf{Reward design.} How do Final-HV reward and Hybrid reward differ in practice when all other finalized implementation components are held fixed?
 \end{enumerate}
 
 These questions are narrower than a complete re-evaluation of MPaGE across every table in the original paper. They focus on the budgeted outer search process implemented in this thesis. This choice is intentional. The most distinctive contribution of the study is not a new benchmark task or a new LLM prompt family, but a controller that decides how to spend a fixed call budget across operators and semantic regions.
@@ -68,7 +68,7 @@ The thesis has five concrete objectives.
 
 The empirical scope of this thesis is the analyzed comparison matrix represented by the thesis tables and figures. The main matrix contains three thesis-facing setups: Final-HV reward, Hybrid reward, and MPaGE-orig as the original workflow wrapped under the same budget-recording protocol. The evaluated tasks are Bi-TSP, Tri-TSP, Bi-CVRP, and Bi-KP. The LLM-call budgets are $25$, $50$, $100$, and $200$. Each task--budget--setup cell is run with five seeds, from 2025 to 2029, according to the experimental matrix described in Chapter~5.
 
-Several additional ablation variants are implemented in the codebase, including \texttt{no\_budget\_anneal}, \texttt{no\_ph}, \texttt{no\_diversity}, \texttt{op\_only}, and \texttt{cluster\_only}. Chapter~5 analyzes the completed budget-annealing and Page--Hinkley ablation matrices. The remaining unexecuted or incomplete ablations are treated as future work rather than as established empirical findings.
+Several additional ablation variants are implemented, including controls for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Chapter~5 analyzes the completed No budget annealing, No Page-Hinkley, and No diversity reward matrices. The remaining unexecuted or incomplete ablations are treated as future work rather than as established empirical findings.
 
 The thesis does not re-evaluate the benchmark tables reported in the original MPaGE paper. The available result files measure outer heuristic-population hypervolume and AUBC under the experimental framework used in this study. They should therefore be interpreted as evidence about budget-aware heuristic-population search, not as a direct reproduction of all normalized inner-solver metrics in the original paper.
 
@@ -76,7 +76,7 @@ The implementation does not provide evidence of LLM fine-tuning, LoRA, PEFT, ret
 
 \section{Research Methodology}
 
-The thesis follows an evidence-based implementation analysis methodology. First, README files, design documents, implementation modules, evaluator definitions, scripts, result files, and generated figures were inspected to reconstruct the research problem and implementation architecture. Second, the mathematical and algorithmic foundations were organized around multi-objective optimization, hypervolume, LLM-based program synthesis, adaptive operator selection, budgeted multi-armed bandits, and online drift detection. Third, the result CSV and JSON files were analyzed using the metrics defined for this study, particularly AUBC and final hypervolume.
+The thesis follows an evidence-based implementation analysis methodology. The first stage inspects README files, design documents, implementation modules, evaluator definitions, scripts, result files, and generated figures to reconstruct the research problem and implementation architecture. The second stage organizes the mathematical and algorithmic foundations around multi-objective optimization, hypervolume, LLM-based program synthesis, adaptive operator selection, budgeted multi-armed bandits, and online drift detection. The third stage analyzes the result CSV and JSON files using the metrics defined for this study, particularly AUBC and final hypervolume.
 
 The primary empirical metric is AUBC because it directly evaluates budget efficiency. Final hypervolume is used as a complementary terminal-quality metric. Chapter~5 reports normalized scores, mean ranks, cell-level pairwise wins, and budget curves generated from the result artifacts.
 

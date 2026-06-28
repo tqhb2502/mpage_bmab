@@ -2,9 +2,9 @@
 
 \section{Experimental Questions}
 
-This chapter evaluates the proposed budget-aware heuristic-design framework under finite LLM-call budgets. The main comparison is based on 240 runs: three setups, four benchmark problem families, four budget levels, and five random seeds. The three setups are Final-HV reward, Hybrid reward, and MPaGE-orig. In addition, two component ablations are analyzed against Final-HV reward, adding 160 ablation-specific runs while reusing the same Final-HV reference runs.
+This chapter evaluates the proposed budget-aware heuristic-design framework under finite LLM-call budgets. The main comparison is based on 240 runs: three setups, four benchmark problem families, four budget levels, and five random seeds. The three setups are Final-HV reward, Hybrid reward, and MPaGE-orig. In addition, three component ablations are analyzed against Final-HV reward, adding 240 ablation-specific runs while reusing the same Final-HV reference runs.
 
-The chapter addresses four experimental questions. First, do the two budget-aware reward designs improve budget-integrated performance over MPaGE-orig? Second, does better budget efficiency, measured by the area under the budget curve (AUBC), also correspond to better final heuristic-population quality, measured by final outer hypervolume? Third, how do Final-HV reward and Hybrid reward differ when the scheduler, population management, budget accounting, and evaluation pipeline are otherwise held fixed? Fourth, how important are budget annealing and Page--Hinkley drift handling within the Final-HV reward configuration?
+The chapter addresses four experimental questions. First, do the two budget-aware reward designs improve budget-integrated performance over MPaGE-orig? Second, does better budget efficiency, measured by the area under the budget curve (AUBC), also correspond to better final heuristic-population quality, measured by final outer hypervolume? Third, how do Final-HV reward and Hybrid reward differ when the scheduler, population management, budget accounting, and evaluation pipeline are otherwise held fixed? Fourth, how important are budget annealing, Page--Hinkley drift handling, and the diversity reward term within the Final-HV reward configuration?
 
 All numerical claims in this chapter are derived from generated result files and summary tables. The chapter does not infer results from undocumented runs. Whenever a quantity is aggregated across tasks, budgets, or seeds, the aggregation rule is stated before the corresponding table or figure.
 
@@ -32,7 +32,7 @@ Table~\ref{tab:experiment-hyperparameters} summarizes the experimental hyperpara
 
 \input{tables/experiment_hyperparameters}
 
-Each main setup is evaluated on the same four tasks, four budgets, and five seeds. Thus, each main setup contributes $4\times4\times5=80$ runs. The main comparison contains 240 runs, and the two additional component ablations contribute 160 additional runs. The budget $B$ counts external generation and clustering calls under the call-cost model used by the implementation. This call-based budget is appropriate for the present comparison because the result artifacts do not provide token-level cost, API latency, or monetary cost for each run.
+Each main setup is evaluated on the same four tasks, four budgets, and five seeds. Thus, each main setup contributes $4\times4\times5=80$ runs. The main comparison contains 240 runs, and the three additional component ablations contribute 240 additional runs. The budget $B$ counts external generation and clustering calls under the call-cost model used by the implementation. This call-based budget is appropriate for the present comparison because the result artifacts do not provide token-level cost, API latency, or monetary cost for each run.
 
 \subsection{Hypervolume Reference Points}
 
@@ -79,7 +79,7 @@ The primary metric is AUBC, the area under the outer hypervolume-vs-budget curve
   (x_i-x_{i-1}).
   \label{eq:aubc-chapter5}
 \end{equation}
-If the last recorded point occurs before the full budget is exhausted, the profiler extends the curve using the last recorded hypervolume. Higher AUBC is better because it indicates that useful heuristic populations are obtained earlier and sustained for more of the budget horizon.
+If the last recorded point occurs before the entire budget is exhausted, the profiler extends the curve using the last recorded hypervolume. Higher AUBC is better because it indicates that useful heuristic populations are obtained earlier and sustained for more of the budget horizon.
 
 The secondary metric is final outer hypervolume, denoted \code{hv\_final} in the result artifacts. It is extracted from the final \code{hv} entry of each budget curve and uses the same outer reference point as AUBC. Final outer hypervolume measures the quality of the managed heuristic population at the end of a run. Higher final outer hypervolume is better. It should not be confused with the inner solution-level hypervolume computed inside each benchmark evaluator; Chapter~3 defines this inner--outer distinction in detail, and Table~\ref{tab:hv-reference-points} reports the reference points used for both levels.
 
@@ -156,7 +156,7 @@ Table~\ref{tab:all-overall-scores} summarizes the three main setups using the no
 
 \input{tables/all_overall_scores}
 
-Figure~\ref{fig:overall-scores} visualizes the same two normalized-score columns from Table~\ref{tab:all-overall-scores}. Each bar is the mean normalized score of one setup for either AUBC or final HV. Higher bars indicate stronger relative performance across the full task--budget matrix.
+Figure~\ref{fig:overall-scores} visualizes the same two normalized-score columns from Table~\ref{tab:all-overall-scores}. Each bar is the mean normalized score of one setup for either AUBC or final HV. Higher bars indicate stronger relative performance across the entire task--budget matrix.
 
 \begin{figure}[H]
   \centering
@@ -191,7 +191,7 @@ Table~\ref{tab:all-pairwise-wins} reports pairwise task--budget wins using Equat
 
 For AUBC, both reward-based variants are clearly stronger than MPaGE-orig. Final-HV reward wins 15 of 16 AUBC cells against MPaGE-orig, and Hybrid reward wins all 16. This is the strongest evidence that budget-aware scheduling improves budget-integrated behavior relative to the original MPaGE workflow.
 
-The comparison between Final-HV reward and Hybrid reward is closer. Final-HV reward wins 10 of 16 AUBC cells and 11 of 16 final-HV cells against Hybrid reward. Hybrid reward still wins 6 AUBC cells and 5 final-HV cells against Final-HV reward. Thus, the evidence does not support a claim of uniform dominance. Instead, Final-HV reward has the stronger rank profile, while Hybrid reward remains highly competitive and is particularly useful in cells where denser feedback helps.
+The comparison between Final-HV reward and Hybrid reward is closer. Final-HV reward wins 10 of 16 AUBC cells and 11 of 16 final-HV cells against Hybrid reward. Hybrid reward still wins 6 AUBC cells and 5 final-HV cells against Final-HV reward. Thus, the evidence does not support a claim of uniform dominance. Instead, Final-HV reward has the stronger rank profile, while Hybrid reward remains highly competitive and is particularly useful in cells where denser feedback helps. Figure~\ref{fig:pairwise-wins} visualizes the same pairwise cell-level structure for both metrics.
 
 \begin{figure}[H]
   \centering
@@ -301,17 +301,30 @@ The sparsity explanation is also consistent with the implementation. In Final-HV
 
 \section{Component Ablation Study}
 
-Ablation studies test whether individual components of the proposed framework contribute meaningfully to performance. The two completed ablations in this thesis are directly comparable to Final-HV reward because they preserve the same final-HV quality signal and change one scheduler component at a time.
+Ablation studies test whether individual components of the proposed framework contribute meaningfully to performance. The three completed ablations in this thesis are directly comparable to Final-HV reward because they preserve the same final-HV quality signal and change one scheduler or reward-side component at a time. This design makes the comparison narrower than the main reward-mode study: the baseline is always Final-HV reward, and the question is whether removing one component changes AUBC or final outer HV.
 
-Table~\ref{tab:ablation-settings} summarizes the ablation settings. The No budget annealing ablation disables the remaining-budget factor in the cluster-bandit exploration term. In the full scheduler, exploration pressure decreases with remaining budget, which encourages the controller to become more exploitative near the end of a run. The ablation tests whether this annealing is useful. The No Page-Hinkley ablation effectively disables drift resets by setting the drift threshold high enough that resets do not occur in the analyzed runs. It tests whether non-stationarity handling matters for cluster-arm statistics.
+Table~\ref{tab:ablation-settings} summarizes the ablation settings. The No budget annealing ablation disables the remaining-budget factor in the cluster-bandit exploration term. In the complete scheduler, exploration pressure decreases with remaining budget, which encourages the controller to become more exploitative near the end of a run. The ablation tests whether this annealing is useful. The No Page-Hinkley ablation effectively disables drift resets by setting the drift threshold high enough that resets do not occur in the analyzed runs. It tests whether non-stationarity handling matters for cluster-arm statistics.
+
+The No diversity reward ablation removes a reward-side term rather than an archive-management rule. In the implementation, the cumulative diversity index is computed as the mean pairwise Euclidean distance among valid heuristic score vectors:
+\begin{equation}
+  D(S)
+  =
+  \frac{1}{n(n-1)}
+  \sum_{i=1}^{n}
+  \sum_{\substack{j=1\\j\ne i}}^{n}
+  \lVert s_i-s_j\rVert_2,
+  \qquad S=\{s_1,\ldots,s_n\}.
+  \label{eq:cdi-ablation-chapter5}
+\end{equation}
+The Final-HV reward configuration includes the positive diversity gain $\max(0,D_{\mathrm{after}}-D_{\mathrm{before}})$ with weight $w_d=0.3$. The No diversity reward ablation sets $w_d=0$ while leaving the final-HV quality signal, rank smoothing, population management, non-dominated sorting, and crowding-distance truncation unchanged. Therefore, this ablation tests whether explicitly rewarding expansion of the heuristic score distribution improves the bandit feedback. Any behavioral effect is indirect: it changes the rewards used to update the operator and cluster bandits, which can then change future operator and cluster selections.
 
 \input{tables/ablation_settings}
 
-Table~\ref{tab:ablation-results} reports the ablation results. The first subtable normalizes Final-HV reward and the two ablations within the ablation comparison set. The second subtable reports percentage deltas relative to Final-HV reward, so negative values mean that removing the component decreased performance on average.
+Table~\ref{tab:ablation-results} reports the ablation results. The first subtable normalizes Final-HV reward and the three ablations within the ablation comparison set. Because normalized scores are recomputed within this ablation set, the numbers are not expected to match the main-comparison table exactly. The second subtable reports percentage deltas relative to Final-HV reward, so negative values mean that removing the component decreased performance on average.
 
 \input{tables/ablation_results}
 
-Figure~\ref{fig:ablation-overall} visualizes the normalized ablation scores. The ranking is clear: Final-HV reward has the highest performance score, followed by No Page-Hinkley and then No budget annealing. The difference is larger for AUBC than for final HV in the No budget annealing ablation, which indicates that budget annealing is especially relevant to how quickly useful outer-HV gains are accumulated.
+Figure~\ref{fig:ablation-overall} visualizes the normalized ablation scores. Two patterns are visible. First, No budget annealing and No Page-Hinkley are both below Final-HV reward in performance score, indicating that these scheduler safeguards contribute positively on average. Second, No diversity reward is essentially tied with Final-HV reward and is slightly higher in the normalized ablation summary. This does not imply that diversity is harmful in general, because the margin is small and the cell-level effects are mixed. It does show, however, that the explicit diversity-gain reward is not a dominant source of the observed Final-HV performance in the current result matrix.
 
 \begin{figure}[H]
   \centering
@@ -331,7 +344,9 @@ Figure~\ref{fig:ablation-deltas} shows the task--budget deltas relative to Final
 
 The No Page-Hinkley ablation is more mixed. It wins 8 of 16 AUBC cells, but its mean AUBC delta is still negative at $-4.1\%$, and its mean final-HV delta is also $-4.1\%$. The strongest negative effects appear in Bi-KP and at $B=25$. This suggests that Page--Hinkley reset is not uniformly beneficial in every cell, but it improves average robustness in difficult or tight-budget settings. The result is consistent with the non-stationary nature of cluster rewards: a semantic cluster that is promising early can become less informative after repeated exploitation, so resetting stale statistics can prevent the cluster bandit from remaining overconfident.
 
-Overall, the ablation study supports both scheduler components. Budget annealing mainly improves budget efficiency, especially under tight budgets. Page--Hinkley reset has a less uniform but still positive average effect, particularly for final quality on harder cells. The ablation evidence is therefore consistent with the design goal of making the scheduler adaptive not only to current reward estimates, but also to remaining budget and reward non-stationarity.
+The No diversity reward ablation produces the most nuanced result. It wins 9 of 16 AUBC cells and 8 of 16 final-HV cells against Final-HV reward. Its mean delta is small but positive for both AUBC and final HV, at approximately $+0.7\%$. The median deltas are close to zero, which indicates that the effect is not a broad, uniform improvement. The task-level losses are also small on average: the worst AUBC task is Bi-TSP at $-0.4\%$, and the worst final-HV task is Bi-CVRP at $-1.2\%$. The heatmap nevertheless shows budget-dependent variation: the ablation is weaker at $B=50$ on average, but stronger at $B=200$. This pattern suggests that the diversity reward term interacts with task and budget conditions rather than providing a consistently positive marginal benefit.
+
+One plausible explanation is that diversity is already encouraged elsewhere in the pipeline. The managed population is selected by non-dominated sorting and crowding-distance truncation, and cluster-based parent selection can already expose the generator to different semantic regions of the heuristic population. Under these conditions, the additional CDI reward may sometimes be redundant. In some cells it may even shift bandit feedback toward score-space spread when final-HV gain would be a more direct signal. The correct interpretation is therefore cautious: budget annealing and Page--Hinkley reset are supported by the ablation evidence, whereas the explicit diversity reward term is not clearly necessary at the tested weight. The result motivates treating the diversity coefficient as a tunable regularizer rather than as an established indispensable component.
 
 \section*{Limitations of the Evidence}
 
@@ -339,12 +354,12 @@ The local hardware environment is reported in Table~\ref{tab:experiment-hyperpar
 
 All reported HV and AUBC values are outer heuristic-population metrics. They are meaningful for comparing heuristic-design processes under the experimental framework used in this thesis, but they are not direct reproductions of the normalized inner-solver metrics reported in the original MPaGE paper.
 
-The component ablation evidence covers budget annealing and Page--Hinkley drift handling, but it does not yet isolate every architectural component. The implementation also contains controls for diversity reward, operator-only scheduling, and cluster-only scheduling. Complete result matrices for those controls are not part of the current thesis evidence. Therefore, the chapter can conclude that the analyzed components are useful, but it cannot assign a precise causal contribution to every individual design choice in the framework.
+The component ablation evidence covers budget annealing, Page--Hinkley drift handling, and the diversity reward term, but it does not yet isolate every architectural component. The implementation also contains controls for operator-only scheduling and cluster-only scheduling. Complete result matrices for those controls are not part of the current thesis evidence. In addition, the diversity study only tests the default coefficient against zero; it does not sweep intermediate or larger diversity weights. Therefore, the chapter can draw conclusions about the analyzed components, but it cannot assign a precise causal contribution to every individual design choice in the framework.
 
 The analysis also remains quantitative rather than qualitative. It does not inspect the generated heuristic code to identify recurring algorithmic motifs. Such an analysis could reveal whether adaptive scheduling discovers genuinely different heuristic families or mainly reallocates budget among similar local variants. The saved samples make this possible, but it is outside the present scope.
 
 \section*{Chapter Summary}
 
-The result artifacts support four main findings. First, Final-HV reward and Hybrid reward substantially improve AUBC over MPaGE-orig, indicating that budget-aware scheduling improves how quickly useful heuristic populations are obtained. Second, Final-HV reward has the stronger final-HV rank profile, supporting the use of managed final-population HV gain as a terminal-quality-oriented reward signal. Third, Hybrid reward remains almost tied in normalized performance and is consistently competitive across task--budget cells, which supports the use of denser HVI feedback as a stabilizing complement to final-HV feedback. Fourth, the ablation results show that budget annealing and Page--Hinkley reset both contribute to the Final-HV reward configuration, especially under tighter budgets and harder task families.
+The result artifacts support four main findings. First, Final-HV reward and Hybrid reward substantially improve AUBC over MPaGE-orig, indicating that budget-aware scheduling improves how quickly useful heuristic populations are obtained. Second, Final-HV reward has the stronger final-HV rank profile, supporting the use of managed final-population HV gain as a terminal-quality-oriented reward signal. Third, Hybrid reward remains almost tied in normalized performance and is consistently competitive across task--budget cells, which supports the use of denser HVI feedback as a stabilizing complement to final-HV feedback. Fourth, the ablation results show that budget annealing and Page--Hinkley reset contribute positively on average, while the explicit diversity reward term has a mixed and small marginal effect under the tested configuration.
 
 Overall, the experiments support the thesis claim that LLM-call allocation is an algorithmically important part of MPaGE-style heuristic design. The evidence suggests that adaptive selection of operators, semantic regions, reward signals, and scheduler safeguards changes the budget trajectory of heuristic-population search while preserving strong terminal quality.

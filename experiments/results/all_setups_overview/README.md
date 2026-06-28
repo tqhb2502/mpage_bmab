@@ -9,10 +9,10 @@ The main comparison includes three distinct setups:
 - **Hybrid reward**
 - **MPaGE-orig**
 
-The component ablation study compares **No budget annealing** and **No
-Page-Hinkley** against **Final-HV reward**. Other completed or historical result
-trees remain available for reproducibility, but they are not emphasized in the
-thesis-facing summary.
+The component ablation study compares **No budget annealing**, **No
+Page-Hinkley**, and **No diversity reward** against **Final-HV reward**. Other
+completed or historical result trees remain available for reproducibility, but
+they are not emphasized in the thesis-facing summary.
 
 The overview is regenerated from the repository root with the overview analysis
 script:

@@ -1,0 +1,22 @@
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Inventory of generative AI and machine learning techniques in this thesis.}}{18}{table.2.1}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Main methodological modules in the implementation.}}{25}{table.caption.11}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Budget costs used by the current implementation.}}{27}{table.caption.12}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Main method variants relevant to the proposed framework.}}{42}{table.caption.16}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Experimental setup definitions}}{53}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Benchmark problem families}}{54}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Experimental hyperparameters and environment}}{55}{table.5.3}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Hypervolume reference points}}{58}{table.5.4}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Overall main comparison}}{61}{table.caption.17}%
+\contentsline {table}{\numberline {5.6}{\ignorespaces Task-level normalized scores}}{63}{table.caption.19}%
+\contentsline {table}{\numberline {5.7}{\ignorespaces Pairwise task--budget wins}}{64}{table.caption.20}%
+\contentsline {table}{\numberline {5.8}{\ignorespaces Component ablation settings}}{72}{table.caption.27}%
+\contentsline {table}{\numberline {5.9}{\ignorespaces Component ablation results}}{73}{table.caption.28}%
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

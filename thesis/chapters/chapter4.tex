@@ -61,7 +61,7 @@ Each generated heuristic is represented as Python code containing a task-specifi
 
 The experimental framework uses the same conceptual evaluation interface across all benchmark families. For each fixed problem instance, the evaluator creates an initial archive, repeatedly calls the generated \texttt{select\_neighbor} heuristic, inserts feasible and non-dominated candidates, removes dominated archive members, and computes the inner hypervolume of the final archive. The heuristic score used by the outer BMAB population is then averaged over the task instances.
 
-Tri-TSP illustrates the two-level nature of the evaluation. Although the inner task has three distance objectives, the outer heuristic score remains two-dimensional: $(-HV_{\text{inner}}, runtime)$. Accordingly, the outer reference point for Tri-TSP is two-dimensional, \texttt{(20.0, 60.0)}.
+Tri-TSP illustrates the two-level nature of the evaluation. Although the inner task has three distance objectives, the outer heuristic score still has two components: negated inner hypervolume and runtime. Accordingly, the outer reference point for Tri-TSP is two-dimensional, \texttt{(20.0, 60.0)}.
 
 \section{Execution Flow of a BMAB Run}
 
@@ -101,7 +101,7 @@ The experiment runner enumerates combinations of setup, task, budget, and seed; 
 
 Several shell launchers are provided for common workflows. One launches the MPaGE-orig versus BMAB comparison, and another launches the reward-mode experiments before running aggregation and comparisons for both final outer hypervolume and AUBC.
 
-The result set analyzed in Chapter~5 combines the MPaGE comparison matrix, the Final-HV and Hybrid reward-mode runs, and two completed component ablations. The thesis-facing main comparison covers Final-HV reward, Hybrid reward, and MPaGE-orig; the ablation study then compares No budget annealing and No Page-Hinkley against Final-HV reward.
+The result set analyzed in Chapter~5 combines the MPaGE comparison matrix, the Final-HV and Hybrid reward-mode runs, and three completed component ablations. The thesis-facing main comparison covers Final-HV reward, Hybrid reward, and MPaGE-orig; the ablation study then compares No budget annealing, No Page-Hinkley, and No diversity reward against Final-HV reward.
 
 \section{Generated Artifacts}
 

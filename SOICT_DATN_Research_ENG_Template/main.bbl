@@ -1,0 +1,553 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{ha2026mpage}{misc}{}{}
+      \name{author}{6}{}{%
+        {{hash=b7ba591791c12ce96f40085fbb711231}{%
+           family={Ha},
+           familyi={H\bibinitperiod},
+           given={Minh\bibnamedelima Hieu},
+           giveni={M\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=8b7a5e240408b172e83d9181f288f4e6}{%
+           family={Phan},
+           familyi={P\bibinitperiod},
+           given={Hung},
+           giveni={H\bibinitperiod}}}%
+        {{hash=1d3b05d00a329378f1b9fbafde7e2f25}{%
+           family={Doan},
+           familyi={D\bibinitperiod},
+           given={Tung\bibnamedelima Duy},
+           giveni={T\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=09b69b9843ecc7b125b9d5dbcd640d0e}{%
+           family={Dao},
+           familyi={D\bibinitperiod},
+           given={Tung},
+           giveni={T\bibinitperiod}}}%
+        {{hash=5848125e3326f51be4a6dfde40ba0360}{%
+           family={Tran},
+           familyi={T\bibinitperiod},
+           given={Dao},
+           giveni={D\bibinitperiod}}}%
+        {{hash=6c8dbd2245c18d5c607192efa38016d3}{%
+           family={Binh},
+           familyi={B\bibinitperiod},
+           given={Huynh\bibnamedelimb Thi\bibnamedelima Thanh},
+           giveni={H\bibinitperiod\bibinitdelim T\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+      }
+      \strng{namehash}{75df6c30af35577111185feb1fdda0f5}
+      \strng{fullhash}{62877cc8735cdc59ff5ee434c2224dee}
+      \strng{fullhashraw}{62877cc8735cdc59ff5ee434c2224dee}
+      \strng{bibnamehash}{62877cc8735cdc59ff5ee434c2224dee}
+      \strng{authorbibnamehash}{62877cc8735cdc59ff5ee434c2224dee}
+      \strng{authornamehash}{75df6c30af35577111185feb1fdda0f5}
+      \strng{authorfullhash}{62877cc8735cdc59ff5ee434c2224dee}
+      \strng{authorfullhashraw}{62877cc8735cdc59ff5ee434c2224dee}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{cs.NE}
+      \field{eprinttype}{arXiv}
+      \field{title}{Pareto-Grid-Guided Large Language Models for Fast and High-Quality Heuristics Design in Multi-Objective Combinatorial Optimization}
+      \field{year}{2026}
+      \verb{eprint}
+      \verb 2507.20923
+      \endverb
+    \endentry
+    \entry{deb2002nsga2}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=b11d1da0cc2920eef235d484e6b858ef}{%
+           family={Deb},
+           familyi={D\bibinitperiod},
+           given={Kalyanmoy},
+           giveni={K\bibinitperiod}}}%
+        {{hash=9fbc80a7299653739376ff004f77fab1}{%
+           family={Pratap},
+           familyi={P\bibinitperiod},
+           given={Amrit},
+           giveni={A\bibinitperiod}}}%
+        {{hash=4e180088c2d397bb169dfb45679eba22}{%
+           family={Agarwal},
+           familyi={A\bibinitperiod},
+           given={Sameer},
+           giveni={S\bibinitperiod}}}%
+        {{hash=9661b0fa73eb1cbd0885c442a9870907}{%
+           family={Meyarivan},
+           familyi={M\bibinitperiod},
+           given={T.},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{6943967d389ec1de2e10e25fbdf3b2a0}
+      \strng{fullhash}{b08e5063396137513578f8d3ebd59c5d}
+      \strng{fullhashraw}{b08e5063396137513578f8d3ebd59c5d}
+      \strng{bibnamehash}{b08e5063396137513578f8d3ebd59c5d}
+      \strng{authorbibnamehash}{b08e5063396137513578f8d3ebd59c5d}
+      \strng{authornamehash}{6943967d389ec1de2e10e25fbdf3b2a0}
+      \strng{authorfullhash}{b08e5063396137513578f8d3ebd59c5d}
+      \strng{authorfullhashraw}{b08e5063396137513578f8d3ebd59c5d}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Evolutionary Computation}
+      \field{number}{2}
+      \field{title}{A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II}
+      \field{volume}{6}
+      \field{year}{2002}
+      \field{pages}{182\bibrangedash 197}
+      \range{pages}{16}
+    \endentry
+    \entry{zhang2007moead}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=b2e22db866fa79372f07034ed0140d0e}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Qingfu},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=9b1528d0b6c9bc88bfd8c569f290bcec}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Hui},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{fullhash}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{fullhashraw}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{bibnamehash}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{authorbibnamehash}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{authornamehash}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{authorfullhash}{d6c45b45623c221ed6d15e1149395f02}
+      \strng{authorfullhashraw}{d6c45b45623c221ed6d15e1149395f02}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Evolutionary Computation}
+      \field{number}{6}
+      \field{title}{MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition}
+      \field{volume}{11}
+      \field{year}{2007}
+      \field{pages}{712\bibrangedash 731}
+      \range{pages}{20}
+    \endentry
+    \entry{laumanns2004semo}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=7b366e77b845023904aeac46562f429c}{%
+           family={Laumanns},
+           familyi={L\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=443849b4c8bfc03386052ff0243f508c}{%
+           family={Thiele},
+           familyi={T\bibinitperiod},
+           given={Lothar},
+           giveni={L\bibinitperiod}}}%
+        {{hash=69e40d953c66ad25defd15441930b1f3}{%
+           family={Zitzler},
+           familyi={Z\bibinitperiod},
+           given={Eckart},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{cf62327f2f0739c82743ac8203855f00}
+      \strng{fullhash}{ff09179fdccd52f08a2063fd6ca430c2}
+      \strng{fullhashraw}{ff09179fdccd52f08a2063fd6ca430c2}
+      \strng{bibnamehash}{ff09179fdccd52f08a2063fd6ca430c2}
+      \strng{authorbibnamehash}{ff09179fdccd52f08a2063fd6ca430c2}
+      \strng{authornamehash}{cf62327f2f0739c82743ac8203855f00}
+      \strng{authorfullhash}{ff09179fdccd52f08a2063fd6ca430c2}
+      \strng{authorfullhashraw}{ff09179fdccd52f08a2063fd6ca430c2}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Evolutionary Computation}
+      \field{number}{2}
+      \field{title}{Running Time Analysis of Multiobjective Evolutionary Algorithms on Pseudo-Boolean Functions}
+      \field{volume}{8}
+      \field{year}{2004}
+      \field{pages}{170\bibrangedash 182}
+      \range{pages}{13}
+    \endentry
+    \entry{zitzler1999multiobjective}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=69e40d953c66ad25defd15441930b1f3}{%
+           family={Zitzler},
+           familyi={Z\bibinitperiod},
+           given={Eckart},
+           giveni={E\bibinitperiod}}}%
+        {{hash=443849b4c8bfc03386052ff0243f508c}{%
+           family={Thiele},
+           familyi={T\bibinitperiod},
+           given={Lothar},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{fullhash}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{fullhashraw}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{bibnamehash}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{authorbibnamehash}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{authornamehash}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{authorfullhash}{e94333fff8d48a109f60b9b8f74c9151}
+      \strng{authorfullhashraw}{e94333fff8d48a109f60b9b8f74c9151}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Evolutionary Computation}
+      \field{number}{4}
+      \field{title}{Multiobjective Evolutionary Algorithms: A Comparative Case Study and the Strength Pareto Approach}
+      \field{volume}{3}
+      \field{year}{1999}
+      \field{pages}{257\bibrangedash 271}
+      \range{pages}{15}
+    \endentry
+    \entry{fonseca2006hv}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=d510aaa624dd1ca4f02d117513dc107e}{%
+           family={Fonseca},
+           familyi={F\bibinitperiod},
+           given={Carlos\bibnamedelima M.},
+           giveni={C\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=0d02d6b293b4573fc4ec0a9b6b1c80a4}{%
+           family={Paquete},
+           familyi={P\bibinitperiod},
+           given={Luís},
+           giveni={L\bibinitperiod}}}%
+        {{hash=8e68ad0b8ba036d59af25b663314e149}{%
+           family={López-Ibáñez},
+           familyi={L\bibinithyphendelim I\bibinitperiod},
+           given={Manuel},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{2345e449b1dcae6a1406317627f52f3e}
+      \strng{fullhash}{e177a58b821f68022e58a575b80c8383}
+      \strng{fullhashraw}{e177a58b821f68022e58a575b80c8383}
+      \strng{bibnamehash}{e177a58b821f68022e58a575b80c8383}
+      \strng{authorbibnamehash}{e177a58b821f68022e58a575b80c8383}
+      \strng{authornamehash}{2345e449b1dcae6a1406317627f52f3e}
+      \strng{authorfullhash}{e177a58b821f68022e58a575b80c8383}
+      \strng{authorfullhashraw}{e177a58b821f68022e58a575b80c8383}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{IEEE Congress on Evolutionary Computation}
+      \field{title}{An Improved Dimension-Sweep Algorithm for the Hypervolume Indicator}
+      \field{year}{2006}
+      \field{pages}{1157\bibrangedash 1163}
+      \range{pages}{7}
+    \endentry
+    \entry{blank2020pymoo}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=bc00b22eadc38e0f33edb0f8fe7e9f13}{%
+           family={Blank},
+           familyi={B\bibinitperiod},
+           given={Julian},
+           giveni={J\bibinitperiod}}}%
+        {{hash=b11d1da0cc2920eef235d484e6b858ef}{%
+           family={Deb},
+           familyi={D\bibinitperiod},
+           given={Kalyanmoy},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{fullhash}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{fullhashraw}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{bibnamehash}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{authorbibnamehash}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{authornamehash}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{authorfullhash}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \strng{authorfullhashraw}{b6fe2478ad222b8f2d893e70ceaf9a8c}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{pymoo: Multi-Objective Optimization in Python}
+      \field{volume}{8}
+      \field{year}{2020}
+      \field{pages}{89497\bibrangedash 89509}
+      \range{pages}{13}
+    \endentry
+    \entry{romera2024funsearch}{article}{}{}
+      \name{author}{12}{}{%
+        {{hash=a4ad88ba00428c727fd7a7295f097c6d}{%
+           family={Romera-Paredes},
+           familyi={R\bibinithyphendelim P\bibinitperiod},
+           given={Bernardino},
+           giveni={B\bibinitperiod}}}%
+        {{hash=fbfb34f479cd527a33599aa9185f7bee}{%
+           family={Barekatain},
+           familyi={B\bibinitperiod},
+           given={Mohammadamin},
+           giveni={M\bibinitperiod}}}%
+        {{hash=7bdd145d92cfa3763c41441779b1d37d}{%
+           family={Novikov},
+           familyi={N\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=00782676b2e5f4bfec21f5581c380af9}{%
+           family={Balog},
+           familyi={B\bibinitperiod},
+           given={Matej},
+           giveni={M\bibinitperiod}}}%
+        {{hash=b7c0d240ff2c8924631b5a3a64b32f35}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={M.\bibnamedelimi Pawan},
+           giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=bf2e6b68120a657608dfc6b1fde6df5c}{%
+           family={Dupont},
+           familyi={D\bibinitperiod},
+           given={Emilien},
+           giveni={E\bibinitperiod}}}%
+        {{hash=b7c1baed3d2d60a6cdb3d34bf37cd379}{%
+           family={Ruiz},
+           familyi={R\bibinitperiod},
+           given={Francisco\bibnamedelimb J.\bibnamedelimi R.},
+           giveni={F\bibinitperiod\bibinitdelim J\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=624888d26974622b4f004ef90b10d822}{%
+           family={Ellenberg},
+           familyi={E\bibinitperiod},
+           given={Jordan\bibnamedelima S.},
+           giveni={J\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=2957b2a78df1c0e18509d43b2d1310f4}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Pengming},
+           giveni={P\bibinitperiod}}}%
+        {{hash=55f394b61ad2322e8304d2c41d5e38aa}{%
+           family={Fawzi},
+           familyi={F\bibinitperiod},
+           given={Omar},
+           giveni={O\bibinitperiod}}}%
+        {{hash=d0d21ff02dda6c0a7d09ef7436bd329b}{%
+           family={Kohli},
+           familyi={K\bibinitperiod},
+           given={Pushmeet},
+           giveni={P\bibinitperiod}}}%
+        {{hash=8d0a51ac9b8292a50431f9ee0b663937}{%
+           family={Fawzi},
+           familyi={F\bibinitperiod},
+           given={Alhussein},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{e6012ba2bd7a13aab75f3e1106b78efc}
+      \strng{fullhash}{c59e1acd4dcc5fc55bb610683f5eda02}
+      \strng{fullhashraw}{c59e1acd4dcc5fc55bb610683f5eda02}
+      \strng{bibnamehash}{e6012ba2bd7a13aab75f3e1106b78efc}
+      \strng{authorbibnamehash}{e6012ba2bd7a13aab75f3e1106b78efc}
+      \strng{authornamehash}{e6012ba2bd7a13aab75f3e1106b78efc}
+      \strng{authorfullhash}{c59e1acd4dcc5fc55bb610683f5eda02}
+      \strng{authorfullhashraw}{c59e1acd4dcc5fc55bb610683f5eda02}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature}
+      \field{title}{Mathematical Discoveries from Program Search with Large Language Models}
+      \field{volume}{625}
+      \field{year}{2024}
+      \field{pages}{468\bibrangedash 475}
+      \range{pages}{8}
+    \endentry
+    \entry{fialho2008adaptive}{inproceedings}{}{}
+      \name{author}{4}{}{%
+        {{hash=26bf020cca1a9dba1c339c7237723e4b}{%
+           family={Fialho},
+           familyi={F\bibinitperiod},
+           given={Álvaro},
+           giveni={Á\bibinitperiod}}}%
+        {{hash=db7a0e1adcd97bb98ddd6e0a3f782fb3}{%
+           family={Da\bibnamedelima Costa},
+           familyi={D\bibinitperiod\bibinitdelim C\bibinitperiod},
+           given={Luis},
+           giveni={L\bibinitperiod}}}%
+        {{hash=8db29f6587badffb4797659c16105f20}{%
+           family={Schoenauer},
+           familyi={S\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod}}}%
+        {{hash=e42d4b26508977c4c33875a74a948849}{%
+           family={Sebag},
+           familyi={S\bibinitperiod},
+           given={Michèle},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{86b0781fdc11e5f8076238a736e70a82}
+      \strng{fullhash}{504b156c0314d6037a5aee4561e3332f}
+      \strng{fullhashraw}{504b156c0314d6037a5aee4561e3332f}
+      \strng{bibnamehash}{504b156c0314d6037a5aee4561e3332f}
+      \strng{authorbibnamehash}{504b156c0314d6037a5aee4561e3332f}
+      \strng{authornamehash}{86b0781fdc11e5f8076238a736e70a82}
+      \strng{authorfullhash}{504b156c0314d6037a5aee4561e3332f}
+      \strng{authorfullhashraw}{504b156c0314d6037a5aee4561e3332f}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Parallel Problem Solving from Nature}
+      \field{title}{Extreme Value Based Adaptive Operator Selection}
+      \field{year}{2008}
+      \field{pages}{175\bibrangedash 184}
+      \range{pages}{10}
+    \endentry
+    \entry{auer2002ucb}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=de2b1529f66914ba9967dda20bdb0644}{%
+           family={Auer},
+           familyi={A\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+        {{hash=4de530030244169e16641806ebdfde2b}{%
+           family={Cesa-Bianchi},
+           familyi={C\bibinithyphendelim B\bibinitperiod},
+           given={Nicolò},
+           giveni={N\bibinitperiod}}}%
+        {{hash=3f61fb26219e72a888dd3e4c0db570a5}{%
+           family={Fischer},
+           familyi={F\bibinitperiod},
+           given={Paul},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{d430127d4cb3aa163b04701a5b1477e2}
+      \strng{fullhash}{5562bc4450a18d8d986215d6cb4abc23}
+      \strng{fullhashraw}{5562bc4450a18d8d986215d6cb4abc23}
+      \strng{bibnamehash}{5562bc4450a18d8d986215d6cb4abc23}
+      \strng{authorbibnamehash}{5562bc4450a18d8d986215d6cb4abc23}
+      \strng{authornamehash}{d430127d4cb3aa163b04701a5b1477e2}
+      \strng{authorfullhash}{5562bc4450a18d8d986215d6cb4abc23}
+      \strng{authorfullhashraw}{5562bc4450a18d8d986215d6cb4abc23}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Machine Learning}
+      \field{title}{Finite-Time Analysis of the Multiarmed Bandit Problem}
+      \field{volume}{47}
+      \field{year}{2002}
+      \field{pages}{235\bibrangedash 256}
+      \range{pages}{22}
+    \endentry
+    \entry{bubeck2012bandits}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=3d51ee91b7d20d2f26b221a8a3b8b72c}{%
+           family={Bubeck},
+           familyi={B\bibinitperiod},
+           given={Sébastien},
+           giveni={S\bibinitperiod}}}%
+        {{hash=4de530030244169e16641806ebdfde2b}{%
+           family={Cesa-Bianchi},
+           familyi={C\bibinithyphendelim B\bibinitperiod},
+           given={Nicolò},
+           giveni={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{a3f301cdc975812a6777e95196b5981a}
+      \strng{fullhash}{a3f301cdc975812a6777e95196b5981a}
+      \strng{fullhashraw}{a3f301cdc975812a6777e95196b5981a}
+      \strng{bibnamehash}{a3f301cdc975812a6777e95196b5981a}
+      \strng{authorbibnamehash}{a3f301cdc975812a6777e95196b5981a}
+      \strng{authornamehash}{a3f301cdc975812a6777e95196b5981a}
+      \strng{authorfullhash}{a3f301cdc975812a6777e95196b5981a}
+      \strng{authorfullhashraw}{a3f301cdc975812a6777e95196b5981a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Foundations and Trends in Machine Learning}
+      \field{number}{1}
+      \field{title}{Regret Analysis of Stochastic and Nonstochastic Multi-Armed Bandit Problems}
+      \field{volume}{5}
+      \field{year}{2012}
+      \field{pages}{1\bibrangedash 122}
+      \range{pages}{122}
+    \endentry
+    \entry{ding2013budgeted}{inproceedings}{}{}
+      \name{author}{4}{}{%
+        {{hash=804b2a37689a52f720cde84710247505}{%
+           family={Ding},
+           familyi={D\bibinitperiod},
+           given={Wenkui},
+           giveni={W\bibinitperiod}}}%
+        {{hash=5588f729660dbe4dbf5af3850f858ae3}{%
+           family={Qin},
+           familyi={Q\bibinitperiod},
+           given={Tao},
+           giveni={T\bibinitperiod}}}%
+        {{hash=387f67d71ebcbe247884f44d5a91495f}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Xu-Dong},
+           giveni={X\bibinithyphendelim D\bibinitperiod}}}%
+        {{hash=716b89cbb7332599ebb33cc58a52f648}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Tie-Yan},
+           giveni={T\bibinithyphendelim Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{82a24b579ab24ac5ee29fd3fad2c1f58}
+      \strng{fullhash}{7b39ce6b01d6ca498df35e829ebf335d}
+      \strng{fullhashraw}{7b39ce6b01d6ca498df35e829ebf335d}
+      \strng{bibnamehash}{7b39ce6b01d6ca498df35e829ebf335d}
+      \strng{authorbibnamehash}{7b39ce6b01d6ca498df35e829ebf335d}
+      \strng{authornamehash}{82a24b579ab24ac5ee29fd3fad2c1f58}
+      \strng{authorfullhash}{7b39ce6b01d6ca498df35e829ebf335d}
+      \strng{authorfullhashraw}{7b39ce6b01d6ca498df35e829ebf335d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the AAAI Conference on Artificial Intelligence}
+      \field{title}{Multi-Armed Bandit with Budget Constraint and Variable Costs}
+      \field{year}{2013}
+    \endentry
+    \entry{page1954continuous}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=6f90fdbd412528ade503535e62e1be8f}{%
+           family={Page},
+           familyi={P\bibinitperiod},
+           given={E.\bibnamedelimi S.},
+           giveni={E\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{fullhash}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{fullhashraw}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{bibnamehash}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{authorbibnamehash}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{authornamehash}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{authorfullhash}{6f90fdbd412528ade503535e62e1be8f}
+      \strng{authorfullhashraw}{6f90fdbd412528ade503535e62e1be8f}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Biometrika}
+      \field{number}{1/2}
+      \field{title}{Continuous Inspection Schemes}
+      \field{volume}{41}
+      \field{year}{1954}
+      \field{pages}{100\bibrangedash 115}
+      \range{pages}{16}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

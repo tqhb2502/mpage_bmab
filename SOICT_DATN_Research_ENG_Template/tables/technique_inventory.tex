@@ -1,0 +1,26 @@
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{0.24\linewidth}
+  >{\raggedright\arraybackslash}p{0.14\linewidth}
+  >{\raggedright\arraybackslash}p{0.52\linewidth}
+}
+\caption{Inventory of generative AI and machine learning techniques in this thesis.}
+\label{tab:technique-inventory}\\
+\toprule
+Technique & Status & Evidence in this thesis \\
+\midrule
+\endfirsthead
+\toprule
+Technique & Status & Evidence in this thesis \\
+\midrule
+\endhead
+Large language models & Present & The generator and semantic clusterer are external LLM calls controlled by the BMAB workflow. \\
+Prompt engineering & Present & The implementation uses initialization, mutation, crossover, and semantic-clustering prompt families inherited from MPaGE. \\
+Bandits / lightweight reinforcement learning & Present & The scheduler implements UCB-style operator selection, budget-aware cluster selection, and Page--Hinkley drift handling. \\
+Execution-based evaluation of LLM-generated code & Present & Generated Python heuristics are executed by task evaluators, and failures can produce null scores. \\
+RAG & Not found & No information was found in the source code or documentation. \\
+Fine-tuning, PEFT, LoRA & Not found & No information was found in the source code or documentation. \\
+Diffusion models, GANs & Not found & No information was found in the source code or documentation. \\
+Knowledge distillation & Not found & No information was found in the source code or documentation. \\
+Multi-agent system & Not found & The system contains an LLM--evolution loop and two bandit controllers, but no evidence was found for multiple autonomous agents. \\
+\bottomrule
+\end{longtable}

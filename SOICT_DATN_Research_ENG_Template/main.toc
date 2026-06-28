@@ -1,0 +1,100 @@
+\babel@toc {english}{}\relax 
+\ttl@change@i {\@ne }{chapter}{0.0cm}{\bfseries \vspace {0.3cm}}{{\bfseries {\scshape } CHAPTER \thecontentslabel .\ }}{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {chapter}{}{}{}\relax 
+\ttl@change@i {\@ne }{section}{0.0cm}{\vspace {0.3cm}}{\thecontentslabel \ }{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {section}{}{}{}\relax 
+\ttl@change@i {\@ne }{subsection}{1.0cm}{\vspace {0.3cm}}{\thecontentslabel \ }{}{\titlerule *[0.3pc]{.}\contentspage }\relax 
+\ttl@change@v {subsection}{}{}{}\relax 
+\thispagestyle {empty}
+\contentsline {chapter}{\numberline {1}INTRODUCTION}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Research Context}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Research Questions}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Research Motivation}{3}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Research Objectives}{4}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Research Scope}{5}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Research Methodology}{6}{section.1.7}%
+\contentsline {section}{\numberline {1.8}Thesis Organization}{6}{section.1.8}%
+\contentsline {chapter}{\numberline {2}BACKGROUND AND RELATED WORK}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Multi-Objective Combinatorial Optimization}{7}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Benchmark Problem Families}{7}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Heuristic Design as a Two-Level Optimization Problem}{8}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Evolutionary Multi-Objective Optimization}{9}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Hypervolume as a Quality Indicator}{10}{section.2.5}%
+\contentsline {section}{\numberline {2.6}MPaGE}{11}{section.2.6}%
+\contentsline {section}{\numberline {2.7}LLM-Based Program Generation for Heuristic Design}{12}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Execution Failures, Null Scores, and Program-Search Failure Modes}{13}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Adaptive Operator Selection}{14}{section.2.9}%
+\contentsline {section}{\numberline {2.10}Multi-Armed Bandits and UCB}{15}{section.2.10}%
+\contentsline {section}{\numberline {2.11}Budgeted Bandits}{15}{section.2.11}%
+\contentsline {section}{\numberline {2.12}Page--Hinkley Drift Detection}{16}{section.2.12}%
+\contentsline {section}{\numberline {2.13}AUBC: Area Under the Budget Curve}{17}{section.2.13}%
+\contentsline {section}{\numberline {2.14}Technique Inventory}{17}{section.2.14}%
+\contentsline {section}{\numberline {2.15}Limitations of Existing Approaches}{18}{section.2.15}%
+\contentsline {chapter}{\numberline {3}PROPOSED METHOD}{20}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Research Motivation and Design Rationale}{20}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Problem Formulation}{21}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Inner Multi-Objective Combinatorial Optimization Problem}{21}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Outer Heuristic-Design Problem}{21}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}System Overview}{23}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Components Inherited from MPaGE}{25}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Population Representation and PFG Selection}{25}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}LLM-Based Semantic Clustering}{26}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Mutation and Crossover Prompt Families}{27}{subsection.3.4.3}%
+\contentsline {section}{\numberline {3.5}Hard Budget Model}{27}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Two-Level Budgeted Bandit Scheduler}{28}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Why a Two-Level Scheduler is Needed}{28}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Operator-Level UCB}{30}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Cluster-Level Budgeted UCB}{30}{subsection.3.6.3}%
+\contentsline {section}{\numberline {3.7}Front-Aware Cluster Priors}{31}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Reward and Credit Assignment}{32}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Reward Components}{32}{subsection.3.8.1}%
+\contentsline {subsection}{\numberline {3.8.2}Quality Signal}{32}{subsection.3.8.2}%
+\contentsline {subsubsection}{\numberline {a}Managed Archive Operator}{33}{subsubsection.3.8.2.1}%
+\contentsline {subsection}{\numberline {3.8.3}Diversity and Rank Smoothing}{37}{subsection.3.8.3}%
+\contentsline {section}{\numberline {3.9}Non-Stationarity and Page--Hinkley Reset}{38}{section.3.9}%
+\contentsline {section}{\numberline {3.10}Parent Selection and Variation Workflow}{39}{section.3.10}%
+\contentsline {section}{\numberline {3.11}Complete Algorithm}{39}{section.3.11}%
+\contentsline {section}{\numberline {3.12}Baseline and Quality-Signal Variants}{41}{section.3.12}%
+\contentsline {chapter}{\numberline {4}SYSTEM IMPLEMENTATION}{43}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Implementation Organization}{43}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Software Environment}{44}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Benchmark Evaluators and Task Preparation}{44}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Score and Population Data Model}{45}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Heuristic Generation and Evaluation Pipeline}{45}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Execution Flow of a BMAB Run}{46}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Budget Accounting and Call Semantics}{47}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Experiment Configuration}{47}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Experiment Suites and Run Scripts}{48}{section.4.9}%
+\contentsline {section}{\numberline {4.10}Generated Artifacts}{49}{section.4.10}%
+\contentsline {section}{\numberline {4.11}Visualization and Analysis Code}{49}{section.4.11}%
+\contentsline {section}{\numberline {4.12}Reproducibility Considerations}{50}{section.4.12}%
+\contentsline {section}{\numberline {4.13}Implementation Caveats}{51}{section.4.13}%
+\contentsline {chapter}{\numberline {5}EXPERIMENTS AND EVALUATION}{52}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Experimental Questions}{52}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Experimental Setups}{52}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Benchmark Problems}{54}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Hyperparameters and Environment}{55}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Hypervolume Reference Points}{57}{subsection.5.2.3}%
+\contentsline {section}{\numberline {5.3}Metrics and Aggregation}{58}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Task--Budget Cells}{58}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}AUBC and Final Outer Hypervolume}{59}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Normalized Score}{60}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}Mean Rank and Pairwise Wins}{60}{subsection.5.3.4}%
+\contentsline {section}{\numberline {5.4}Overall Main Comparison}{61}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Task-Level Patterns}{62}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Pairwise Cell-Level Comparison}{64}{section.5.6}%
+\contentsline {section}{\numberline {5.7}AUBC Analysis}{65}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Budget-Curve Behavior}{66}{section.5.8}%
+\contentsline {section}{\numberline {5.9}Final Hypervolume Analysis}{68}{section.5.9}%
+\contentsline {section}{\numberline {5.10}Reward-Mode Interpretation}{70}{section.5.10}%
+\contentsline {section}{\numberline {5.11}Component Ablation Study}{71}{section.5.11}%
+\contentsline {chapter}{\numberline {6}CONCLUSION AND FUTURE WORK}{77}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Summary}{77}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Main Contributions}{77}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Main Findings}{78}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Limitations}{79}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Future Work}{80}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Final Remarks}{81}{section.6.6}%
+\contentsline {chapter}{REFERENCES}{82}{section*.31}%
+\contentsfinish 

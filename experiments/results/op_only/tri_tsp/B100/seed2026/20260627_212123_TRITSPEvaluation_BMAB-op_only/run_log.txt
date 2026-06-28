@@ -1,0 +1,148 @@
+[2026-06-27 20:21:23] profile.py(179) : ==================================LLM Parameters===============================
+[2026-06-27 20:21:23] profile.py(180) : LLM: HttpsApiOpenAI
+[2026-06-27 20:21:23] profile.py(183) : do_auto_trim: True
+[2026-06-27 20:21:23] profile.py(183) : debug_mode: False
+[2026-06-27 20:21:23] profile.py(183) : _model: gpt-4o-mini
+[2026-06-27 20:21:23] profile.py(183) : _client: <openai.OpenAI object at 0x109adffa0>
+[2026-06-27 20:21:23] profile.py(185) : ==================================Problem Parameters===============================
+[2026-06-27 20:21:23] profile.py(187) : Problem: TRITSPEvaluation
+[2026-06-27 20:21:23] profile.py(190) : task_description: You are solving a Tri-objective Travelling Salesman Problem (bi-TSP), where each node has three different 2D coordinates: (x1, y1), (x2, y2) and (x3, y3), representing its position in three objective spaces. The goal is to find a tour visiting each node exactly once and returning to the starting node, while minimizing three objectives simultaneously: the total tour length in each coordinate space. Given an archive of non-dominated solutions, where each solution is a numpy array representing a TSP tour, and its corresponding objective is a tuple of three values (cost in each space), design a heuristic function named 'select_neighbor' that selects one solution from the archive and apply a novel or hybrid local search operator to generate a neighbor solution from it. Must always ensure that the generated neighbor solution remains feasible, i.e., the solution must represent a valid TSP tour: it visits each node exactly once, ensuring no node is skipped or revisited. Please perform an intelligent random selection from among the solutions that show promising potential for further local improvement.Using a creative local search strategy of your own design, specifically tailored to effectively optimize across three objectives, go beyond standard approaches to design a method that yields higher-quality solutions across multiple objectives. The function should return the new neighbor solution.
+[2026-06-27 20:21:23] profile.py(190) : use_numba_accelerate: False
+[2026-06-27 20:21:23] profile.py(190) : use_protected_div: False
+[2026-06-27 20:21:23] profile.py(190) : protected_div_delta: 1e-05
+[2026-06-27 20:21:23] profile.py(190) : random_seed: None
+[2026-06-27 20:21:23] profile.py(190) : timeout_seconds: 90
+[2026-06-27 20:21:23] profile.py(190) : exec_code: True
+[2026-06-27 20:21:23] profile.py(190) : safe_evaluate: True
+[2026-06-27 20:21:23] profile.py(190) : daemon_eval_process: False
+[2026-06-27 20:21:23] profile.py(190) : n_instance: 20
+[2026-06-27 20:21:23] profile.py(190) : problem_size: 20
+[2026-06-27 20:21:23] profile.py(190) : ref_point: [20. 20. 20.]
+[2026-06-27 20:21:23] profile.py(192) : ==================================Method Parameters===============================
+[2026-06-27 20:21:23] profile.py(194) : Method: BMABLLM
+[2026-06-27 20:21:23] profile.py(197) : _budget: BudgetTracker(mode=call, remaining=100.00/100.00, steps=0)
+[2026-06-27 20:21:23] profile.py(197) : _cluster_sampler: <mpage_bmab._llm4ad.method.LLMPFG.sampler.EoHSampler object at 0x109bf75e0>
+[2026-06-27 20:21:23] profile.py(197) : _cluster_mgr: <mpage_bmab.cluster_manager.ClusterManager object at 0x109bf7c10>
+[2026-06-27 20:21:23] profile.py(197) : _operator_bandit: <mpage_bmab.bandit.OperatorBandit object at 0x109bf7b80>
+[2026-06-27 20:21:23] profile.py(197) : _cluster_bandit: <mpage_bmab.bandit.ClusterBandit object at 0x109c24fa0>
+[2026-06-27 20:21:23] profile.py(197) : _reward: <mpage_bmab.reward.RewardComputer object at 0x109c38e20>
+[2026-06-27 20:21:23] profile.py(197) : _pop_size: 10
+[2026-06-27 20:21:23] profile.py(197) : _selection_num: 2
+[2026-06-27 20:21:23] profile.py(197) : _max_generations: None
+[2026-06-27 20:21:23] profile.py(197) : _use_e1: True
+[2026-06-27 20:21:23] profile.py(197) : _use_e2: True
+[2026-06-27 20:21:23] profile.py(197) : _use_m1: True
+[2026-06-27 20:21:23] profile.py(197) : _use_m2: True
+[2026-06-27 20:21:23] profile.py(197) : _review: False
+[2026-06-27 20:21:23] profile.py(197) : _init_target_successes: 10
+[2026-06-27 20:21:23] profile.py(197) : _init_max_calls: 50
+[2026-06-27 20:21:23] profile.py(197) : _gen_call_cost: 1.0
+[2026-06-27 20:21:23] profile.py(197) : _cluster_call_cost: 1.0
+[2026-06-27 20:21:23] profile.py(197) : _init_call_cost: 1.0
+[2026-06-27 20:21:23] profile.py(197) : _review_call_cost: 1.0
+[2026-06-27 20:21:23] profile.py(197) : _ref_point: [20. 60.]
+[2026-06-27 20:21:23] profile.py(197) : _debug: False
+[2026-06-27 20:21:23] profile.py(197) : _disable_cluster_bandit: True
+[2026-06-27 20:21:23] profile.py(197) : _disable_operator_bandit: False
+[2026-06-27 20:21:23] profile.py(197) : _rr_idx: 0
+[2026-06-27 20:21:23] profile.py(199) : ==================================End of Parameters===============================
+[2026-06-27 20:21:32] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:21:39] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:22:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:22:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:23:26] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:23:31] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:24:22] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:24:29] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:24:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:24:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:25:33] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:25:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:25:46] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:25:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:26:55] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:27:00] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:27:05] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:28:17] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:28:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:28:32] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:30:09] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:30:16] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:30:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:31:11] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:31:17] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:31:23] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:31:29] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:26] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:32] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:39] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:46] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:51] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:32:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:33:01] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:33:10] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:34:51] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:35:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:37:19] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:37:25] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:37:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:37:41] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:37:49] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:38:27] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:38:33] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:38:38] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:38:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:38:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:38:59] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:07] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:18] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:31] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:39] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:41] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:51] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:39:56] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:40:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:40:13] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:40:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:40:28] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:16] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:26] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:34] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:35] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:43] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:50] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:41:57] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:04] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:11] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:18] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:24] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:30] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:37] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:44] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:42:53] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:00] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:06] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:14] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:21] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:28] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:34] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:50] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:52] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:43:58] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:04] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:17] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:25] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:33] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:40] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:45] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:50] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:44:55] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:45:03] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:45:05] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-06-27 20:45:15] _client.py(1025) : HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

@@ -1,0 +1,37 @@
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash\bfseries}p{0.13\linewidth}>{\raggedright\arraybackslash}p{0.34\linewidth}>{\raggedright\arraybackslash}p{0.26\linewidth}>{\raggedright\arraybackslash}p{0.18\linewidth}@{}}
+\caption[Hypervolume reference points]{Reference points used for inner solution-archive hypervolume and outer heuristic-population hypervolume.}
+\label{tab:hv-reference-points}\\
+\toprule
+\normalfont Task & \textbf{Inner HV reference point} & \textbf{Outer HV reference point} & \textbf{Objective space} \\
+\midrule
+\endfirsthead
+\toprule
+\normalfont Task & \textbf{Inner HV reference point} & \textbf{Outer HV reference point} & \textbf{Objective space} \\
+\midrule
+\endhead
+Bi-TSP &
+$(20.0,20.0)$ for the two tour-length objectives. &
+$(20.0,60.0)$ over $(-HV_{\mathrm{inner}}, runtime)$. &
+Raw minimization distances. \\
+\addlinespace[0.25em]
+Tri-TSP &
+$(20.0,20.0,20.0)$ for the three tour-length objectives. &
+$(20.0,60.0)$ over $(-HV_{\mathrm{inner}}, runtime)$. &
+Raw minimization distances. \\
+\addlinespace[0.25em]
+Bi-CVRP &
+$(80,8)$ for total route distance and longest-route length. &
+$(40.0,60.0)$ over $(-HV_{\mathrm{inner}}, runtime)$. &
+Raw minimization routing costs. \\
+\addlinespace[0.25em]
+Bi-KP &
+$(-30,-30)$ after multiplying the two profit objectives by $-1$. &
+$(0.0,60.0)$ over $(-HV_{\mathrm{inner}}, runtime)$. &
+Profit maximization converted to minimization. \\
+\bottomrule
+\end{longtable}
+\endgroup

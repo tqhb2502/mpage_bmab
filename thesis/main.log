@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  27 JUN 2026 00:00
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.6.10)  28 JUN 2026 12:31
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1132,19 +1132,22 @@ Package hyperref Info: Link coloring ON on input line 64.
 Package pgfplots notification 'compat/show suggested version=true': document ha
 s been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 78.
+Package hyperref Info: Option `pageanchor' set `false' on input line 66.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 79.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 78.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 79.
 
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-] [1
+]
+Package hyperref Info: Option `pageanchor' set `true' on input line 88.
+ [1
 
 ]
 (./main.toc [2
@@ -1175,13 +1178,7 @@ Chapter 1.
 
 
 
-] [2] [3] [4] [5]
-Underfull \hbox (badness 2096) in paragraph at lines 79--80
-\TU/TimesNewRoman(0)/m/n/12 The thesis follows an evidence-based implementation
- analysis methodology. First,
- []
-
-) [6]
+] [2] [3] [4] [5]) [6]
 \openout2 = `chapters/chapter2.aux'.
 
  (./chapters/chapter2.tex
@@ -1219,13 +1216,7 @@ File: figures/bmab_llm_budget_manage.png Graphic file (type bmp)
 File: figures/bmab_llm_bandits.png Graphic file (type bmp)
 <figures/bmab_llm_bandits.png>
  [28] [29] [30] [31] [32] [33]
-[34] [35]
-Underfull \hbox (badness 1571) in paragraph at lines 594--595
-\TU/TimesNewRoman(0)/m/n/12 The original MPaGE strategy uses intra-cluster muta
-tion and inter-cluster crossover.
- []
-
-[36]
+[34] [35] [36]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
 nput line 610.
  [37] [38] [39]) [40]
@@ -1238,51 +1229,26 @@ Chapter 4.
 
 
 
-] [42] [43]
-Underfull \hbox (badness 2913) in paragraph at lines 64--65
-\OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^@\OML/cmm/m/it/12 HV[]; runtime\OT1/cmr/m/n
-/12 )$\TU/TimesNewRoman(0)/m/n/12 . Accordingly, the outer reference point for 
-Tri-TSP is two-
- []
-
-[44] [45] [46] [47] [48]) [49]
+] [42] [43] [44] [45] [46] [47] [48]) [49]
 \openout2 = `chapters/chapter5.aux'.
 
  (./chapters/chapter5.tex
 Chapter 5.
-(./tables/experiment_setups.tex
-Underfull \hbox (badness 2990) in paragraph at lines 12--13
-\TU/TimesNewRoman(0)/m/n/12 get annealing, diversity/rank reward
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--14
-[]|\TU/TimesNewRoman(0)/m/n/12 Uses the same scheduling and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--14
-\TU/TimesNewRoman(0)/m/n/12 population-management pipeline
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--14
-\TU/TimesNewRoman(0)/m/n/12 with final managed-population HV
- []
-
-[50
+(./tables/experiment_setups.tex [50
 
 
 
 
-]) [51] (./tables/benchmark_problems.tex) [52]
-(./tables/experiment_hyperparameters.tex
+]) [51] (./tables/benchmark_problems.tex
 ignored: Infinite glue shrinkage found in box be
-ing split [53]) [54]
-(./tables/hv_reference_points.tex
-ignored: Infinite glue shrinkage found in box being spl
-it [55]) [56] [57]
-(./tables/all_overall_scores.tex) [58]
+ing split
+[52]) (./tables/experiment_hyperparameters.tex
+ignored: Infinite glue shrinkage found in 
+box being split [53]
+ignored: Infinite glue shrinkage found in box being split [54]) [55]
+
+(./tables/hv_reference_points.tex) [56] [57] [58]
+(./tables/all_overall_scores.tex)
 File: figures/all_overall_normalized_scores.png Graphic file (type bmp)
 <figures/all_overall_normalized_scores.png>
  [59] (./tables/task_level_scores.tex)
@@ -1291,9 +1257,10 @@ File: figures/all_aubc_pairwise_cell_wins.png Graphic file (type bmp)
 <figures/all_aubc_pairwise_cell_wins.png>
 File: figures/all_hv_final_pairwise_cell_wins.png Graphic file (type bmp)
 <figures/all_hv_final_pairwise_cell_wins.png>
+ [62]
 File: figures/all_aubc_mean_by_budget.png Graphic file (type bmp)
 <figures/all_aubc_mean_by_budget.png>
- [62] [63]
+ [63]
 File: figures/all_budget_curves_B25.png Graphic file (type bmp)
 <figures/all_budget_curves_B25.png>
 File: figures/all_budget_curves_B50.png Graphic file (type bmp)
@@ -1302,68 +1269,37 @@ File: figures/all_budget_curves_B100.png Graphic file (type bmp)
 <figures/all_budget_curves_B100.png>
 File: figures/all_budget_curves_B200.png Graphic file (type bmp)
 <figures/all_budget_curves_B200.png>
- [64]
+ [64] [65]
 File: figures/all_budget_curves_bmab_zoom_B100.png Graphic file (type bmp)
 <figures/all_budget_curves_bmab_zoom_B100.png>
- [65]
+ [66]
 File: figures/all_hv_final_mean_by_budget.png Graphic file (type bmp)
 <figures/all_hv_final_mean_by_budget.png>
- [66]
 File: figures/all_aubc_vs_final_hv_tradeoff.png Graphic file (type bmp)
 <figures/all_aubc_vs_final_hv_tradeoff.png>
  [67]
-[68] (./tables/ablation_settings.tex
-Underfull \hbox (badness 4805) in paragraph at lines 11--11
-[]|\TU/TimesNewRoman(0)/m/n/10.95 The remaining-budget decay
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 11--12
-[]|\TU/TimesNewRoman(0)/m/n/10.95 Tests whether annealing ex-
- []
-
-
-Underfull \hbox (badness 3396) in paragraph at lines 11--12
-\TU/TimesNewRoman(0)/m/n/10.95 ploration toward the end of a
- []
-
-
-Underfull \hbox (badness 2521) in paragraph at lines 11--12
-\TU/TimesNewRoman(0)/m/n/10.95 run improves budget efficiency
- []
-
-
-Underfull \hbox (badness 5607) in paragraph at lines 11--12
-\TU/TimesNewRoman(0)/m/n/10.95 and prevents late-budget over-
- []
-
-
-Underfull \hbox (badness 2707) in paragraph at lines 12--12
-\TU/TimesNewRoman(0)/m/n/10.95 old is set high enough that
- []
-
-) [69] (./tables/ablation_results.tex)
+[68] (./tables/ablation_settings.tex) [69] (./tables/ablation_results.tex)
+[70]
 File: figures/ablation_overall_normalized_scores.png Graphic file (type bmp)
 <figures/ablation_overall_normalized_scores.png>
- [70]
+ [71]
 File: figures/ablation_delta_heatmaps.png Graphic file (type bmp)
 <figures/ablation_delta_heatmaps.png>
- [71] [72]) [73]
+ [72] [73]) [74]
 \openout2 = `chapters/chapter6.aux'.
 
-
-(./chapters/chapter6.tex
+ (./chapters/chapter6.tex
 Chapter 6.
-[74
+[75
 
 
 
 
-] [75] [76]) [77] [78] (./main.bbl [79
+] [76] [77] [78]) [79] (./main.bbl [80
 
 
 
-]) [80] (./main.aux
+]) [81] (./main.aux
 (./chapters/chapter1.aux) (./chapters/chapter2.aux) (./chapters/chapter3.aux)
 (./chapters/chapter4.aux) (./chapters/chapter5.aux) (./chapters/chapter6.aux))
  ***********
@@ -1372,12 +1308,12 @@ L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 39063 strings out of 468168
- 930920 string characters out of 5432815
- 1659791 words of memory out of 5000000
- 67065 multiletter control sequences out of 15000+600000
+ 39064 strings out of 468168
+ 930946 string characters out of 5432815
+ 1659797 words of memory out of 5000000
+ 67066 multiletter control sequences out of 15000+600000
  635311 words of font info for 117 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  84i,11n,94p,971b,1779s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.xdv (88 pages, 1814372 bytes).
+Output written on main.xdv (89 pages, 1863300 bytes).

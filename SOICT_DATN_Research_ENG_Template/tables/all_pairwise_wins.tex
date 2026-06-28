@@ -1,0 +1,36 @@
+\begin{table}[H]
+\centering
+\caption[Pairwise task--budget wins]{Pairwise task--budget wins across 16 cells. Each entry gives the number of cells in which the row setup has a higher mean metric value than the column setup.}
+\label{tab:all-pairwise-wins}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{subtable}{\linewidth}
+\centering
+\caption{AUBC wins}
+\begin{tabular}{lrrr}
+\toprule
+Row setup & Final-HV reward & MPaGE-orig & Hybrid reward \\
+\midrule
+Final-HV reward & -- & 15 & 10 \\
+MPaGE-orig & 1 & -- & 0 \\
+Hybrid reward & 6 & 16 & -- \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+
+\vspace{0.5em}
+
+\begin{subtable}{\linewidth}
+\centering
+\caption{Final-HV wins}
+\begin{tabular}{lrrr}
+\toprule
+Row setup & Final-HV reward & MPaGE-orig & Hybrid reward \\
+\midrule
+Final-HV reward & -- & 13 & 11 \\
+MPaGE-orig & 3 & -- & 5 \\
+Hybrid reward & 5 & 11 & -- \\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}

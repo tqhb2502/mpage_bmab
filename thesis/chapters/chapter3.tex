@@ -187,7 +187,7 @@ The LLM-call budget is treated as a first-class constraint. Let $B$ be the total
 
 If the system cannot afford an action, the action is not issued. The current implementation charges budget before the heuristic-generation call or cluster call is sent. This is important experimentally: invalid code, parsing failure, timeout, and non-improving offspring are still charged because the API resource has already been consumed.
 
-In the call-based mode used by the reported experiments, the following costs are used:
+In the call-based mode used by the reported experiments, Table~\ref{tab:budget-costs} lists the costs charged by the budget tracker.
 
 \begin{table}[H]
   \centering
@@ -545,7 +545,7 @@ The example therefore has the following management sequence. First, the archive 
   \label{fig:immediate-final-reward-example}
 \end{figure}
 
-The example in Figure~\ref{fig:immediate-final-reward-example} shows the practical consequence. The immediate-HVI term reinforces candidates that make any immediate Pareto-front contribution, even if the contribution is interior and later removed by capacity control. Final-HV reward reinforces only candidates whose contribution survives population management. Hybrid reward uses both signals: it remains responsive to local front expansion but still gives explicit credit to improvements that affect the managed archive. In both retained reward modes, $Q(s)$ is only the quality component of the scalar bandit reward; the full reward also includes the diversity and rank terms described below.
+The example in Figure~\ref{fig:immediate-final-reward-example} shows the practical consequence. The immediate-HVI term reinforces candidates that make any immediate Pareto-front contribution, even if the contribution is interior and later removed by capacity control. Final-HV reward reinforces only candidates whose contribution survives population management. Hybrid reward uses both signals: it remains responsive to local front expansion but still gives explicit credit to improvements that affect the managed archive. In both retained reward modes, $Q(s)$ is only the quality component of the scalar bandit reward; the complete reward also includes the diversity and rank terms described below.
 
 \subsection{Diversity and Rank Smoothing}
 
@@ -591,7 +591,7 @@ When drift is detected, the corresponding arm statistics are reset to an optimis
 
 \section{Parent Selection and Variation Workflow}
 
-The original MPaGE strategy uses intra-cluster mutation and inter-cluster crossover. \bmab{} preserves this logic but changes how parents are sampled. The loop first obtains PFG-selected elites through \methodcode{Population.selection}. It then expands the clustering pool to the entire current managed population to give the cluster bandit a richer set of semantic groups. To prevent the wider pool from diluting the PFG signal, parent sampling gives candidates that also appear in the PFG-selected elite set a larger weight:
+MPaGE uses mutation within semantic clusters and crossover across clusters. \bmab{} preserves this logic but changes how parents are sampled. The loop first obtains PFG-selected elites through \methodcode{Population.selection}. It then expands the clustering pool to the entire current managed population to give the cluster bandit a richer set of semantic groups. To prevent the wider pool from diluting the PFG signal, parent sampling gives candidates that also appear in the PFG-selected elite set a larger weight:
 
 \begin{equation}
   w(h)=
@@ -687,7 +687,7 @@ write budget history, budget curve, bandit log, and AUBC
 
 The MPaGE-orig baseline is not a new algorithm. It is a budget-instrumented wrapper around the original MPaGE driver that records budget consumption and budget-HV curves using the same profiler infrastructure as \bmab{}. The purpose is to compare allocation policies while keeping the task evaluators and generated artifacts as consistent as possible.
 
-The experimental comparison treats two reward-based BMAB configurations as the main quality-signal variants. They share the same scheduler, population handling, budget accounting, and evaluation pipeline. Their intended methodological difference is the quality term $Q(s)$ used inside the reward:
+The experimental comparison treats two reward-based BMAB configurations as the main quality-signal variants. They share the same scheduler, population handling, budget accounting, and evaluation pipeline. Their intended methodological difference is the quality term $Q(s)$ used inside the reward, as summarized in Table~\ref{tab:method-ablation}.
 
 \begin{table}[H]
   \centering
@@ -705,4 +705,4 @@ The experimental comparison treats two reward-based BMAB configurations as the m
   \end{tabular}
 \end{table}
 
-The implementation also contains component-level ablation switches for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Chapter~5 analyzes the two completed component ablations that are directly comparable to Final-HV reward: disabling budget annealing and disabling Page--Hinkley reset.
+The implementation also contains component-level ablation switches for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Chapter~5 analyzes the three completed component ablations that are directly comparable to Final-HV reward: disabling budget annealing, disabling Page--Hinkley reset, and removing the diversity reward term.

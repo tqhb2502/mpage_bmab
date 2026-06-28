@@ -1,0 +1,368 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\section{Experimental Questions}
+
+This chapter evaluates the proposed budget-aware heuristic-design framework under finite LLM-call budgets. The main comparison is based on 240 runs: three setups, four benchmark problem families, four budget levels, and five random seeds. The three setups are Final-HV reward, Hybrid reward, and MPaGE-orig. In addition, three component ablations are analyzed against Final-HV reward, adding 240 ablation-specific runs while reusing the same Final-HV reference runs.
+
+The chapter addresses four experimental questions. First, do the two budget-aware reward designs improve budget-integrated performance over MPaGE-orig? Second, does better budget efficiency, measured by the area under the budget curve (AUBC), also correspond to better final heuristic-population quality, measured by final outer hypervolume? Third, how do Final-HV reward and Hybrid reward differ when the scheduler, population management, budget accounting, and evaluation pipeline are otherwise held fixed? Fourth, how important are budget annealing, Page--Hinkley drift handling, and the diversity reward term within the Final-HV reward configuration?
+
+All numerical claims in this chapter are derived from generated result files and summary tables. The chapter does not infer results from undocumented runs. Whenever a quantity is aggregated across tasks, budgets, or seeds, the aggregation rule is stated before the corresponding table or figure.
+
+\section{Experimental Setups}
+
+Table~\ref{tab:experiment-setups} defines the three setups compared in the main result matrix. Each row represents one experimental setup. The first column gives the setup name used throughout the thesis, the second column states its experimental role, and the third column summarizes the configuration.
+
+\input{tables/experiment_setups}
+
+The Final-HV reward setup uses the two-level budgeted bandit scheduler, front-aware cluster priors, Page--Hinkley drift handling, final pending-offspring flushing, budget-aware exploration annealing, and a quality signal based on final managed-population HV gain. It tests whether aligning bandit feedback with the terminal managed-population metric improves final heuristic-population quality.
+
+The Hybrid reward setup uses the same scheduling and population-management pipeline but combines final managed-population feedback with an immediate HVI component. Its purpose is to test whether a denser local signal can stabilize learning while preserving a direct connection to final outer-HV quality. MPaGE-orig preserves the original MPaGE workflow but is wrapped in the same budget-recording protocol so that budget curves, AUBC, and final-HV values can be compared consistently.
+
+\subsection{Benchmark Problems}
+
+The experiments use four multi-objective combinatorial optimization benchmarks. Table~\ref{tab:benchmark-problems} makes the benchmark names explicit before the quantitative results are discussed. Each row corresponds to one benchmark family, explains what a candidate solution represents, identifies the objectives, and reports the evaluator configuration used by the implementation. These tasks are suitable for this thesis because they cover different discrete representations: permutation tours, vehicle-route sets, and binary item-selection vectors.
+
+\input{tables/benchmark_problems}
+
+Bi-TSP and Tri-TSP evaluate permutation-based local-search heuristics. They differ mainly in objective dimensionality: Bi-TSP optimizes two tour-length objectives, whereas Tri-TSP optimizes three. Bi-CVRP introduces routing feasibility constraints through vehicle capacity, so a generated heuristic must preserve valid route structures while improving distance and makespan. Bi-KP uses a binary representation and a capacity constraint, making it structurally different from the routing benchmarks. Together, these four problems test whether a budget-aware LLM heuristic-design process remains useful across distinct objective spaces and representation constraints.
+
+\subsection{Hyperparameters and Environment}
+
+Table~\ref{tab:experiment-hyperparameters} summarizes the experimental hyperparameters and local running environment. The table separates what is controlled by the experiment harness, such as budgets and seeds, from what is controlled by the BMAB scheduler, such as population size, operators, reward weights, and bandit parameters. Values that are not explicitly recorded in the available artifacts are identified as unavailable rather than guessed.
+
+\input{tables/experiment_hyperparameters}
+
+Each main setup is evaluated on the same four tasks, four budgets, and five seeds. Thus, each main setup contributes $4\times4\times5=80$ runs. The main comparison contains 240 runs, and the three additional component ablations contribute 240 additional runs. The budget $B$ counts external generation and clustering calls under the call-cost model used by the implementation. This call-based budget is appropriate for the present comparison because the result artifacts do not provide token-level cost, API latency, or monetary cost for each run.
+
+\subsection{Hypervolume Reference Points}
+
+Hypervolume requires a reference point because it measures the objective-space region dominated by an approximation set and bounded by that reference. In a minimization setting, the reference point should represent a worse point than the solutions being compared; points that do not improve the dominated region relative to this bound contribute no additional hypervolume. Since the thesis uses hypervolume at two different levels, two different kinds of reference points are required.
+
+The \emph{inner} reference point is used inside each benchmark evaluator. For a generated heuristic $h$, the evaluator runs an inner archive-based search on each fixed problem instance, obtains a non-dominated solution archive, and computes $HV_{\mathrm{inner}}(h)$ in the solution-objective space of that benchmark. These inner reference points are fixed by the evaluator classes and are task-specific. Bi-TSP, Tri-TSP, and Bi-CVRP use raw minimization objective values directly. Bi-KP is naturally a maximization problem, so the evaluator first multiplies the two profit objectives by $-1$ and then computes hypervolume in the resulting minimization space.
+
+The \emph{outer} reference point is used after each heuristic has been summarized by the two-dimensional score $(-HV_{\mathrm{inner}}, runtime)$. It is used by the budget-curve profiler to compute final outer HV and AUBC, by the reward computer to compute immediate HVI and managed-population HV delta, and by the cluster-prior computation to estimate heuristic-front contribution. Therefore, the reward-mode comparison in this chapter uses the same outer reference point as the final outer-HV evaluation. This is different from the inner reference point: even for Tri-TSP, whose solution archive is three-dimensional, the outer heuristic-population HV is two-dimensional because each heuristic is represented only by negated inner hypervolume and runtime.
+
+Table~\ref{tab:hv-reference-points} lists the exact reference points used in the experiments. The values are fixed per benchmark; they are not recomputed dynamically from the observed data and are not normalized before being passed to the hypervolume routine.
+
+\input{tables/hv_reference_points}
+
+\section{Metrics and Aggregation}
+
+\subsection{Task--Budget Cells}
+
+The basic unit of comparison is the \emph{task--budget cell}. A task--budget cell is an ordered pair
+\begin{equation}
+  c=(t,b), \qquad t\in\mathcal{T},\; b\in\mathcal{B},
+\end{equation}
+where $\mathcal{T}$ is the set of four benchmark tasks and $\mathcal{B}=\{25,50,100,200\}$ is the set of budget levels. There are therefore $|\mathcal{T}||\mathcal{B}|=16$ task--budget cells.
+
+Results are grouped by task and budget for two reasons. First, different tasks have different absolute outer-HV scales, so directly averaging raw values across tasks would overweight high-magnitude tasks. Second, different budgets represent different resource regimes. A setup that performs well at $B=25$ is not necessarily the same setup that performs best at $B=200$. Grouping by task and budget preserves this structure before cross-task summaries are computed.
+
+For a setup $s$, metric $m$, task $t$, budget $b$, and seed $r$, let $v^{(m)}_{s,t,b,r}$ denote the raw per-run metric value. The cell mean used for comparisons is
+\begin{equation}
+  \bar{v}^{(m)}_{s,t,b}
+  =
+  \frac{1}{|\mathcal{R}|}
+  \sum_{r\in\mathcal{R}} v^{(m)}_{s,t,b,r},
+\end{equation}
+where $\mathcal{R}=\{2025,2026,2027,2028,2029\}$. Thus, table entries and plotted values are generally seed means unless explicitly stated otherwise.
+
+\subsection{AUBC and Final Outer Hypervolume}
+
+The primary metric is AUBC, the area under the outer hypervolume-vs-budget curve. It measures how quickly a setup converts consumed LLM-call budget into heuristic-population quality. The outer hypervolume values $h_i$ are computed over heuristic score vectors using the task-specific outer reference points in Table~\ref{tab:hv-reference-points}. Let $(x_i,h_i)$ be the recorded budget curve after sorting by consumed budget, where $x_i$ is consumed budget and $h_i$ is outer hypervolume. The implementation inserts the initial point $(0,0)$ and uses trapezoidal integration:
+\begin{equation}
+  \mathrm{AUBC}
+  =
+  \frac{1}{B}
+  \sum_{i=1}^{L}
+  \frac{h_{i-1}+h_i}{2}
+  (x_i-x_{i-1}).
+  \label{eq:aubc-chapter5}
+\end{equation}
+If the last recorded point occurs before the entire budget is exhausted, the profiler extends the curve using the last recorded hypervolume. Higher AUBC is better because it indicates that useful heuristic populations are obtained earlier and sustained for more of the budget horizon.
+
+The secondary metric is final outer hypervolume, denoted \code{hv\_final} in the result artifacts. It is extracted from the final \code{hv} entry of each budget curve and uses the same outer reference point as AUBC. Final outer hypervolume measures the quality of the managed heuristic population at the end of a run. Higher final outer hypervolume is better. It should not be confused with the inner solution-level hypervolume computed inside each benchmark evaluator; Chapter~3 defines this inner--outer distinction in detail, and Table~\ref{tab:hv-reference-points} reports the reference points used for both levels.
+
+\subsection{Normalized Score}
+
+Normalized score is used to compare setups across heterogeneous task--budget cells. For AUBC and final HV, the implementation first computes the seed mean $\bar{v}^{(m)}_{s,t,b}$ for each setup in a cell. It then divides by the best mean value observed in the same cell:
+\begin{equation}
+  \mathrm{NS}^{(m)}_{s,t,b}
+  =
+  100
+  \frac{\bar{v}^{(m)}_{s,t,b}}
+       {\max_{s'\in\mathcal{S}} \bar{v}^{(m)}_{s',t,b}},
+  \qquad
+  m\in\{\mathrm{AUBC},\mathrm{FinalHV}\}.
+  \label{eq:normalized-score-chapter5}
+\end{equation}
+Here $\mathcal{S}$ is the set of compared setups. A score of 100 means that the setup has the best mean value in that task--budget cell. A score of 95 means that it reaches 95\% of the best observed mean value in that cell. Higher normalized score is better.
+
+This normalization is necessary because raw hypervolume scales are not comparable across tasks. For example, a small raw change on one benchmark may be practically important, while a larger raw change on another benchmark may be minor relative to that task's scale. Cell-wise normalization allows the overall summary to measure relative competitiveness rather than absolute magnitude.
+
+The mean normalized score reported in summary tables is
+\begin{equation}
+  \overline{\mathrm{NS}}^{(m)}_{s}
+  =
+  \frac{1}{|\mathcal{C}|}
+  \sum_{(t,b)\in\mathcal{C}}
+  \mathrm{NS}^{(m)}_{s,t,b},
+  \qquad |\mathcal{C}|=16.
+  \label{eq:mean-normalized-score-chapter5}
+\end{equation}
+The performance score is the arithmetic mean of the AUBC and final-HV mean normalized scores:
+\begin{equation}
+  \mathrm{Perf}(s)
+  =
+  \frac{
+    \overline{\mathrm{NS}}^{(\mathrm{AUBC})}_{s}
+    +
+    \overline{\mathrm{NS}}^{(\mathrm{FinalHV})}_{s}
+  }{2}.
+  \label{eq:performance-score-chapter5}
+\end{equation}
+
+\subsection{Mean Rank and Pairwise Wins}
+
+Mean rank provides an ordering-based summary. Within each task--budget cell and metric, the setups are sorted by their cell means. Since AUBC and final HV are both higher-is-better metrics, rank 1 is assigned to the largest cell mean. Ties are assigned the average of the tied rank positions, matching the aggregation script. The mean rank of setup $s$ for metric $m$ is
+\begin{equation}
+  \overline{\rho}^{(m)}_{s}
+  =
+  \frac{1}{|\mathcal{C}|}
+  \sum_{(t,b)\in\mathcal{C}}
+  \rho^{(m)}_{s,t,b}.
+  \label{eq:mean-rank-chapter5}
+\end{equation}
+Lower mean rank is better. Normalized score and mean rank should be interpreted together: normalized score measures closeness to the best observed value, while rank measures how consistently a setup is ordered ahead of the others.
+
+Pairwise wins are computed at the task--budget-cell level. For two setups $a$ and $b$, the pairwise win count for a higher-is-better metric is
+\begin{equation}
+  W^{(m)}_{a,b}
+  =
+  \sum_{(t,b)\in\mathcal{C}}
+  \mathbf{1}
+  \left[
+    \bar{v}^{(m)}_{a,t,b}
+    >
+    \bar{v}^{(m)}_{b,t,b}
+  \right].
+  \label{eq:pairwise-wins-chapter5}
+\end{equation}
+The maximum possible value is 16. A value of 16 means that setup $a$ has a higher mean value than setup $b$ in every task--budget cell.
+
+\section{Overall Main Comparison}
+
+Table~\ref{tab:all-overall-scores} summarizes the three main setups using the normalized-score and mean-rank definitions from Equations~\ref{eq:normalized-score-chapter5}--\ref{eq:performance-score-chapter5}. Each row is one setup. The AUBC and final-HV score columns report mean normalized scores over 16 task--budget cells. The rank columns report mean ranks over the same cells, where lower is better. The performance score averages the AUBC and final-HV normalized scores.
+
+\input{tables/all_overall_scores}
+
+Figure~\ref{fig:overall-scores} visualizes the same two normalized-score columns from Table~\ref{tab:all-overall-scores}. Each bar is the mean normalized score of one setup for either AUBC or final HV. Higher bars indicate stronger relative performance across the entire task--budget matrix.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{all_overall_normalized_scores.png}
+  \caption{Overall normalized scores for AUBC and final outer hypervolume across the main setups.}
+  \label{fig:overall-scores}
+\end{figure}
+
+Final-HV reward and Hybrid reward form the strongest pair in the main comparison. Final-HV reward obtains an AUBC normalized score of 96.7, a final-HV normalized score of 97.9, and a performance score of 97.3. Hybrid reward obtains essentially the same normalized scores, with an AUBC score of 96.7, a final-HV score of 97.9, and a performance score of 97.3. The rank columns separate the two slightly: Final-HV reward has the better mean rank on both AUBC and final HV, while Hybrid reward remains very close in normalized magnitude.
+
+MPaGE-orig is clearly separated in budget-integrated performance, with an AUBC normalized score of 76.6. Its final-HV normalized score is higher, at 91.5, which means that the original workflow can sometimes approach competitive terminal quality but tends to do so later in the budget trajectory. This distinction is central to the thesis: the proposed framework improves not only what is found by the end, but also how efficiently the budget is converted into useful heuristic populations during the run.
+
+\section{Task-Level Patterns}
+
+Table~\ref{tab:task-level-scores} breaks the normalized scores down by benchmark family. Each value is computed by normalizing within each task--budget cell and then averaging across the four budgets of that task. Rows are setups and columns are benchmark tasks. The table helps reveal whether the overall result is driven by one benchmark or appears across multiple problem structures.
+
+\input{tables/task_level_scores}
+
+Bi-TSP shows that the final-HV values of the three setups are close. MPaGE-orig reaches a final-HV normalized score of 99.7, matching Final-HV reward on this task-level average. However, its AUBC score remains lower than both reward-based variants. The main Bi-TSP advantage of the budget-aware scheduler is therefore faster conversion of budget into a useful population, not a much better endpoint.
+
+Tri-TSP provides a clearer budget-trajectory improvement. Final-HV scores are high and close for all setups, but MPaGE-orig has a substantially lower AUBC score. Hybrid reward obtains the strongest Tri-TSP AUBC normalized score, while Final-HV reward remains close. The tri-objective setting makes early coverage of the heuristic-population trade-off surface more important, so adaptive cluster and operator allocation is especially useful.
+
+Bi-CVRP has the largest AUBC gap against MPaGE-orig. The baseline AUBC normalized score is 66.1, while Final-HV reward and Hybrid reward reach 96.4 and 94.8, respectively. This is practically meaningful because Bi-CVRP includes route-capacity constraints and a route-structure representation. A scheduler that reallocates calls away from unproductive regions can therefore have a larger effect than on simpler permutation tasks.
+
+Bi-KP shows the clearest task-level difference between the two retained reward modes. Hybrid reward obtains the strongest final-HV normalized score on this task, 98.8, while Final-HV reward obtains 92.0. The AUBC scores are close, with Hybrid reward at 93.5 and Final-HV reward at 93.0. This suggests that the binary knapsack representation may benefit from combining immediate local improvement with final managed-population contribution.
+
+\section{Pairwise Cell-Level Comparison}
+
+Table~\ref{tab:all-pairwise-wins} reports pairwise task--budget wins using Equation~\ref{eq:pairwise-wins-chapter5}. Each entry counts how many of the 16 cells are won by the row setup against the column setup. The diagonal is omitted because a setup is not compared against itself. A larger value means that the row setup is more often better than the column setup for the corresponding metric.
+
+\input{tables/all_pairwise_wins}
+
+For AUBC, both reward-based variants are clearly stronger than MPaGE-orig. Final-HV reward wins 15 of 16 AUBC cells against MPaGE-orig, and Hybrid reward wins all 16. This is the strongest evidence that budget-aware scheduling improves budget-integrated behavior relative to the original MPaGE workflow.
+
+The comparison between Final-HV reward and Hybrid reward is closer. Final-HV reward wins 10 of 16 AUBC cells and 11 of 16 final-HV cells against Hybrid reward. Hybrid reward still wins 6 AUBC cells and 5 final-HV cells against Final-HV reward. Thus, the evidence does not support a claim of uniform dominance. Instead, Final-HV reward has the stronger rank profile, while Hybrid reward remains highly competitive and is particularly useful in cells where denser feedback helps. Figure~\ref{fig:pairwise-wins} visualizes the same pairwise cell-level structure for both metrics.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{all_aubc_pairwise_cell_wins.png}
+    \caption{AUBC}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{all_hv_final_pairwise_cell_wins.png}
+    \caption{Final HV}
+  \end{subfigure}
+  \caption{Pairwise task--budget win matrices for AUBC and final outer hypervolume.}
+  \label{fig:pairwise-wins}
+\end{figure}
+
+\section{AUBC Analysis}
+
+Figure~\ref{fig:all-aubc-mean} shows the raw mean AUBC values by task and budget. Each subplot corresponds to one benchmark task. The horizontal axis is the LLM-call budget, and each line is one setup. Each plotted point is the mean AUBC over five seeds for the corresponding setup, task, and budget. Higher values are better.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{all_aubc_mean_by_budget.png}
+  \caption{Mean AUBC by task and budget for the main experimental setups.}
+  \label{fig:all-aubc-mean}
+\end{figure}
+
+The central pattern is that both reward-based variants substantially outperform MPaGE-orig in budget-integrated performance. The gap is especially visible in Tri-TSP and Bi-CVRP, where MPaGE-orig tends to improve later in the budget trajectory. Since AUBC integrates the whole curve, delayed improvement is penalized even when final hypervolume eventually becomes competitive.
+
+Final-HV reward obtains the best AUBC value in 10 of the 16 task--budget cells and is among the top two in 15 cells. Hybrid reward obtains the best AUBC value in 6 cells and is among the top two in all 16 cells. These counts explain why the two variants have nearly identical normalized AUBC scores but different mean ranks. Final-HV reward more often takes first place, while Hybrid reward is consistently close to the best value.
+
+The AUBC result is particularly important at low and medium budgets. When $B=25$ or $B=50$, only a small number of useful generation opportunities remain after initialization and clustering overhead. Early scheduling decisions therefore have a large effect on the integral in Equation~\ref{eq:aubc-chapter5}. At $B=100$ and $B=200$, methods have more opportunities to recover from poor early choices, so final HV can become close even when AUBC remains different. This is why AUBC and final HV should be read together.
+
+\section{Budget-Curve Behavior}
+
+Figure~\ref{fig:all-budget-curves} shows mean outer-HV budget curves. Each subfigure fixes a total budget $B$. Within each subfigure, the four panels correspond to the four benchmark tasks. The horizontal axis is normalized budget, computed as consumed budget divided by total budget. For each setup, per-seed budget curves are first interpolated onto a common grid of 101 normalized-budget points; the plotted line is then the mean outer HV across the five seeds. The vertical axis is raw outer hypervolume, not normalized score.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{all_budget_curves_B25.png}
+    \caption{$B=25$}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{all_budget_curves_B50.png}
+    \caption{$B=50$}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{all_budget_curves_B100.png}
+    \caption{$B=100$}
+  \end{subfigure}
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{all_budget_curves_B200.png}
+    \caption{$B=200$}
+  \end{subfigure}
+  \caption{Mean outer hypervolume curves over normalized budget for the main experimental setups.}
+  \label{fig:all-budget-curves}
+\end{figure}
+
+The MPaGE-orig curve often looks like a step function: it remains flat over many budget intervals and then jumps when a useful heuristic changes the managed outer population. This behavior follows from the budget wrapper and profiler. Calls are charged for heuristic generation and clustering, but the recorded outer HV changes only when the current heuristic population changes enough to improve its outer hypervolume. Therefore, clustering calls, invalid or non-improving generated heuristics, and generated heuristics that are dominated by the current population can consume budget while leaving the curve unchanged. When a generated heuristic is finally accepted and improves the managed population, the curve jumps upward.
+
+The two reward-based variants often appear smoother in the seed-averaged plots. This does not mean that their hypervolume changes continuously; individual runs can still contain flat segments. The smoother appearance is produced by two supported mechanisms: the BMAB profiler records population updates at generation boundaries and after final pending-offspring flushing, and the plotted curve averages interpolated curves over five seeds. In addition, the reward-based scheduler can redirect calls during the run based on observed reward feedback, which tends to create more frequent incremental improvements in several cells. The resulting AUBC advantage is therefore a trajectory effect rather than only an endpoint effect.
+
+The y-value at normalized budget 1 corresponds to the mean final outer HV for the same setup, task, and budget when the plotted budget curve and the final-HV summary use the same per-run curve endpoints and the same grouping. It should not be compared directly with an overall normalized-score bar, because normalized-score figures divide by the best setup within each task--budget cell and then average across cells. In short, budget curves show raw seed-mean outer HV within a task, whereas the overall summary shows normalized cross-task competitiveness.
+
+Figure~\ref{fig:bmab-zoom-budget} excludes MPaGE-orig and zooms the $B=100$ curves for Final-HV reward and Hybrid reward. Each line is again a seed-mean interpolated outer-HV curve. The purpose of the figure is not to introduce a new metric, but to make smaller trajectory differences between the two reward designs visible after removing the baseline's larger scale differences.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{all_budget_curves_bmab_zoom_B100.png}
+  \caption{Zoomed reward-variant budget curves at $B=100$, excluding MPaGE-orig to make differences between Final-HV reward and Hybrid reward more visible.}
+  \label{fig:bmab-zoom-budget}
+\end{figure}
+
+\section{Final Hypervolume Analysis}
+
+Figure~\ref{fig:all-hv-mean} shows mean final outer hypervolume by task and budget. Each point is the mean of the final budget-curve endpoint over five seeds. Unlike AUBC, this metric ignores when improvement occurred; it measures only the terminal managed heuristic population after the budget has been consumed. Higher values are better.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{all_hv_final_mean_by_budget.png}
+  \caption{Mean final outer hypervolume by task and budget for the main experimental setups.}
+  \label{fig:all-hv-mean}
+\end{figure}
+
+Final-HV reward has the strongest terminal-quality rank profile overall. It obtains the best final-HV value in 9 of 16 cells and is among the top two in 15 cells. It also wins 13 of 16 final-HV cells against MPaGE-orig and 11 of 16 against Hybrid reward. This supports the design rationale of using final managed-population HV gain as a quality signal when endpoint population quality is the primary target.
+
+The final-HV results are nevertheless more mixed than the AUBC results. MPaGE-orig is weak in AUBC but still wins three final-HV cells against Final-HV reward and five final-HV cells against Hybrid reward. Hybrid reward is especially strong on Bi-KP. Therefore, the main advantage of the budget-aware variants is not that they always end with much larger final hypervolume. The more precise conclusion is that they improve the search trajectory and usually maintain or improve terminal population quality.
+
+Figure~\ref{fig:aubc-final-tradeoff} summarizes the relationship between AUBC and final HV. Each point is one setup. The horizontal coordinate is mean normalized AUBC score, and the vertical coordinate is mean normalized final-HV score. A point in the upper-right region indicates that the setup is strong in both budget efficiency and terminal quality.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{all_aubc_vs_final_hv_tradeoff.png}
+  \caption{Trade-off between mean normalized AUBC score and mean normalized final-HV score.}
+  \label{fig:aubc-final-tradeoff}
+\end{figure}
+
+Final-HV reward and Hybrid reward occupy the strongest region of the trade-off plot. MPaGE-orig is separated mainly by its lower AUBC score. This reinforces the practical interpretation: if LLM calls are expensive or runs may be interrupted, AUBC should receive substantial weight; if only the final artifact matters and the complete budget is guaranteed, final HV becomes more important.
+
+\section{Reward-Mode Interpretation}
+
+The two reward-based variants isolate the role of the main quality signal while keeping the finalized implementation otherwise unchanged. Final-HV reward evaluates a candidate by its effect after managed-population selection, aligning the bandit feedback directly with the final reported population. Hybrid reward adds immediate HVI feedback to that final-quality signal, making the reward less sparse while preserving the connection to final managed-population quality.
+
+The results support this interpretation, but they should be read carefully. Final-HV reward has the stronger final-HV rank profile and wins more pairwise cells against Hybrid reward. This confirms that a managed final-HV delta is a strong quality signal when terminal population quality is the target. At the same time, Hybrid reward achieves almost the same overall normalized scores and is among the top two AUBC setups in every task--budget cell. This suggests that immediate HVI provides useful additional feedback, especially when the strict managed-HV signal becomes sparse.
+
+The sparsity explanation is also consistent with the implementation. In Final-HV reward, a candidate receives quality credit only if the archive after $\mathrm{Manage}_N(\cdot)$ has higher outer HV than the archive before management. As the run progresses and the managed archive improves, such events become harder to produce. Hybrid reward addresses this by retaining the managed-HV term while adding a local HVI term that can respond to uncapped front expansion. The experimental evidence does not imply that Hybrid reward universally dominates Final-HV reward; rather, it shows that the hybrid signal is a competitive and more feedback-rich alternative.
+
+\section{Component Ablation Study}
+
+Ablation studies test whether individual components of the proposed framework contribute meaningfully to performance. The three completed ablations in this thesis are directly comparable to Final-HV reward because they preserve the same final-HV quality signal and change one scheduler or reward-side component at a time. This design makes the comparison narrower than the main reward-mode study: the baseline is always Final-HV reward, and the question is whether removing one component changes AUBC or final outer HV.
+
+Table~\ref{tab:ablation-settings} summarizes the ablation settings. The No budget annealing ablation disables the remaining-budget factor in the cluster-bandit exploration term. In the complete scheduler, exploration pressure decreases with remaining budget, which encourages the controller to become more exploitative near the end of a run. The ablation tests whether this annealing is useful. The No Page-Hinkley ablation effectively disables drift resets by setting the drift threshold high enough that resets do not occur in the analyzed runs. It tests whether non-stationarity handling matters for cluster-arm statistics.
+
+The No diversity reward ablation removes a reward-side term rather than an archive-management rule. In the implementation, the cumulative diversity index is computed as the mean pairwise Euclidean distance among valid heuristic score vectors:
+\begin{equation}
+  D(S)
+  =
+  \frac{1}{n(n-1)}
+  \sum_{i=1}^{n}
+  \sum_{\substack{j=1\\j\ne i}}^{n}
+  \lVert s_i-s_j\rVert_2,
+  \qquad S=\{s_1,\ldots,s_n\}.
+  \label{eq:cdi-ablation-chapter5}
+\end{equation}
+The Final-HV reward configuration includes the positive diversity gain $\max(0,D_{\mathrm{after}}-D_{\mathrm{before}})$ with weight $w_d=0.3$. The No diversity reward ablation sets $w_d=0$ while leaving the final-HV quality signal, rank smoothing, population management, non-dominated sorting, and crowding-distance truncation unchanged. Therefore, this ablation tests whether explicitly rewarding expansion of the heuristic score distribution improves the bandit feedback. Any behavioral effect is indirect: it changes the rewards used to update the operator and cluster bandits, which can then change future operator and cluster selections.
+
+\input{tables/ablation_settings}
+
+Table~\ref{tab:ablation-results} reports the ablation results. The first subtable normalizes Final-HV reward and the three ablations within the ablation comparison set. Because normalized scores are recomputed within this ablation set, the numbers are not expected to match the main-comparison table exactly. The second subtable reports percentage deltas relative to Final-HV reward, so negative values mean that removing the component decreased performance on average.
+
+\input{tables/ablation_results}
+
+Figure~\ref{fig:ablation-overall} visualizes the normalized ablation scores. Two patterns are visible. First, No budget annealing and No Page-Hinkley are both below Final-HV reward in performance score, indicating that these scheduler safeguards contribute positively on average. Second, No diversity reward is essentially tied with Final-HV reward and is slightly higher in the normalized ablation summary. This does not imply that diversity is harmful in general, because the margin is small and the cell-level effects are mixed. It does show, however, that the explicit diversity-gain reward is not a dominant source of the observed Final-HV performance in the current result matrix.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{ablation_overall_normalized_scores.png}
+  \caption{Overall normalized scores for the component ablation comparison.}
+  \label{fig:ablation-overall}
+\end{figure}
+
+Figure~\ref{fig:ablation-deltas} shows the task--budget deltas relative to Final-HV reward. Red cells indicate that the ablation is worse than Final-HV reward, and blue cells indicate that it is better. The figure shows that removing budget annealing usually hurts AUBC, with 13 losses out of 16 cells and a mean AUBC delta of $-6.3\%$. The largest task-level AUBC decrease appears on Bi-KP, and the tightest budget $B=25$ has an average AUBC decrease of $-15.3\%$. This pattern supports the intended role of budget annealing: when the budget is tight, late over-exploration is costly.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\linewidth]{ablation_delta_heatmaps.png}
+  \caption{Task--budget percentage deltas of the component ablations relative to Final-HV reward. Negative values indicate that the ablation is worse than Final-HV reward in that cell.}
+  \label{fig:ablation-deltas}
+\end{figure}
+
+The No Page-Hinkley ablation is more mixed. It wins 8 of 16 AUBC cells, but its mean AUBC delta is still negative at $-4.1\%$, and its mean final-HV delta is also $-4.1\%$. The strongest negative effects appear in Bi-KP and at $B=25$. This suggests that Page--Hinkley reset is not uniformly beneficial in every cell, but it improves average robustness in difficult or tight-budget settings. The result is consistent with the non-stationary nature of cluster rewards: a semantic cluster that is promising early can become less informative after repeated exploitation, so resetting stale statistics can prevent the cluster bandit from remaining overconfident.
+
+The No diversity reward ablation produces the most nuanced result. It wins 9 of 16 AUBC cells and 8 of 16 final-HV cells against Final-HV reward. Its mean delta is small but positive for both AUBC and final HV, at approximately $+0.7\%$. The median deltas are close to zero, which indicates that the effect is not a broad, uniform improvement. The task-level losses are also small on average: the worst AUBC task is Bi-TSP at $-0.4\%$, and the worst final-HV task is Bi-CVRP at $-1.2\%$. The heatmap nevertheless shows budget-dependent variation: the ablation is weaker at $B=50$ on average, but stronger at $B=200$. This pattern suggests that the diversity reward term interacts with task and budget conditions rather than providing a consistently positive marginal benefit.
+
+One plausible explanation is that diversity is already encouraged elsewhere in the pipeline. The managed population is selected by non-dominated sorting and crowding-distance truncation, and cluster-based parent selection can already expose the generator to different semantic regions of the heuristic population. Under these conditions, the additional CDI reward may sometimes be redundant. In some cells it may even shift bandit feedback toward score-space spread when final-HV gain would be a more direct signal. The correct interpretation is therefore cautious: budget annealing and Page--Hinkley reset are supported by the ablation evidence, whereas the explicit diversity reward term is not clearly necessary at the tested weight. The result motivates treating the diversity coefficient as a tunable regularizer rather than as an established indispensable component.
+
+\section*{Limitations of the Evidence}
+
+The local hardware environment is reported in Table~\ref{tab:experiment-hyperparameters}, but the implementation artifacts do not provide token usage, API latency, monetary cost, GPU utilization, or memory-utilization traces for the reported runs. No information was found in the source code or documentation for these runtime measurements. Consequently, the budget model in this chapter remains call-based.
+
+All reported HV and AUBC values are outer heuristic-population metrics. They are meaningful for comparing heuristic-design processes under the experimental framework used in this thesis, but they are not direct reproductions of the normalized inner-solver metrics reported in the original MPaGE paper.
+
+The component ablation evidence covers budget annealing, Page--Hinkley drift handling, and the diversity reward term, but it does not yet isolate every architectural component. The implementation also contains controls for operator-only scheduling and cluster-only scheduling. Complete result matrices for those controls are not part of the current thesis evidence. In addition, the diversity study only tests the default coefficient against zero; it does not sweep intermediate or larger diversity weights. Therefore, the chapter can draw conclusions about the analyzed components, but it cannot assign a precise causal contribution to every individual design choice in the framework.
+
+The analysis also remains quantitative rather than qualitative. It does not inspect the generated heuristic code to identify recurring algorithmic motifs. Such an analysis could reveal whether adaptive scheduling discovers genuinely different heuristic families or mainly reallocates budget among similar local variants. The saved samples make this possible, but it is outside the present scope.
+
+\section*{Chapter Summary}
+
+The result artifacts support four main findings. First, Final-HV reward and Hybrid reward substantially improve AUBC over MPaGE-orig, indicating that budget-aware scheduling improves how quickly useful heuristic populations are obtained. Second, Final-HV reward has the stronger final-HV rank profile, supporting the use of managed final-population HV gain as a terminal-quality-oriented reward signal. Third, Hybrid reward remains almost tied in normalized performance and is consistently competitive across task--budget cells, which supports the use of denser HVI feedback as a stabilizing complement to final-HV feedback. Fourth, the ablation results show that budget annealing and Page--Hinkley reset contribute positively on average, while the explicit diversity reward term has a mixed and small marginal effect under the tested configuration.
+
+Overall, the experiments support the thesis claim that LLM-call allocation is an algorithmically important part of MPaGE-style heuristic design. The evidence suggests that adaptive selection of operators, semantic regions, reward signals, and scheduler safeguards changes the budget trajectory of heuristic-population search while preserving strong terminal quality.
+
+\end{document}

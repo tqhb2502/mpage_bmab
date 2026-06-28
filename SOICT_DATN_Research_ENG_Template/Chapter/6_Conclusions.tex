@@ -1,0 +1,66 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\section{Summary}
+
+This thesis analyzed a budget-aware extension of MPaGE for LLM-based heuristic design in multi-objective combinatorial optimization. The proposed framework preserves MPaGE's core generative and evaluative mechanisms, including SEMO-style archive updates, Pareto Front Grid selection, semantic clustering, prompt-based heuristic generation, and benchmark evaluation. It extends this foundation with an adaptive scheduling layer that treats LLM calls as a scarce resource.
+
+The proposed \bmab{} method can be summarized as follows. Each generator or clusterer invocation is charged by a hard \texttt{BudgetTracker}. An operator-level UCB controller chooses between mutation and crossover. A cluster-level budgeted UCB controller selects semantic cluster--operator arms within each generation. Page--Hinkley drift detection resets stale cluster statistics when reward behavior changes. A bounded reward function converts heuristic-evaluation outcomes into bandit feedback using final managed-population hypervolume gain, diversity gain, rank smoothing, and invalid-code penalties. The profiler records budget curves, AUBC, bandit logs, and final population artifacts for analysis.
+
+At a broader level, this study shows that MPaGE-style heuristic design can be strengthened by making LLM-call allocation adaptive. MPaGE already provides a productive foundation through PFG selection, semantic clustering, and prompt-based variation. The contribution of the proposed framework is to place these mechanisms under a controller that learns which operators and semantic regions deserve additional budget during the run.
+
+\section{Main Contributions}
+
+The first contribution is the formulation of LLM-based heuristic design as a budget-constrained sequential decision problem. Rather than treating the budget merely as a stopping condition, this thesis makes budget consumption part of the algorithmic state and evaluates progress over the entire budget trajectory through AUBC.
+
+The second contribution is a two-level bandit scheduler for MPaGE-style heuristic generation. The operator bandit learns long-term preferences between mutation and crossover, while the cluster bandit adapts to the short-lived semantic clusters constructed in each generation. This structure is well matched to the thesis setting: operators are stable across the run, whereas cluster identities are local and non-stationary.
+
+The third contribution is the integration of non-stationarity handling through Page--Hinkley drift detection. Because a semantic cluster can become less useful after repeated exploitation, resetting stale cluster statistics is a practical mechanism for avoiding persistent overconfidence in outdated reward estimates.
+
+The fourth contribution is the reward and population-handling design used by the two thesis-facing quality-signal variants. The implementation rewards the actual generated child, supports Final-HV and Hybrid quality signals, prevents the last affordable call from being spent only on clustering, incorporates front-aware cluster priors, weights parents by PFG membership, and flushes pending valid offspring into the final population before result writing.
+
+The fifth contribution is an experimental and analysis pipeline that records not only terminal results but also the process by which budget is consumed. Artifacts such as \code{budget\_curve.json}, \code{aubc.json}, \code{bandit\_log.json}, and generated thesis figures support analysis of both final quality and budget efficiency.
+
+\section{Main Findings}
+
+The current result set provides strong practical evidence that BMAB-style scheduling improves budget efficiency over the original MPaGE workflow. Across the main comparison matrix, Final-HV reward wins 15 of 16 AUBC task--budget cells against MPaGE-orig, while Hybrid reward wins all 16 AUBC cells against MPaGE-orig. The largest qualitative differences appear in tasks where the baseline budget curve rises later, particularly Tri-TSP, Bi-CVRP, and Bi-KP.
+
+The evidence for final hypervolume is also favorable to Final-HV reward, but it remains more nuanced than AUBC. This setup has the best mean final-HV rank, nine best final-HV cells, and fifteen top-two final-HV cells. It also wins 13 of 16 final-HV cells against MPaGE-orig. Nevertheless, Hybrid reward and occasionally MPaGE-orig remain competitive in some terminal cells. Therefore, the correct conclusion is not uniform terminal domination, but improved budget trajectory with generally strong terminal quality.
+
+The reward-mode comparison clarifies an important trade-off between the two retained quality-signal variants. Final-HV reward has the strongest final-HV rank and wins more pairwise cells, whereas Hybrid reward remains almost tied in normalized AUBC and final-HV scores. These results show that final-HV feedback is well aligned with terminal population quality, while the hybrid signal provides a denser feedback design that remains highly competitive across task--budget cells.
+
+The component ablation results support a similarly cautious interpretation. Removing budget annealing and disabling Page--Hinkley drift handling both reduce average performance relative to Final-HV reward, especially in tighter or harder cells. Removing the diversity reward term, however, produces a mixed and small effect, with slightly positive average deltas in the analyzed matrix. This suggests that the explicit diversity bonus is not a decisive driver under the tested coefficient, possibly because population management and semantic clustering already preserve some diversity.
+
+The task-level analysis gives a more nuanced view. On Bi-TSP, several methods reach similar final-HV values, so the BMAB advantage is expressed mainly through better budget trajectory. On Tri-TSP, final-HV values are also close, but BMAB-style methods reach high outer HV earlier. On Bi-CVRP, the AUBC gap against MPaGE-orig is especially large, suggesting that adaptive scheduling is valuable when route feasibility and structured local moves make generation more fragile. On Bi-KP, hybrid reward is particularly competitive, which suggests that dense local feedback may be useful for binary item-selection representations.
+
+The most accurate empirical conclusion is therefore careful rather than absolute. The proposed method should not be described as uniformly dominating every setup on every metric. It should be described as consistently improving budget-integrated performance while maintaining strong terminal quality. This interpretation matches the research objective more closely than a final-HV-only summary would.
+
+\section{Limitations}
+
+The current result matrix includes the MPaGE baseline, the two thesis-facing BMAB quality-signal variants, and completed ablations for budget annealing, Page--Hinkley drift handling, and the diversity reward term. However, it does not include complete matrices for all component ablations. The implementation also contains switches for operator-level and cluster-level controls that are not analyzed in the current thesis evidence. Without complete result matrices for these variants, the thesis cannot isolate the causal contribution of every scheduler component.
+
+The local hardware environment is known, but the implementation artifacts do not provide GPU-utilization traces, memory-utilization traces, API latency, token-level cost, or monetary cost for the reported runs. No information was found in the source code or documentation for these runtime measurements. Consequently, the current budget model counts LLM calls rather than modeling heterogeneous token costs or real-time latency.
+
+Finally, the reported HV and AUBC values are outer heuristic-population metrics. They are meaningful for comparing budget-aware heuristic-design processes under the experimental framework used in this thesis, but they are not a direct reproduction of all inner-task solution-quality tables from the original MPaGE paper.
+
+The thesis is also limited by the absence of qualitative code analysis. The saved generated samples make it possible to inspect recurring heuristic motifs, invalid-generation patterns, or semantic differences between clusters, but the current study focuses on quantitative outer-population metrics. Such qualitative analysis would be useful for explaining why particular reward modes or task families behave differently.
+
+\section{Future Work}
+
+The most immediate future direction is to extend the component ablation matrix. The current thesis analyzes budget annealing, Page--Hinkley drift handling, and the zero-weight diversity ablation, but operator-only scheduling and cluster-only scheduling still require complete controlled sweeps. The diversity coefficient should also be studied through a weight sweep rather than only by comparing the default value against zero.
+
+A second direction is to extend the budget model from uniform call cost to token- or latency-aware cost. In practical LLM deployments, prompts and completions can differ substantially in length, and different models can have different price and latency profiles. A token-aware budgeted bandit would better reflect deployment constraints.
+
+A third direction is to log and analyze generation failures more precisely. Separating syntax errors, missing function definitions, runtime exceptions, infeasible outputs, and timeouts would support targeted prompt engineering and repair strategies. Such diagnostics could also clarify whether prompt robustness or reward allocation contributes more to AUBC gains.
+
+A fourth direction is to extend the search controller with higher-level planning mechanisms, such as prompt repair, memory over successful heuristic motifs, or structured exploration over operator sequences. These extensions should be evaluated carefully because any additional LLM calls must justify their cost under the same AUBC-oriented budget criterion.
+
+A fifth direction is adaptive reward scheduling. The current results show that Hybrid reward remains competitive by combining immediate HVI with managed final-HV feedback, while Final-HV reward is strongest in terminal-quality ranking. This suggests a natural schedule in which the controller uses more local feedback early and gradually shifts toward stricter final-HV feedback as the remaining budget decreases.
+
+A sixth direction is qualitative heuristic analysis. Since the implementation stores generated samples, future work can cluster or manually inspect the generated code to identify recurring local-search structures. This could answer questions that pure HV metrics cannot answer, such as whether successful heuristics share common move operators, whether invalid code arises from specific prompt patterns, or whether crossover actually combines useful motifs from two parents.
+
+\section{Final Remarks}
+
+This thesis demonstrates that budget allocation is a substantive algorithmic issue in LLM-driven heuristic design. By adding a two-level bandit scheduler, hard budget accounting, drift detection, and budget-curve profiling to MPaGE, the proposed framework turns a fixed-budget search loop into an adaptive resource-allocation process. The current experiments indicate that this design substantially improves budget-integrated performance, especially on more complex benchmark families. Although further ablations and reward-weight sweeps would strengthen the causal analysis, this thesis provides a coherent foundation for studying Generative AI heuristic design under realistic cost constraints.
+
+\end{document}

@@ -42,7 +42,7 @@ from mpage_bmab.experiments.aggregate import aggregate  # noqa: E402
 
 
 MAIN_METHODS = ["full", "mpage_orig", "hybrid_reward"]
-ABLATION_METHODS = ["full", "no_budget_anneal", "no_ph"]
+ABLATION_METHODS = ["full", "no_budget_anneal", "no_ph", "no_diversity"]
 THESIS_METHODS = sorted(set(MAIN_METHODS + ABLATION_METHODS))
 METHODS = list(MAIN_METHODS)
 TASKS = ["bi_tsp", "tri_tsp", "bi_cvrp", "bi_kp"]
@@ -71,10 +71,10 @@ TASK_LABELS = {
 METHOD_LABELS = {
     "full": "Final-HV reward",
     "mpage_orig": "MPaGE-orig",
-    "dense_reward": "Dense reward",
     "hybrid_reward": "Hybrid reward",
     "no_budget_anneal": "No budget annealing",
     "no_ph": "No Page-Hinkley",
+    "no_diversity": "No diversity reward",
 }
 
 METRIC_LABELS = {
@@ -90,19 +90,19 @@ METRIC_SHORT = {
 COLORS = {
     "full": "#2474A6",
     "mpage_orig": "#D55E00",
-    "dense_reward": "#6C757D",
     "hybrid_reward": "#2CA25F",
     "no_budget_anneal": "#CC79A7",
     "no_ph": "#8C6BB1",
+    "no_diversity": "#009E73",
 }
 
 MARKERS = {
     "full": "o",
     "mpage_orig": "^",
-    "dense_reward": "D",
     "hybrid_reward": "P",
     "no_budget_anneal": "s",
     "no_ph": "X",
+    "no_diversity": "v",
 }
 
 

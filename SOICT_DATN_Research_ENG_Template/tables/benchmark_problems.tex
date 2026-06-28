@@ -1,0 +1,22 @@
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.15\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}p{0.29\linewidth}>{\raggedright\arraybackslash}p{0.25\linewidth}@{}}
+\caption[Benchmark problem families]{Benchmark problem families used in the experimental evaluation.}
+\label{tab:benchmark-problems}\\
+\toprule
+Benchmark & Full name & Multi-objective formulation & Evaluation configuration \\
+\midrule
+\endfirsthead
+\toprule
+Benchmark & Full name & Multi-objective formulation & Evaluation configuration \\
+\midrule
+\endhead
+Bi-TSP & Bi-objective Traveling Salesman Problem & A solution is a permutation tour. Each city has two coordinate systems, and the tour length is minimized in both systems. & Four fixed instances with 20 cities. Each heuristic is applied for 2,000 inner calls per instance with a 60-second timeout. \\
+Tri-TSP & Tri-objective Traveling Salesman Problem & A solution is a permutation tour. Each city has three coordinate systems, producing three tour-length objectives to minimize. & Twenty fixed instances with 20 cities. Each heuristic is applied for 20,000 inner calls per instance with a 90-second timeout. \\
+Bi-CVRP & Bi-objective Capacitated Vehicle Routing Problem & A solution is a set of depot-rooted vehicle routes under capacity constraints. The objectives are total travel distance and route makespan. & Eight fixed instances with 100 customers and vehicle capacity 50. Each heuristic is applied for 6,000 inner calls per instance with a 90-second timeout. \\
+Bi-KP & Bi-objective Knapsack Problem & A solution is a binary item-selection vector under a capacity constraint. Each item has two profit values, so the objective is to maximize both total profits. & Eight fixed instances with 200 items and capacity 25. Each heuristic is applied for 8,000 inner calls per instance with a 90-second timeout. \\
+\bottomrule
+\end{longtable}
+\endgroup

@@ -97,7 +97,7 @@ The first key component is a SEMO-style heuristic population. Each generated heu
 
 The second key component is Pareto Front Grid (PFG) selection. PFG discretizes the heuristic objective space and selects representatives from different grid regions. This mechanism is designed to preserve useful variation along the heuristic Pareto front. The parameters \texttt{pfg\_gk}, \texttt{pfg\_sigma}, and \texttt{pfg\_epsilon} are retained in the BMAB implementation.
 
-The third key component is LLM-based semantic clustering. Rather than grouping heuristics only by numerical score, MPaGE asks an LLM to cluster heuristic descriptions or code by algorithmic similarity. Mutation is then applied within a semantic cluster, while crossover can combine heuristics across clusters. The implementation retains the original MPaGE prompt families for initialization, mutation, crossover, and clustering.
+The third key component is LLM-based semantic clustering. Rather than grouping heuristics only by numerical score, MPaGE asks an LLM to cluster heuristic descriptions or code by algorithmic similarity. Mutation is then applied within a semantic cluster, while crossover can combine heuristics across clusters. The implementation retains the original MPaGE prompt families for initialization, mutation, crossover, and clustering. Figure~\ref{fig:mpage-overview} summarizes the original MPaGE workflow, and Figure~\ref{fig:mpage-selection} shows the PFG selection mechanism that is retained as part of the proposed framework.
 
 \begin{figure}[H]
   \centering

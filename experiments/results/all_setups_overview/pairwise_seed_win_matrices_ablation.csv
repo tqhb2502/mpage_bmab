@@ -1,7 +1,9 @@
-metric,row_method,full_wins,full_ties,full_losses,full,no_budget_anneal_wins,no_budget_anneal_ties,no_budget_anneal_losses,no_budget_anneal,no_ph_wins,no_ph_ties,no_ph_losses,no_ph
-aubc,full,0,80,0,0/80,42,0,38,42/80,38,0,42,38/80
-aubc,no_budget_anneal,38,0,42,38/80,0,80,0,0/80,35,0,45,35/80
-aubc,no_ph,42,0,38,42/80,45,0,35,45/80,0,80,0,0/80
-hv_final,full,0,80,0,0/80,49,0,31,49/80,40,0,40,40/80
-hv_final,no_budget_anneal,31,0,49,31/80,0,80,0,0/80,27,0,53,27/80
-hv_final,no_ph,40,0,40,40/80,53,0,27,53/80,0,80,0,0/80
+metric,row_method,full_wins,full_ties,full_losses,full,no_budget_anneal_wins,no_budget_anneal_ties,no_budget_anneal_losses,no_budget_anneal,no_ph_wins,no_ph_ties,no_ph_losses,no_ph,no_diversity_wins,no_diversity_ties,no_diversity_losses,no_diversity
+aubc,full,0,80,0,0/80,42,0,38,42/80,38,0,42,38/80,40,0,40,40/80
+aubc,no_budget_anneal,38,0,42,38/80,0,80,0,0/80,35,0,45,35/80,32,0,48,32/80
+aubc,no_ph,42,0,38,42/80,45,0,35,45/80,0,80,0,0/80,38,0,42,38/80
+aubc,no_diversity,40,0,40,40/80,48,0,32,48/80,42,0,38,42/80,0,80,0,0/80
+hv_final,full,0,80,0,0/80,49,0,31,49/80,40,0,40,40/80,41,0,39,41/80
+hv_final,no_budget_anneal,31,0,49,31/80,0,80,0,0/80,27,0,53,27/80,31,0,49,31/80
+hv_final,no_ph,40,0,40,40/80,53,0,27,53/80,0,80,0,0/80,36,0,44,36/80
+hv_final,no_diversity,39,0,41,39/80,49,0,31,49/80,44,0,36,44/80,0,80,0,0/80

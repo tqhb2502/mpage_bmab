@@ -11,12 +11,12 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {5.1}{\ignorespaces Overall normalized scores for AUBC and final outer hypervolume across the main setups.}}{59}{figure.caption.16}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Pairwise task--budget win matrices for AUBC and final outer hypervolume.}}{62}{figure.caption.19}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Pairwise task--budget win matrices for AUBC and final outer hypervolume.}}{63}{figure.caption.19}%
 \contentsline {figure}{\numberline {5.3}{\ignorespaces Mean AUBC by task and budget for the main experimental setups.}}{63}{figure.caption.20}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Mean outer hypervolume curves over normalized budget for the main experimental setups.}}{64}{figure.caption.21}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Mean outer hypervolume curves over normalized budget for the main experimental setups.}}{65}{figure.caption.21}%
 \contentsline {figure}{\numberline {5.5}{\ignorespaces Zoomed reward-variant budget curves at $B=100$, excluding MPaGE-orig to make differences between Final-HV reward and Hybrid reward more visible.}}{66}{figure.caption.22}%
 \contentsline {figure}{\numberline {5.6}{\ignorespaces Mean final outer hypervolume by task and budget for the main experimental setups.}}{67}{figure.caption.23}%
 \contentsline {figure}{\numberline {5.7}{\ignorespaces Trade-off between mean normalized AUBC score and mean normalized final-HV score.}}{68}{figure.caption.24}%
-\contentsline {figure}{\numberline {5.8}{\ignorespaces Overall normalized scores for the component ablation comparison.}}{71}{figure.caption.27}%
-\contentsline {figure}{\numberline {5.9}{\ignorespaces Task--budget percentage deltas of the component ablations relative to Final-HV reward. Negative values indicate that the ablation is worse than Final-HV reward in that cell.}}{71}{figure.caption.28}%
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Overall normalized scores for the component ablation comparison.}}{72}{figure.caption.27}%
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Task--budget percentage deltas of the component ablations relative to Final-HV reward. Negative values indicate that the ablation is worse than Final-HV reward in that cell.}}{72}{figure.caption.28}%
 \addvspace {10\p@ }

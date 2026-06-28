@@ -1,0 +1,88 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\section{Research Context}
+
+Multi-objective combinatorial optimization is a central problem class in computer science. It appears in routing, scheduling, resource allocation, logistics, packing, and system design. Unlike single-objective optimization, the goal is not to identify one globally best solution under a scalar criterion. Instead, the algorithm must approximate a set of Pareto-optimal trade-offs, where improving one objective may necessarily degrade another. This requirement makes the design of effective search heuristics substantially more difficult, particularly when the feasible space is discrete and grows combinatorially with the problem size.
+
+In many multi-objective combinatorial optimization problems (MOCOPs), the effectiveness of a heuristic depends strongly on the structure of the target task. A neighborhood rule that works well for a bi-objective traveling salesman problem may not transfer directly to a capacitated vehicle routing problem or a bi-objective knapsack problem. This task dependence motivates automatic heuristic design: instead of manually specifying every search rule, a system can generate candidate heuristic programs, execute them in a controlled evaluator, and retain the programs that produce stronger Pareto-front approximations.
+
+Recent work has explored the use of large language models (LLMs) as program generators for this purpose. The MPaGE framework proposes Pareto-Grid-Guided LLMs for heuristic design in multi-objective combinatorial optimization \cite{ha2026mpage}. Its main mechanism combines LLM-generated heuristic code, SEMO-style multi-objective evolution, Pareto Front Grid (PFG) selection, and LLM-based semantic clustering. This thesis builds on that foundation but addresses a narrower resource-allocation question: when the number of LLM calls is limited, how should the system allocate those calls to obtain useful heuristic populations earlier and more reliably?
+
+This question is important because LLM-based heuristic design differs from ordinary evolutionary search in both cost structure and failure behavior. In a classical evolutionary algorithm, generating one additional mutation can often be treated as a relatively cheap operation compared with evaluating the population. In an LLM-driven system, however, each candidate heuristic requires a model call, prompt construction, response parsing, code extraction, execution in a sandboxed evaluator, and population update. The generated program may be syntactically valid but semantically useless, or it may fail because it violates a task-specific contract. Therefore, the design of the outer search policy is not only an algorithmic preference; it directly determines how a scarce generative resource is converted into validated executable heuristics.
+
+The study also has broader research relevance within generative AI. Many applications of LLMs use a generate--evaluate--select loop, but the scheduling of generation calls is often treated as a fixed engineering detail. In contrast, this thesis studies generation as a sequential decision process. The LLM is not fine-tuned, and it is not used as an autonomous multi-agent planner. Instead, it acts as a stochastic program generator embedded inside an optimization loop whose state, rewards, and budget consumption are explicitly measured. This framing makes the proposed framework a concrete example of how generative models can be combined with classical decision-theoretic control.
+
+\section{Problem Statement}
+
+The available implementation documentation identifies budget allocation as a practical limitation of the baseline MPaGE workflow. MPaGE already provides a productive mechanism for generating and evolving heuristic programs, but its scheduling policy is comparatively static. In each generation, the system selects heuristic elites, clusters them semantically, applies mutation or crossover prompts, evaluates the resulting code, and updates the heuristic population. This process is effective as a heuristic-design loop, but it does not explicitly learn which operator or semantic region is currently yielding the most valuable improvement per LLM call.
+
+This limitation matters because an LLM call is not a free computational step. It consumes API budget, wall-clock time, and experimental opportunity. Moreover, not every generated program is valid: some candidates fail to parse, violate the expected function signature, time out, or return infeasible outputs during evaluation. Therefore, the outer loop of LLM-driven heuristic design must be treated not only as an optimization process over generated programs, but also as a sequential decision problem under a hard budget.
+
+The central problem studied in this thesis is therefore the following:
+
+\begin{quote}
+How can an MPaGE-style LLM heuristic-design system allocate a fixed budget of generation and clustering calls so that the managed heuristic population achieves high hypervolume earlier, while preserving the final quality and diversity of the heuristic Pareto front?
+\end{quote}
+
+The problem is deliberately formulated at the level of \emph{heuristic-population search}. Each generated program is evaluated by an inner solver on fixed benchmark instances, but the proposed method does not directly optimize tours, vehicle routes, or knapsack vectors. Instead, it optimizes a population of heuristic programs that can produce such solutions. This creates a two-level structure: the inner level measures how well a heuristic solves a benchmark problem, while the outer level decides which heuristic programs should survive and which future generation calls should be made. Confusing these two levels can lead to incorrect interpretations of the results, so the thesis consistently distinguishes inner solution-level quality from outer heuristic-population quality.
+
+\section{Research Questions}
+
+The thesis is organized around three research questions.
+
+\begin{enumerate}
+  \item \textbf{Budget efficiency.} Does a budget-aware scheduling policy improve the area under the outer hypervolume-vs-budget curve compared with the budget-wrapped MPaGE baseline?
+  \item \textbf{Terminal quality.} Does improving budget efficiency also preserve or improve final heuristic-population hypervolume, or does it merely move progress earlier without changing the final population?
+  \item \textbf{Reward design.} How do Final-HV reward and Hybrid reward differ in practice when all other finalized implementation components are held fixed?
+\end{enumerate}
+
+These questions are narrower than a complete re-evaluation of MPaGE across every table in the original paper. They focus on the budgeted outer search process implemented in this thesis. This choice is intentional. The most distinctive contribution of the study is not a new benchmark task or a new LLM prompt family, but a controller that decides how to spend a fixed call budget across operators and semantic regions.
+
+\section{Research Motivation}
+
+The motivation for this thesis is supported by three observations found directly in the implementation and experimental artifacts.
+
+First, the implementation treats LLM calls as a limited resource. The system includes a hard budget tracker that records budget consumption through explicit charging operations. Both the proposed method and the MPaGE baseline wrapper receive the same budget argument so that methods can be compared under a common call budget.
+
+Second, generated heuristics can be invalid or uninformative. The secure evaluation layer executes generated programs in a separate process and may return a null score when the code is syntactically invalid, semantically incompatible with the task, or exceeds the allowed runtime. This makes each LLM call a risky investment rather than a guaranteed source of improvement.
+
+Third, terminal hypervolume alone is insufficient for evaluating a budget-constrained LLM search process. As defined in the metric formulation used throughout this thesis, AUBC is the area under the hypervolume-vs-budget curve and measures how quickly a method converts consumed budget into heuristic-population quality. Two methods may reach similar final hypervolume, but the method that reaches high-quality fronts earlier is more useful when LLM calls are expensive or when a run may be stopped before exhausting a large budget.
+
+These observations motivate a controller that learns from the outcomes of previous generation calls. If crossover in one generation produces valid and diverse children, it should become more attractive; if a semantic cluster becomes saturated and no longer improves the population, it should receive fewer calls. Conversely, unexplored operators or clusters should not be abandoned too early, because the apparent lack of reward may be caused by limited evidence. This is precisely the exploration--exploitation tension studied in multi-armed bandits. The novelty in this thesis is the adaptation of that idea to the MPaGE heuristic-design loop, where arms correspond to variation operators and semantic cluster--operator combinations rather than ordinary solution-space moves.
+
+The motivation is also practical for experimental research. LLM calls can make large grids of experiments expensive and time-consuming. A method that reaches a competitive heuristic population using fewer useful calls can make iterative research faster, especially during ablation studies, prompt debugging, and preliminary task exploration. AUBC is therefore not merely a secondary metric; it is a way of measuring whether the system makes meaningful progress throughout the budget horizon.
+
+\section{Research Objectives}
+
+The thesis has five concrete objectives.
+
+\begin{enumerate}
+  \item Analyze the MPaGE baseline and identify the retained components, including the task templates, prompt families, semantic clustering, PFG selection, and secure evaluation infrastructure.
+  \item Present the proposed \bmab{} method as a budget-aware extension of MPaGE. The discussion covers hard budget accounting, operator-level bandit scheduling, cluster-level bandit scheduling, Page--Hinkley drift detection, final-HV-oriented reward computation, budget-aware exploration annealing, and final population flushing.
+  \item Explain the system implementation, benchmark evaluators, experimental harness, and reproducibility artifacts at a level sufficient for reproducing the experimental protocol.
+  \item Analyze the available experimental evidence summarized in the thesis tables and figures, focusing on AUBC, final hypervolume, normalized scores, mean ranks, pairwise task--budget wins, and budget-curve behavior.
+  \item Draw evidence-controlled conclusions. Claims are made only when they are supported by source code, documentation, or experimental artifacts. When information is absent, the thesis explicitly states that no information was found in the source code or documentation.
+\end{enumerate}
+
+\section{Research Scope}
+
+The empirical scope of this thesis is the analyzed comparison matrix represented by the thesis tables and figures. The main matrix contains three thesis-facing setups: Final-HV reward, Hybrid reward, and MPaGE-orig as the original workflow wrapped under the same budget-recording protocol. The evaluated tasks are Bi-TSP, Tri-TSP, Bi-CVRP, and Bi-KP. The LLM-call budgets are $25$, $50$, $100$, and $200$. Each task--budget--setup cell is run with five seeds, from 2025 to 2029, according to the experimental matrix described in Chapter~5.
+
+Several additional ablation variants are implemented, including controls for budget annealing, Page--Hinkley drift handling, diversity reward, operator-only scheduling, and cluster-only scheduling. Chapter~5 analyzes the completed No budget annealing, No Page-Hinkley, and No diversity reward matrices. The remaining unexecuted or incomplete ablations are treated as future work rather than as established empirical findings.
+
+The thesis does not re-evaluate the benchmark tables reported in the original MPaGE paper. The available result files measure outer heuristic-population hypervolume and AUBC under the experimental framework used in this study. They should therefore be interpreted as evidence about budget-aware heuristic-population search, not as a direct reproduction of all normalized inner-solver metrics in the original paper.
+
+The implementation does not provide evidence of LLM fine-tuning, LoRA, PEFT, retrieval-augmented generation, diffusion models, GANs, knowledge distillation, or multi-agent autonomous planning. These topics are therefore not claimed as contributions of this thesis.
+
+\section{Research Methodology}
+
+The thesis follows an evidence-based implementation analysis methodology. The first stage inspects README files, design documents, implementation modules, evaluator definitions, scripts, result files, and generated figures to reconstruct the research problem and implementation architecture. The second stage organizes the mathematical and algorithmic foundations around multi-objective optimization, hypervolume, LLM-based program synthesis, adaptive operator selection, budgeted multi-armed bandits, and online drift detection. The third stage analyzes the result CSV and JSON files using the metrics defined for this study, particularly AUBC and final hypervolume.
+
+The primary empirical metric is AUBC because it directly evaluates budget efficiency. Final hypervolume is used as a complementary terminal-quality metric. Chapter~5 reports normalized scores, mean ranks, cell-level pairwise wins, and budget curves generated from the result artifacts.
+
+\section{Thesis Organization}
+
+Chapter~2 reviews the theoretical background and related work: multi-objective combinatorial optimization, Pareto dominance, hypervolume, MPaGE, LLM-based program generation, multi-armed bandits, budgeted bandits, Page--Hinkley drift detection, and AUBC. Chapter~3 presents the proposed \bmab{} method in detail, including the problem formulation, architecture, reward computation, bandit scheduler, and complete workflow. Chapter~4 describes the system implementation, benchmark evaluators, experimental harness, output artifacts, and reproducibility constraints. Chapter~5 analyzes the available experimental results and discusses the observed trends, limitations, and practical significance. Chapter~6 concludes the thesis and outlines future research directions.
+
+\end{document}

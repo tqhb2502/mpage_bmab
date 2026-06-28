@@ -1,0 +1,19 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\begin{center}
+    \Large{\textbf{ABSTRACT}}\\
+\end{center}
+\vspace{1cm}
+This thesis studies how a finite budget of large language model (LLM) calls can be allocated more effectively in automatic heuristic design for multi-objective combinatorial optimization. The study builds on MPaGE, a framework that combines LLM-based program generation, SEMO-style multi-objective evolution, Pareto Front Grid selection, and semantic clustering of generated heuristics. The proposed framework replaces the largely fixed scheduling policy with a two-level budgeted multi-armed bandit controller: the first level selects the variation operator, and the second level selects the semantic cluster to exploit in the current generation. The implementation also introduces explicit budget accounting, Page--Hinkley drift detection, bounded reward computation, reward alignment mechanisms, and the area under the budget curve (AUBC) as a budget-efficiency metric.
+
+This thesis synthesizes the theoretical background, system architecture, implementation details, and experimental evidence available in the implementation and result artifacts. The main comparison contains 240 runs over three setups, four benchmark problem families, four LLM-call budgets, and five random seeds. The analyzed setups are Final-HV reward, Hybrid reward, and the budget-wrapped MPaGE-orig baseline. Three component ablations examine budget annealing, Page--Hinkley drift handling, and the diversity reward term. The empirical evidence indicates that the BMAB-style variants substantially improve AUBC over MPaGE-orig. Final-HV reward provides the strongest final-HV ranking, while Hybrid reward remains almost tied in normalized performance and provides a denser feedback design that is competitive across task--budget cells.
+
+\begin{flushright}
+\begin{tabular}{@{}c@{}}
+Student\\
+\textit{(Signature and full name)}
+\end{tabular}
+\end{flushright}
+
+\end{document}
