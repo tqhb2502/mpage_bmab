@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber main"] 1782636100.65563 "main.bcf" "main.bbl" "main" 1782641360.88056 0
-  "main.bcf" 1782641360.7366 109228 72c8fbfb773d0c7658035dd6bac11cff "pdflatex"
+["biber main"] 1782636100.65563 "main.bcf" "main.bbl" "main" 1782641843.22887 0
+  "main.bcf" 1782641843.08412 109228 72c8fbfb773d0c7658035dd6bac11cff "pdflatex"
   "reference.bib" 1781969861.1651 3968 889a418da582375247459fe63ef53504 ""
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1782641355.91402 "main.tex" "main.pdf" "main" 1782641360.88077 0
+["pdflatex"] 1782641838.23956 "main.tex" "main.pdf" "main" 1782641843.22908 0
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/vntex/t5.enc" 1136849721 7824 21ade6c3c7fd67cb4ace8dbc91c53118 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -358,7 +358,7 @@
   "Chapter/5_Numerical_results.tex" 1782633839.90224 39903 4a3302f4b671dc57c60e253adcf64ea8 ""
   "Chapter/6_Conclusions.tex" 1782633839.90244 11584 fc02077e1dcac852feecdb36cb9b0714 ""
   "Cover.tex" 1782641345.1659 1052 2c1b38b0a201c8d276bea719463102dc ""
-  "Cover2.tex" 1782641345.24968 1137 b5eca8fff380ff67c6ea91607b6899cb ""
+  "Cover2.tex" 1782641832.42048 1163 a402b30de51ba1aaf72a7f82a380bd35 ""
   "Figure/ablation_delta_heatmaps.png" 1782619079.04224 197302 7529d79543f41e9bb3bba123c95f4932 ""
   "Figure/ablation_overall_normalized_scores.png" 1782619079.04111 98018 bd9dfeb0dd8783b00b27afdfef639c22 ""
   "Figure/all_aubc_mean_by_budget.png" 1782488691.51457 266456 ac3c04aa56fec7df7ced4292eb715503 ""
@@ -378,13 +378,13 @@
   "Figure/mpage_overview.png" 1781062599.71651 344353 9c081caf22ffbebed6bbfa3d0b66972e ""
   "Figure/mpage_selection.png" 1781062599.708 204752 aa150481a814fe87c55ad9a7030844e4 ""
   "glossary.tex" 1782633839.90289 1562 47ba3ded5842d64a26528d24c6410c5f ""
-  "main.aux" 1782641360.72508 62180 634839a0b58f066ce3d99e29aff5b32d "pdflatex"
+  "main.aux" 1782641843.07269 62180 634839a0b58f066ce3d99e29aff5b32d "pdflatex"
   "main.bbl" 1782636102.08562 23169 de30b810944584b08fb81225a7aa8d69 "biber main"
-  "main.lof" 1782641360.73724 3990 796aa60273be46624f9c13dd0d8cfac9 "pdflatex"
-  "main.lot" 1782641360.73726 1670 90de25a7308c4e4146f3af2a154c5a99 "pdflatex"
-  "main.run.xml" 1782641360.73713 2401 f29679a893e1f8b9354418903068c3fe "pdflatex"
+  "main.lof" 1782641843.08478 3990 796aa60273be46624f9c13dd0d8cfac9 "pdflatex"
+  "main.lot" 1782641843.0848 1670 90de25a7308c4e4146f3af2a154c5a99 "pdflatex"
+  "main.run.xml" 1782641843.08467 2401 f29679a893e1f8b9354418903068c3fe "pdflatex"
   "main.tex" 1782640717.41188 5504 0b25ba8fc6746308b4788bd0f70c6068 ""
-  "main.toc" 1782641360.73718 8677 4190df4d3f5ab998807164a7424e7f9d "pdflatex"
+  "main.toc" 1782641843.08472 8677 4190df4d3f5ab998807164a7424e7f9d "pdflatex"
   "tables/ablation_results.tex" 1782619172.62831 1755 95591b561e132aa8e023e893c653194c ""
   "tables/ablation_settings.tex" 1782621209.9912 1581 a931556ea1497feb5a8be26fef6c4034 ""
   "tables/all_overall_scores.tex" 1782488769.83377 650 c2f1e305d6a718a2129620df3c89b70a ""
